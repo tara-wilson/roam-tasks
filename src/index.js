@@ -105,7 +105,7 @@ const REVIEW_STEP_COMPLETED_7D_SETTING = "bt-review-step-completed-7d";
 const REVIEW_STEP_UPCOMING_7D_SETTING = "bt-review-step-upcoming-7d";
 const REVIEW_STEP_OVERDUE_SETTING = "bt-review-step-overdue";
 const REVIEW_STEP_SOMEDAY_SETTING = "bt-review-step-someday";
-const TODAY_WIDGET_ANCHOR_TEXT_DEFAULT = "Tasks";
+const TODAY_WIDGET_ANCHOR_TEXT_DEFAULT = "**Today's Tasks**";
 const TODAY_WIDGET_ANCHOR_TEXT_LEGACY = [
   "BetterTasks Today Widget",
   "Better Tasks - Today",
