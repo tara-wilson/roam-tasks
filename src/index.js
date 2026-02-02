@@ -59,10 +59,10 @@ const AI_SYSTEM_PROMPT = [
   'Required: { "title": string }',
   'Optional: "repeatRule", "dueDateText", "startDateText", "deferDateText", "project", "context", "priority", "energy".',
   'priority/energy must be one of: "low", "medium", "high", or null.',
-  "Dates: prefer Roam page links like [[November 18th, 2025]]; if unsure, use short phrases like \"next Monday\" (not bare weekday names).",
-  "If you see time (e.g., 3pm), include it only in dueDateText/startDateText (e.g., \"next Wednesday at 3pm\").",
+  'Dates: prefer Roam page links like [[November 18th, 2025]]; if unsure, use short phrases like "next Monday" (not bare weekday names).',
+  'If you see time (e.g., 3pm), include it only in dueDateText/startDateText (e.g., "next Wednesday at 3pm").',
   "For wording that implies when work can start (beginning/starting/available/from/after), use startDateText; for deadlines (by/before/due), use dueDateText; for postponement, use deferDateText.",
-  "For vague spans like \"this week/this weekend/this month/this quarter\", prefer concrete dates (start of span for startDateText, end of span for dueDateText when only one date is given).",
+  'For vague spans like "this week/this weekend/this month/this quarter", prefer concrete dates (start of span for startDateText, end of span for dueDateText when only one date is given).',
   "Please consider words like every, each, daily, weekly, monthly, yearly, annually, weekdays, weekends, biweekly, fortnightly, quarterly, semiannual(ly), semi-annual(ly), twice a year, every N days/weeks/months/years as indicators of repeat rules.",
   "Keep scheduling details (repeat/dates) OUT of the title; place them only in repeatRule/dueDateText/startDateText/deferDateText. The title should just be the task text.",
   "Do not invent details not implied.",
@@ -71,7 +71,15 @@ const AI_SYSTEM_PROMPT = [
 const START_ICON = "⏱";
 const DEFER_ICON = "⏳";
 const DUE_ICON = "📅";
-const WEEK_START_OPTIONS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const WEEK_START_OPTIONS = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
 const GTD_STATUS_ORDER = ["next action", "delegated", "deferred", "someday"];
 const PARENT_WRITE_DELAY_MS = 120;
 const TOAST_HIDE_DELAY_MS = 120;
@@ -97,8 +105,11 @@ const REVIEW_STEP_COMPLETED_7D_SETTING = "bt-review-step-completed-7d";
 const REVIEW_STEP_UPCOMING_7D_SETTING = "bt-review-step-upcoming-7d";
 const REVIEW_STEP_OVERDUE_SETTING = "bt-review-step-overdue";
 const REVIEW_STEP_SOMEDAY_SETTING = "bt-review-step-someday";
-const TODAY_WIDGET_ANCHOR_TEXT_DEFAULT = "Better Tasks - Today";
-const TODAY_WIDGET_ANCHOR_TEXT_LEGACY = ["BetterTasks Today Widget", "Better Tasks - Today"];
+const TODAY_WIDGET_ANCHOR_TEXT_DEFAULT = "Tasks";
+const TODAY_WIDGET_ANCHOR_TEXT_LEGACY = [
+  "BetterTasks Today Widget",
+  "Better Tasks - Today",
+];
 const TODAY_WIDGET_PANEL_CHILD_TEXT = "";
 const TODAY_WIDGET_PANEL_CHILD_TEXT_LEGACY = ["Today Widget Panel"];
 const PILL_THRESHOLD_SETTING = "bt-pill-checkbox-threshold";
@@ -195,10 +206,11 @@ let themeSyncTimer = null;
 let lastThemeSample = null;
 let roamStudioToggleObserver = null;
 let btPendingRoamStudioTheme = false;
-const ReactDOMGlobal = typeof window !== "undefined" ? window.ReactDOM || null : null;
+const ReactDOMGlobal =
+  typeof window !== "undefined" ? window.ReactDOM || null : null;
 const ReactGlobal = typeof window !== "undefined" ? window.React || null : null;
 
-class DashboardErrorBoundary extends (ReactGlobal?.Component || class { }) {
+class DashboardErrorBoundary extends (ReactGlobal?.Component || class {}) {
   constructor(props) {
     super(props);
     this.state = { error: null, info: null };
@@ -207,7 +219,11 @@ class DashboardErrorBoundary extends (ReactGlobal?.Component || class { }) {
     try {
       // info.componentStack is the most useful thing to identify which component is looping/crashing.
       console.error("[BetterTasks] Dashboard render crashed", error);
-      if (info?.componentStack) console.error("[BetterTasks] Dashboard component stack:", info.componentStack);
+      if (info?.componentStack)
+        console.error(
+          "[BetterTasks] Dashboard component stack:",
+          info.componentStack,
+        );
     } finally {
       this.setState({ error, info });
     }
@@ -222,7 +238,12 @@ class DashboardErrorBoundary extends (ReactGlobal?.Component || class { }) {
               <p>Dashboard failed to render. Check console for details.</p>
             </div>
             <div className="bt-dashboard__header-actions">
-              <button type="button" className="bp3-button bp3-small" aria-label="Close" onClick={this.props?.onRequestClose}>
+              <button
+                type="button"
+                className="bp3-button bp3-small"
+                aria-label="Close"
+                onClick={this.props?.onRequestClose}
+              >
                 ✕
               </button>
             </div>
@@ -285,7 +306,12 @@ async function flushDashboardNotifyQueue() {
   }
 }
 
-function DashboardRoot({ controller, onRequestClose, onHeaderReady, language }) {
+function DashboardRoot({
+  controller,
+  onRequestClose,
+  onHeaderReady,
+  language,
+}) {
   return (
     <DashboardErrorBoundary onRequestClose={onRequestClose}>
       <DashboardApp
@@ -308,7 +334,17 @@ const DOW_MAP = {
   saturday: "SA",
 };
 const DOW_IDX = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
-const ORD_MAP = { "1st": 1, "first": 1, "2nd": 2, "second": 2, "3rd": 3, "third": 3, "4th": 4, "fourth": 4, "last": -1 };
+const ORD_MAP = {
+  "1st": 1,
+  first: 1,
+  "2nd": 2,
+  second: 2,
+  "3rd": 3,
+  third: 3,
+  "4th": 4,
+  fourth: 4,
+  last: -1,
+};
 const DOW_ALIASES = {
   su: "sunday",
   sun: "sunday",
@@ -338,8 +374,18 @@ const DOW_ALIASES = {
 const DOW_ORDER = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
 const DEFAULT_WEEK_START_CODE = "MO";
 const MONTH_MAP = {
-  january: 1, february: 2, march: 3, april: 4, may: 5, june: 6,
-  july: 7, august: 8, september: 9, october: 10, november: 11, december: 12,
+  january: 1,
+  february: 2,
+  march: 3,
+  april: 4,
+  may: 5,
+  june: 6,
+  july: 7,
+  august: 8,
+  september: 9,
+  october: 10,
+  november: 11,
+  december: 12,
 };
 const MONTH_KEYWORD_INTERVAL_LOOKUP = {
   quarterly: 3,
@@ -367,16 +413,26 @@ export default {
       if (raw === true || raw === 1) return true;
       if (raw === false || raw === 0) return false;
       if (raw === undefined || raw === null) return false;
-      const norm = typeof raw === "string" ? raw.trim().toLowerCase() : String(raw).trim().toLowerCase();
+      const norm =
+        typeof raw === "string"
+          ? raw.trim().toLowerCase()
+          : String(raw).trim().toLowerCase();
       if (["true", "1", "yes", "on"].includes(norm)) return true;
       if (["false", "0", "no", "off"].includes(norm)) return false;
       return !!raw;
     };
 
-    const buildSettingsConfig = ({ todayEnabled, badgeEnabled, picklistExcludeEnabled, lang, uiOverrides } = {}) => {
+    const buildSettingsConfig = ({
+      todayEnabled,
+      badgeEnabled,
+      picklistExcludeEnabled,
+      lang,
+      uiOverrides,
+    } = {}) => {
       const langSetting = getLanguageSetting(lang);
       const tr = (k, fallback) => t(k, langSetting) || fallback;
-      const overrides = uiOverrides && typeof uiOverrides === "object" ? uiOverrides : {};
+      const overrides =
+        uiOverrides && typeof uiOverrides === "object" ? uiOverrides : {};
 
       const todayEnabledValue = todayEnabled ?? getTodayWidgetEnabled();
       const badgeEnabledValue = badgeEnabled ?? getTodayBadgeEnabled();
@@ -384,16 +440,22 @@ export default {
       const picklistExcludeEnabledValue =
         picklistExcludeEnabled !== null && picklistExcludeEnabled !== undefined
           ? normalizeBooleanSetting(picklistExcludeEnabled)
-          : normalizeBooleanSetting(extensionAPI?.settings?.get?.(PICKLIST_EXCLUDE_ENABLED_SETTING));
+          : normalizeBooleanSetting(
+              extensionAPI?.settings?.get?.(PICKLIST_EXCLUDE_ENABLED_SETTING),
+            );
 
       const advancedAttrNamesEnabled =
         overrides.advancedAttrNamesEnabled !== undefined
           ? normalizeBooleanSetting(overrides.advancedAttrNamesEnabled)
-          : normalizeBooleanSetting(extensionAPI?.settings?.get?.(ADV_ATTR_NAMES_SETTING));
+          : normalizeBooleanSetting(
+              extensionAPI?.settings?.get?.(ADV_ATTR_NAMES_SETTING),
+            );
       const advancedDashboardEnabled =
         overrides.advancedDashboardEnabled !== undefined
           ? normalizeBooleanSetting(overrides.advancedDashboardEnabled)
-          : normalizeBooleanSetting(extensionAPI?.settings?.get?.(ADV_DASH_OPTIONS_SETTING));
+          : normalizeBooleanSetting(
+              extensionAPI?.settings?.get?.(ADV_DASH_OPTIONS_SETTING),
+            );
       const destination =
         overrides.destination !== undefined
           ? overrides.destination
@@ -402,11 +464,18 @@ export default {
 
       const AI_MODE_USE_KEY = AI_MODE_OPTIONS[1];
       const aiMode =
-        overrides.aiMode !== undefined ? overrides.aiMode : extensionAPI?.settings?.get?.(AI_MODE_SETTING);
+        overrides.aiMode !== undefined
+          ? overrides.aiMode
+          : extensionAPI?.settings?.get?.(AI_MODE_SETTING);
       const shouldShowAiKey = aiMode === AI_MODE_USE_KEY;
 
       // Helper to set + rebuild (keeps handlers consistent)
-      const setAndRebuild = (id, value, nextUiOverrides = null, options = {}) => {
+      const setAndRebuild = (
+        id,
+        value,
+        nextUiOverrides = null,
+        options = {},
+      ) => {
         try {
           extensionAPI?.settings?.set?.(id, value);
         } catch (_) {
@@ -416,7 +485,10 @@ export default {
         // Delay slightly so the settings panel handler updates are visible.
         setTimeout(() => {
           rebuildSettingsPanel(null, null, null, null, nextUiOverrides);
-          if (options.notifyReviewSteps && activeDashboardController?.notifyReviewStepSettingsChanged) {
+          if (
+            options.notifyReviewSteps &&
+            activeDashboardController?.notifyReviewStepSettingsChanged
+          ) {
             activeDashboardController.notifyReviewStepSettingsChanged();
           }
         }, 30);
@@ -426,16 +498,30 @@ export default {
         {
           id: LANGUAGE_SETTING,
           name: tr("settings.language", "Language"),
-          description: tr("settings.languageDescription", "Preferred language for Better Tasks"),
-          action: { type: "select", items: SUPPORTED_LANGUAGES, onChange: (v) => handleLanguageChange(v) },
+          description: tr(
+            "settings.languageDescription",
+            "Preferred language for Better Tasks",
+          ),
+          action: {
+            type: "select",
+            items: SUPPORTED_LANGUAGES,
+            onChange: (v) => handleLanguageChange(v),
+          },
         },
         {
           id: "rt-destination",
           name: tr("settings.destNextTask", "Destination for next task"),
-          description: tr("settings.destNextTaskDescription", "Where to create the next occurrence"),
+          description: tr(
+            "settings.destNextTaskDescription",
+            "Where to create the next occurrence",
+          ),
           action: {
             type: "select",
-            items: tr("settings.destinationOptions", ["DNP", "Same Page", "DNP under heading"]) || ["DNP", "Same Page", "DNP under heading"],
+            items: tr("settings.destinationOptions", [
+              "DNP",
+              "Same Page",
+              "DNP under heading",
+            ]) || ["DNP", "Same Page", "DNP under heading"],
             onChange: (v) => {
               // Save destination then rebuild so rt-dnp-heading can show/hide
               const next = v?.value ?? v?.target?.value ?? v;
@@ -445,92 +531,140 @@ export default {
         },
         ...(isDnpUnderHeading
           ? [
-            {
-              id: "rt-dnp-heading",
-              name: tr("settings.dnpHeading", "DNP heading"),
-              description: tr(
-                "settings.dnpHeadingDescription",
-                "Create under this heading on DNP when destination is DNP under heading"
-              ),
-              action: { type: "input", placeholder: "Tasks" },
-            },
-          ]
+              {
+                id: "rt-dnp-heading",
+                name: tr("settings.dnpHeading", "DNP heading"),
+                description: tr(
+                  "settings.dnpHeadingDescription",
+                  "Create under this heading on DNP when destination is DNP under heading",
+                ),
+                action: { type: "input", placeholder: "Tasks" },
+              },
+            ]
           : []),
         {
           id: "rt-confirm",
-          name: tr("settings.confirmBeforeSpawn", "Confirm before spawning next task"),
+          name: tr(
+            "settings.confirmBeforeSpawn",
+            "Confirm before spawning next task",
+          ),
           description: tr(
             "settings.confirmBeforeSpawnDescription",
-            "Ask for confirmation before spawning when a repeating Better Task is completed"
+            "Ask for confirmation before spawning when a repeating Better Task is completed",
           ),
           action: { type: "switch" },
         },
         {
           id: "rt-week-start",
           name: tr("settings.weekStart", "First day of the week"),
-          description: tr("settings.weekStartDescription", "Used to align weekly schedules with your graph preference"),
-          action: { type: "select", items: tr("settings.weekStartOptions", WEEK_START_OPTIONS) || WEEK_START_OPTIONS },
+          description: tr(
+            "settings.weekStartDescription",
+            "Used to align weekly schedules with your graph preference",
+          ),
+          action: {
+            type: "select",
+            items:
+              tr("settings.weekStartOptions", WEEK_START_OPTIONS) ||
+              WEEK_START_OPTIONS,
+          },
         },
         {
           id: PILL_THRESHOLD_SETTING,
           name: tr("settings.pillThreshold", "Inline pill checkbox threshold"),
           description: tr(
             "settings.pillThresholdDescription",
-            "Max checkbox count before Better Tasks inline pills skip initial rendering (default 100). Higher values will render but the page may be slower."
+            "Max checkbox count before Better Tasks inline pills skip initial rendering (default 100). Higher values will render but the page may be slower.",
           ),
-          action: { type: "input", placeholder: DEFAULT_PILL_THRESHOLD.toString() },
+          action: {
+            type: "input",
+            placeholder: DEFAULT_PILL_THRESHOLD.toString(),
+          },
         },
       ];
       const reviewStepDescription = tr(
         "settings.reviewStepDescription",
-        "Include this step in the Weekly Review flow (order is fixed)."
+        "Include this step in the Weekly Review flow (order is fixed).",
       );
       const weeklyReviewSettings = [
         {
           id: REVIEW_STEP_NEXT_ACTIONS_SETTING,
-          name: tr("settings.reviewStepNextActions", "Weekly Review: Next Actions"),
+          name: tr(
+            "settings.reviewStepNextActions",
+            "Weekly Review: Next Actions",
+          ),
           description: reviewStepDescription,
           action: {
             type: "switch",
             onChange: (v) => {
-              const normalized = normalizeBooleanSetting(normalizeTodaySettingValue(v));
-              setAndRebuild(REVIEW_STEP_NEXT_ACTIONS_SETTING, normalized, null, { notifyReviewSteps: true });
+              const normalized = normalizeBooleanSetting(
+                normalizeTodaySettingValue(v),
+              );
+              setAndRebuild(
+                REVIEW_STEP_NEXT_ACTIONS_SETTING,
+                normalized,
+                null,
+                { notifyReviewSteps: true },
+              );
             },
           },
         },
         {
           id: REVIEW_STEP_WAITING_FOR_SETTING,
-          name: tr("settings.reviewStepWaitingFor", "Weekly Review: Waiting For"),
+          name: tr(
+            "settings.reviewStepWaitingFor",
+            "Weekly Review: Waiting For",
+          ),
           description: reviewStepDescription,
           action: {
             type: "switch",
             onChange: (v) => {
-              const normalized = normalizeBooleanSetting(normalizeTodaySettingValue(v));
-              setAndRebuild(REVIEW_STEP_WAITING_FOR_SETTING, normalized, null, { notifyReviewSteps: true });
+              const normalized = normalizeBooleanSetting(
+                normalizeTodaySettingValue(v),
+              );
+              setAndRebuild(REVIEW_STEP_WAITING_FOR_SETTING, normalized, null, {
+                notifyReviewSteps: true,
+              });
             },
           },
         },
         {
           id: REVIEW_STEP_COMPLETED_7D_SETTING,
-          name: tr("settings.reviewStepCompleted7d", "Weekly Review: Completed (Last 7 Days)"),
+          name: tr(
+            "settings.reviewStepCompleted7d",
+            "Weekly Review: Completed (Last 7 Days)",
+          ),
           description: reviewStepDescription,
           action: {
             type: "switch",
             onChange: (v) => {
-              const normalized = normalizeBooleanSetting(normalizeTodaySettingValue(v));
-              setAndRebuild(REVIEW_STEP_COMPLETED_7D_SETTING, normalized, null, { notifyReviewSteps: true });
+              const normalized = normalizeBooleanSetting(
+                normalizeTodaySettingValue(v),
+              );
+              setAndRebuild(
+                REVIEW_STEP_COMPLETED_7D_SETTING,
+                normalized,
+                null,
+                { notifyReviewSteps: true },
+              );
             },
           },
         },
         {
           id: REVIEW_STEP_UPCOMING_7D_SETTING,
-          name: tr("settings.reviewStepUpcoming7d", "Weekly Review: Upcoming (Next 7 Days)"),
+          name: tr(
+            "settings.reviewStepUpcoming7d",
+            "Weekly Review: Upcoming (Next 7 Days)",
+          ),
           description: reviewStepDescription,
           action: {
             type: "switch",
             onChange: (v) => {
-              const normalized = normalizeBooleanSetting(normalizeTodaySettingValue(v));
-              setAndRebuild(REVIEW_STEP_UPCOMING_7D_SETTING, normalized, null, { notifyReviewSteps: true });
+              const normalized = normalizeBooleanSetting(
+                normalizeTodaySettingValue(v),
+              );
+              setAndRebuild(REVIEW_STEP_UPCOMING_7D_SETTING, normalized, null, {
+                notifyReviewSteps: true,
+              });
             },
           },
         },
@@ -541,20 +675,31 @@ export default {
           action: {
             type: "switch",
             onChange: (v) => {
-              const normalized = normalizeBooleanSetting(normalizeTodaySettingValue(v));
-              setAndRebuild(REVIEW_STEP_OVERDUE_SETTING, normalized, null, { notifyReviewSteps: true });
+              const normalized = normalizeBooleanSetting(
+                normalizeTodaySettingValue(v),
+              );
+              setAndRebuild(REVIEW_STEP_OVERDUE_SETTING, normalized, null, {
+                notifyReviewSteps: true,
+              });
             },
           },
         },
         {
           id: REVIEW_STEP_SOMEDAY_SETTING,
-          name: tr("settings.reviewStepSomeday", "Weekly Review: Someday / Maybe"),
+          name: tr(
+            "settings.reviewStepSomeday",
+            "Weekly Review: Someday / Maybe",
+          ),
           description: reviewStepDescription,
           action: {
             type: "switch",
             onChange: (v) => {
-              const normalized = normalizeBooleanSetting(normalizeTodaySettingValue(v));
-              setAndRebuild(REVIEW_STEP_SOMEDAY_SETTING, normalized, null, { notifyReviewSteps: true });
+              const normalized = normalizeBooleanSetting(
+                normalizeTodaySettingValue(v),
+              );
+              setAndRebuild(REVIEW_STEP_SOMEDAY_SETTING, normalized, null, {
+                notifyReviewSteps: true,
+              });
             },
           },
         },
@@ -563,16 +708,23 @@ export default {
       const attributeSettingsToggle = [
         {
           id: ADV_ATTR_NAMES_SETTING,
-          name: tr("settings.advancedAttrNames", "Customise attribute names (advanced)"),
+          name: tr(
+            "settings.advancedAttrNames",
+            "Customise attribute names (advanced)",
+          ),
           description: tr(
             "settings.advancedAttrNamesDescription",
-            "Show settings to customise the attribute/page names Better Tasks uses. Defaults work for most users."
+            "Show settings to customise the attribute/page names Better Tasks uses. Defaults work for most users.",
           ),
           action: {
             type: "switch",
             onChange: (v) => {
-              const normalized = normalizeBooleanSetting(normalizeTodaySettingValue(v));
-              setAndRebuild(ADV_ATTR_NAMES_SETTING, normalized, { advancedAttrNamesEnabled: normalized });
+              const normalized = normalizeBooleanSetting(
+                normalizeTodaySettingValue(v),
+              );
+              setAndRebuild(ADV_ATTR_NAMES_SETTING, normalized, {
+                advancedAttrNamesEnabled: normalized,
+              });
             },
           },
         },
@@ -582,68 +734,145 @@ export default {
         {
           id: "rt-repeat-attr",
           name: tr("settings.repeatAttr", "Repeat attribute name"),
-          description: tr("settings.repeatAttrDescription", "Label for the recurrence rule attribute"),
-          action: { type: "input", placeholder: DEFAULT_REPEAT_ATTR, onChange: handleAttributeNameChange },
+          description: tr(
+            "settings.repeatAttrDescription",
+            "Label for the recurrence rule attribute",
+          ),
+          action: {
+            type: "input",
+            placeholder: DEFAULT_REPEAT_ATTR,
+            onChange: handleAttributeNameChange,
+          },
         },
         {
           id: "rt-start-attr",
           name: tr("settings.startAttr", "Start attribute name"),
-          description: tr("settings.startAttrDescription", "Label for start/available date attribute"),
-          action: { type: "input", placeholder: DEFAULT_START_ATTR, onChange: handleAttributeNameChange },
+          description: tr(
+            "settings.startAttrDescription",
+            "Label for start/available date attribute",
+          ),
+          action: {
+            type: "input",
+            placeholder: DEFAULT_START_ATTR,
+            onChange: handleAttributeNameChange,
+          },
         },
         {
           id: "rt-defer-attr",
           name: tr("settings.deferAttr", "Defer attribute name"),
-          description: tr("settings.deferAttrDescription", "Label for defer/snooze date attribute"),
-          action: { type: "input", placeholder: DEFAULT_DEFER_ATTR, onChange: handleAttributeNameChange },
+          description: tr(
+            "settings.deferAttrDescription",
+            "Label for defer/snooze date attribute",
+          ),
+          action: {
+            type: "input",
+            placeholder: DEFAULT_DEFER_ATTR,
+            onChange: handleAttributeNameChange,
+          },
         },
         {
           id: "rt-due-attr",
           name: tr("settings.dueAttr", "Due attribute name"),
-          description: tr("settings.dueAttrDescription", "Label for due date attribute"),
-          action: { type: "input", placeholder: DEFAULT_DUE_ATTR, onChange: handleAttributeNameChange },
+          description: tr(
+            "settings.dueAttrDescription",
+            "Label for due date attribute",
+          ),
+          action: {
+            type: "input",
+            placeholder: DEFAULT_DUE_ATTR,
+            onChange: handleAttributeNameChange,
+          },
         },
         {
           id: "rt-completed-attr",
           name: tr("settings.completedAttr", "Completed attribute name"),
-          description: tr("settings.completedAttrDescription", "Label written when a recurring/scheduled task is completed"),
-          action: { type: "input", placeholder: DEFAULT_COMPLETED_ATTR, onChange: handleAttributeNameChange },
+          description: tr(
+            "settings.completedAttrDescription",
+            "Label written when a recurring/scheduled task is completed",
+          ),
+          action: {
+            type: "input",
+            placeholder: DEFAULT_COMPLETED_ATTR,
+            onChange: handleAttributeNameChange,
+          },
         },
         {
           id: "bt-attr-project",
           name: tr("settings.projectAttr", "Project attribute name"),
-          description: tr("settings.projectAttrDescription", "Label for project attribute (child block)"),
-          action: { type: "input", placeholder: "BT_attrProject", onChange: handleAttributeNameChange },
+          description: tr(
+            "settings.projectAttrDescription",
+            "Label for project attribute (child block)",
+          ),
+          action: {
+            type: "input",
+            placeholder: "BT_attrProject",
+            onChange: handleAttributeNameChange,
+          },
         },
         {
           id: "bt-attr-gtd",
           name: tr("settings.gtdAttr", "GTD status attribute name"),
-          description: tr("settings.gtdAttrDescription", "Label for GTD status attribute (child block)"),
-          action: { type: "input", placeholder: DEFAULT_GTD_ATTR, onChange: handleAttributeNameChange },
+          description: tr(
+            "settings.gtdAttrDescription",
+            "Label for GTD status attribute (child block)",
+          ),
+          action: {
+            type: "input",
+            placeholder: DEFAULT_GTD_ATTR,
+            onChange: handleAttributeNameChange,
+          },
         },
         {
           id: "bt-attr-waitingFor",
           name: tr("settings.waitingAttr", "Waiting-for attribute name"),
-          description: tr("settings.waitingAttrDescription", "Label for waiting-for attribute (child block)"),
-          action: { type: "input", placeholder: "BT_attrWaitingFor", onChange: handleAttributeNameChange },
+          description: tr(
+            "settings.waitingAttrDescription",
+            "Label for waiting-for attribute (child block)",
+          ),
+          action: {
+            type: "input",
+            placeholder: "BT_attrWaitingFor",
+            onChange: handleAttributeNameChange,
+          },
         },
         {
           id: "bt-attr-context",
           name: tr("settings.contextAttr", "Context attribute name"),
-          description: tr("settings.contextAttrDescription", "Label for context/tags attribute (child block)"),
-          action: { type: "input", placeholder: "BT_attrContext", onChange: handleAttributeNameChange },
+          description: tr(
+            "settings.contextAttrDescription",
+            "Label for context/tags attribute (child block)",
+          ),
+          action: {
+            type: "input",
+            placeholder: "BT_attrContext",
+            onChange: handleAttributeNameChange,
+          },
         },
         {
           id: "bt-attr-priority",
           name: tr("settings.priorityAttr", "Priority attribute name"),
-          description: tr("settings.priorityAttrDescription", "Label for priority attribute (child block)"),
-          action: { type: "input", placeholder: "BT_attrPriority", onChange: handleAttributeNameChange },
+          description: tr(
+            "settings.priorityAttrDescription",
+            "Label for priority attribute (child block)",
+          ),
+          action: {
+            type: "input",
+            placeholder: "BT_attrPriority",
+            onChange: handleAttributeNameChange,
+          },
         },
         {
           id: "bt-attr-energy",
           name: tr("settings.energyAttr", "Energy attribute name"),
-          description: tr("settings.energyAttrDescription", "Label for energy attribute (child block)"),
-          action: { type: "input", placeholder: "BT_attrEnergy", onChange: handleAttributeNameChange },
+          description: tr(
+            "settings.energyAttrDescription",
+            "Label for energy attribute (child block)",
+          ),
+          action: {
+            type: "input",
+            placeholder: "BT_attrEnergy",
+            onChange: handleAttributeNameChange,
+          },
         },
       ];
 
@@ -653,17 +882,19 @@ export default {
           name: tr("settings.advancedDashboard", "Advanced Dashboard options"),
           description: tr(
             "settings.advancedDashboardDescription",
-            "Show settings for Weekly Review steps."
+            "Show settings for Weekly Review steps.",
           ),
           action: {
             type: "switch",
             onChange: (v) => {
-              const normalized = normalizeBooleanSetting(normalizeTodaySettingValue(v));
+              const normalized = normalizeBooleanSetting(
+                normalizeTodaySettingValue(v),
+              );
               setAndRebuild(
                 ADV_DASH_OPTIONS_SETTING,
                 normalized,
                 { advancedDashboardEnabled: normalized },
-                { notifyReviewSteps: true }
+                { notifyReviewSteps: true },
               );
             },
           },
@@ -672,10 +903,13 @@ export default {
       const picklistAdvanced = [
         {
           id: PICKLIST_EXCLUDE_ENABLED_SETTING,
-          name: tr("settings.picklistExcludesAdvanced", "Advanced Project/Context/Waiting options"),
+          name: tr(
+            "settings.picklistExcludesAdvanced",
+            "Advanced Project/Context/Waiting options",
+          ),
           description: tr(
             "settings.picklistExcludesAdvancedDescription",
-            "Show settings to exclude specific pages from Project/Context/Waiting picklists (roam/* pages are always excluded)."
+            "Show settings to exclude specific pages from Project/Context/Waiting picklists (roam/* pages are always excluded).",
           ),
           action: {
             type: "switch",
@@ -683,46 +917,55 @@ export default {
               const normalized = normalizeTodaySettingValue(v);
               const nextEnabled = normalizeBooleanSetting(normalized);
               try {
-                extensionAPI?.settings?.set?.(PICKLIST_EXCLUDE_ENABLED_SETTING, nextEnabled);
-              } catch (_) { }
+                extensionAPI?.settings?.set?.(
+                  PICKLIST_EXCLUDE_ENABLED_SETTING,
+                  nextEnabled,
+                );
+              } catch (_) {}
               try {
                 void refreshProjectOptions(true);
                 void refreshWaitingOptions(true);
                 void refreshContextOptions(true);
-              } catch (_) { }
+              } catch (_) {}
               rebuildSettingsPanel(null, null, null, nextEnabled);
             },
           },
         },
         ...(picklistExcludeEnabledValue
           ? [
-            {
-              id: PICKLIST_EXCLUDE_PAGES_SETTING,
-              name: tr("settings.excludePicklistPages", "Exclude pages from picklists"),
-              description: tr(
-                "settings.excludePicklistPagesDescription",
-                "Comma-separated page titles. Wrap titles containing commas (e.g. daily notes) in [[...]]. Values found on these pages will not populate Project/Context/Waiting picklists (useful for Templates/SmartBlocks)."
-              ),
-              action: {
-                type: "input",
-                placeholder: tr(
-                  "settings.excludePicklistPagesPlaceholder",
-                  "Templates, SmartBlocks, [[December 18th, 2025]]"
+              {
+                id: PICKLIST_EXCLUDE_PAGES_SETTING,
+                name: tr(
+                  "settings.excludePicklistPages",
+                  "Exclude pages from picklists",
                 ),
-                onChange: (v) => {
-                  const normalized = normalizeTodaySettingValue(v);
-                  try {
-                    extensionAPI?.settings?.set?.(PICKLIST_EXCLUDE_PAGES_SETTING, String(normalized || ""));
-                  } catch (_) { }
-                  try {
-                    void refreshProjectOptions(true);
-                    void refreshWaitingOptions(true);
-                    void refreshContextOptions(true);
-                  } catch (_) { }
+                description: tr(
+                  "settings.excludePicklistPagesDescription",
+                  "Comma-separated page titles. Wrap titles containing commas (e.g. daily notes) in [[...]]. Values found on these pages will not populate Project/Context/Waiting picklists (useful for Templates/SmartBlocks).",
+                ),
+                action: {
+                  type: "input",
+                  placeholder: tr(
+                    "settings.excludePicklistPagesPlaceholder",
+                    "Templates, SmartBlocks, [[December 18th, 2025]]",
+                  ),
+                  onChange: (v) => {
+                    const normalized = normalizeTodaySettingValue(v);
+                    try {
+                      extensionAPI?.settings?.set?.(
+                        PICKLIST_EXCLUDE_PAGES_SETTING,
+                        String(normalized || ""),
+                      );
+                    } catch (_) {}
+                    try {
+                      void refreshProjectOptions(true);
+                      void refreshWaitingOptions(true);
+                      void refreshContextOptions(true);
+                    } catch (_) {}
+                  },
                 },
               },
-            },
-          ]
+            ]
           : []),
       ];
 
@@ -730,35 +973,46 @@ export default {
         {
           id: AI_MODE_SETTING,
           name: tr("settings.aiMode", "AI parsing mode"),
-          description: tr("settings.aiModeDescription", "Optional: use your OpenAI API key for AI-assisted task parsing"),
+          description: tr(
+            "settings.aiModeDescription",
+            "Optional: use your OpenAI API key for AI-assisted task parsing",
+          ),
           action: {
             type: "select",
             items: t("settings.aiModeOptions", langSetting) || AI_MODE_OPTIONS,
             onChange: (v) => {
               const next = v?.value ?? v?.target?.value ?? v;
-              try { extensionAPI?.settings?.set?.(AI_MODE_SETTING, next); } catch (_) { }
+              try {
+                extensionAPI?.settings?.set?.(AI_MODE_SETTING, next);
+              } catch (_) {}
               rebuildSettingsPanel(null, null, null, null, { aiMode: next });
             },
           },
         },
         ...(shouldShowAiKey
           ? [
-            {
-              id: AI_KEY_SETTING,
-              name: tr("settings.aiKey", "OpenAI API key"),
-              description: tr("settings.aiKeyDescription", "Sensitive: stored in Roam settings; used client-side only for AI parsing"),
-              action: {
-                type: "input",
-                placeholder: "sk-...",
-                onChange: (v) => {
-                  const normalized = normalizeTodaySettingValue(v);
-                  try {
-                    extensionAPI?.settings?.set?.(AI_KEY_SETTING, String(normalized || ""));
-                  } catch (_) { }
+              {
+                id: AI_KEY_SETTING,
+                name: tr("settings.aiKey", "OpenAI API key"),
+                description: tr(
+                  "settings.aiKeyDescription",
+                  "Sensitive: stored in Roam settings; used client-side only for AI parsing",
+                ),
+                action: {
+                  type: "input",
+                  placeholder: "sk-...",
+                  onChange: (v) => {
+                    const normalized = normalizeTodaySettingValue(v);
+                    try {
+                      extensionAPI?.settings?.set?.(
+                        AI_KEY_SETTING,
+                        String(normalized || ""),
+                      );
+                    } catch (_) {}
+                  },
                 },
               },
-            },
-          ]
+            ]
           : []),
       ];
 
@@ -766,36 +1020,80 @@ export default {
         {
           id: TODAY_BADGE_ENABLE_SETTING,
           name: tr("settings.todayBadgeEnable", "Enable Today badge"),
-          description: tr("settings.todayBadgeEnableDescription", "Show a Today link and badge in the left sidebar (default off)"),
-          action: { type: "switch", onChange: (v) => handleTodayBadgeSettingChange(TODAY_BADGE_ENABLE_SETTING, v) },
+          description: tr(
+            "settings.todayBadgeEnableDescription",
+            "Show a Today link and badge in the left sidebar (default off)",
+          ),
+          action: {
+            type: "switch",
+            onChange: (v) =>
+              handleTodayBadgeSettingChange(TODAY_BADGE_ENABLE_SETTING, v),
+          },
         },
         ...(badgeEnabledValue
           ? [
-            {
-              id: TODAY_BADGE_LABEL_SETTING,
-              name: tr("settings.todayBadgeLabel", "Today badge label"),
-              description: tr("settings.todayBadgeLabelDescription", "Text for the Today badge/link (markdown ignored for matching)"),
-              action: { type: "input", placeholder: "Today", onChange: (v) => handleTodayBadgeSettingChange(TODAY_BADGE_LABEL_SETTING, v) },
-            },
-            {
-              id: TODAY_BADGE_OVERDUE_SETTING,
-              name: tr("settings.todayBadgeIncludeOverdue", "Include overdue in Today badge"),
-              description: tr("settings.todayBadgeIncludeOverdueDescription", "Counts overdue tasks in the badge (completed tasks are never counted)"),
-              action: { type: "switch", onChange: (v) => handleTodayBadgeSettingChange(TODAY_BADGE_OVERDUE_SETTING, v) },
-            },
-            {
-              id: TODAY_BADGE_BG_SETTING,
-              name: tr("settings.todayBadgeBg", "Today badge background"),
-              description: tr("settings.todayBadgeBgDescription", "CSS color for the badge background"),
-              action: { type: "input", placeholder: "#1F6FEB", onChange: (v) => handleTodayBadgeSettingChange(TODAY_BADGE_BG_SETTING, v) },
-            },
-            {
-              id: TODAY_BADGE_FG_SETTING,
-              name: tr("settings.todayBadgeFg", "Today badge text"),
-              description: tr("settings.todayBadgeFgDescription", "CSS color for the badge text"),
-              action: { type: "input", placeholder: "#FFFFFF", onChange: (v) => handleTodayBadgeSettingChange(TODAY_BADGE_FG_SETTING, v) },
-            },
-          ]
+              {
+                id: TODAY_BADGE_LABEL_SETTING,
+                name: tr("settings.todayBadgeLabel", "Today badge label"),
+                description: tr(
+                  "settings.todayBadgeLabelDescription",
+                  "Text for the Today badge/link (markdown ignored for matching)",
+                ),
+                action: {
+                  type: "input",
+                  placeholder: "Today",
+                  onChange: (v) =>
+                    handleTodayBadgeSettingChange(TODAY_BADGE_LABEL_SETTING, v),
+                },
+              },
+              {
+                id: TODAY_BADGE_OVERDUE_SETTING,
+                name: tr(
+                  "settings.todayBadgeIncludeOverdue",
+                  "Include overdue in Today badge",
+                ),
+                description: tr(
+                  "settings.todayBadgeIncludeOverdueDescription",
+                  "Counts overdue tasks in the badge (completed tasks are never counted)",
+                ),
+                action: {
+                  type: "switch",
+                  onChange: (v) =>
+                    handleTodayBadgeSettingChange(
+                      TODAY_BADGE_OVERDUE_SETTING,
+                      v,
+                    ),
+                },
+              },
+              {
+                id: TODAY_BADGE_BG_SETTING,
+                name: tr("settings.todayBadgeBg", "Today badge background"),
+                description: tr(
+                  "settings.todayBadgeBgDescription",
+                  "CSS color for the badge background",
+                ),
+                action: {
+                  type: "input",
+                  placeholder: "#1F6FEB",
+                  onChange: (v) =>
+                    handleTodayBadgeSettingChange(TODAY_BADGE_BG_SETTING, v),
+                },
+              },
+              {
+                id: TODAY_BADGE_FG_SETTING,
+                name: tr("settings.todayBadgeFg", "Today badge text"),
+                description: tr(
+                  "settings.todayBadgeFgDescription",
+                  "CSS color for the badge text",
+                ),
+                action: {
+                  type: "input",
+                  placeholder: "#FFFFFF",
+                  onChange: (v) =>
+                    handleTodayBadgeSettingChange(TODAY_BADGE_FG_SETTING, v),
+                },
+              },
+            ]
           : []),
       ];
 
@@ -803,53 +1101,126 @@ export default {
         {
           id: TODAY_WIDGET_ENABLE_SETTING,
           name: tr("settings.enableTodayWidget", "Enable Today widget"),
-          description: tr("settings.enableTodayWidgetDescription", "Show the Better Tasks Today widget on your daily note page"),
-          action: { type: "switch", onChange: (v) => handleTodaySettingChange(TODAY_WIDGET_ENABLE_SETTING, v) },
+          description: tr(
+            "settings.enableTodayWidgetDescription",
+            "Show the Better Tasks Today widget on your daily note page",
+          ),
+          action: {
+            type: "switch",
+            onChange: (v) =>
+              handleTodaySettingChange(TODAY_WIDGET_ENABLE_SETTING, v),
+          },
         },
       ];
 
       const todayWidgetDetails = todayEnabledValue
         ? [
-          {
-            id: TODAY_WIDGET_TITLE_SETTING,
-            name: tr("settings.todayWidgetTitle", "Today widget title"),
-            description: tr(
-              "settings.todayWidgetTitleDescription",
-              "Title used for the Today anchor; if a matching block exists on the DNP (any level), the widget renders under it, otherwise it creates one at the configured placement."
-            ),
-            action: { type: "input", placeholder: TODAY_WIDGET_ANCHOR_TEXT_DEFAULT, onChange: (v) => handleTodaySettingChange(TODAY_WIDGET_TITLE_SETTING, v) },
-          },
-          {
-            id: TODAY_WIDGET_PLACEMENT_SETTING,
-            name: tr("settings.todayWidgetPlacement", "Today widget placement"),
-            description: tr("settings.todayWidgetPlacementDescription", "Place the widget at the top or bottom of the DNP"),
-            action: { type: "select", items: tr("settings.placementOptions", ["Top", "Bottom"]) || ["Top", "Bottom"], onChange: (v) => handleTodaySettingChange(TODAY_WIDGET_PLACEMENT_SETTING, v) },
-          },
-          {
-            id: TODAY_WIDGET_HEADING_SETTING,
-            name: tr("settings.todayWidgetHeadingLevel", "Today widget heading level"),
-            description: tr("settings.todayWidgetHeadingLevelDescription", "Apply heading styling to the Today widget anchor block"),
-            action: { type: "select", items: tr("settings.headingLevelOptions", ["None", "H1", "H2", "H3"]) || ["None", "H1", "H2", "H3"], onChange: (v) => handleTodaySettingChange(TODAY_WIDGET_HEADING_SETTING, v) },
-          },
-          {
-            id: TODAY_WIDGET_LAYOUT_SETTING,
-            name: tr("settings.todayWidgetLayout", "Today widget layout"),
-            description: tr("settings.todayWidgetLayoutDescription", "Choose how the Today widget appears on your DNP"),
-            action: { type: "select", items: tr("settings.todayWidgetLayoutOptions", ["Panel", "Roam-style inline"]) || ["Panel", "Roam-style inline"], onChange: (v) => handleTodaySettingChange(TODAY_WIDGET_LAYOUT_SETTING, v) },
-          },
-          {
-            id: TODAY_WIDGET_OVERDUE_SETTING,
-            name: tr("settings.todayWidgetIncludeOverdue", "Include overdue tasks in Today widget"),
-            description: tr("settings.todayWidgetIncludeOverdueDescription", "Show tasks with due dates before today"),
-            action: { type: "switch", onChange: (v) => handleTodaySettingChange(TODAY_WIDGET_OVERDUE_SETTING, v) },
-          },
-          {
-            id: TODAY_WIDGET_COMPLETED_SETTING,
-            name: tr("settings.todayWidgetShowCompleted", "Show completed tasks in Today widget"),
-            description: tr("settings.todayWidgetShowCompletedDescription", "Include completed tasks (hidden by default)"),
-            action: { type: "switch", onChange: (v) => handleTodaySettingChange(TODAY_WIDGET_COMPLETED_SETTING, v) },
-          },
-        ]
+            {
+              id: TODAY_WIDGET_TITLE_SETTING,
+              name: tr("settings.todayWidgetTitle", "Today widget title"),
+              description: tr(
+                "settings.todayWidgetTitleDescription",
+                "Title used for the Today anchor; if a matching block exists on the DNP (any level), the widget renders under it, otherwise it creates one at the configured placement.",
+              ),
+              action: {
+                type: "input",
+                placeholder: TODAY_WIDGET_ANCHOR_TEXT_DEFAULT,
+                onChange: (v) =>
+                  handleTodaySettingChange(TODAY_WIDGET_TITLE_SETTING, v),
+              },
+            },
+            {
+              id: TODAY_WIDGET_PLACEMENT_SETTING,
+              name: tr(
+                "settings.todayWidgetPlacement",
+                "Today widget placement",
+              ),
+              description: tr(
+                "settings.todayWidgetPlacementDescription",
+                "Place the widget at the top or bottom of the DNP",
+              ),
+              action: {
+                type: "select",
+                items: tr("settings.placementOptions", ["Top", "Bottom"]) || [
+                  "Top",
+                  "Bottom",
+                ],
+                onChange: (v) =>
+                  handleTodaySettingChange(TODAY_WIDGET_PLACEMENT_SETTING, v),
+              },
+            },
+            {
+              id: TODAY_WIDGET_HEADING_SETTING,
+              name: tr(
+                "settings.todayWidgetHeadingLevel",
+                "Today widget heading level",
+              ),
+              description: tr(
+                "settings.todayWidgetHeadingLevelDescription",
+                "Apply heading styling to the Today widget anchor block",
+              ),
+              action: {
+                type: "select",
+                items: tr("settings.headingLevelOptions", [
+                  "None",
+                  "H1",
+                  "H2",
+                  "H3",
+                ]) || ["None", "H1", "H2", "H3"],
+                onChange: (v) =>
+                  handleTodaySettingChange(TODAY_WIDGET_HEADING_SETTING, v),
+              },
+            },
+            {
+              id: TODAY_WIDGET_LAYOUT_SETTING,
+              name: tr("settings.todayWidgetLayout", "Today widget layout"),
+              description: tr(
+                "settings.todayWidgetLayoutDescription",
+                "Choose how the Today widget appears on your DNP",
+              ),
+              action: {
+                type: "select",
+                items: tr("settings.todayWidgetLayoutOptions", [
+                  "Panel",
+                  "Roam-style inline",
+                ]) || ["Panel", "Roam-style inline"],
+                onChange: (v) =>
+                  handleTodaySettingChange(TODAY_WIDGET_LAYOUT_SETTING, v),
+              },
+            },
+            {
+              id: TODAY_WIDGET_OVERDUE_SETTING,
+              name: tr(
+                "settings.todayWidgetIncludeOverdue",
+                "Include overdue tasks in Today widget",
+              ),
+              description: tr(
+                "settings.todayWidgetIncludeOverdueDescription",
+                "Show tasks with due dates before today",
+              ),
+              action: {
+                type: "switch",
+                onChange: (v) =>
+                  handleTodaySettingChange(TODAY_WIDGET_OVERDUE_SETTING, v),
+              },
+            },
+            {
+              id: TODAY_WIDGET_COMPLETED_SETTING,
+              name: tr(
+                "settings.todayWidgetShowCompleted",
+                "Show completed tasks in Today widget",
+              ),
+              description: tr(
+                "settings.todayWidgetShowCompletedDescription",
+                "Include completed tasks (hidden by default)",
+              ),
+              action: {
+                type: "switch",
+                onChange: (v) =>
+                  handleTodaySettingChange(TODAY_WIDGET_COMPLETED_SETTING, v),
+              },
+            },
+          ]
         : [];
 
       // Final ordering:
@@ -885,13 +1256,17 @@ export default {
       langOverride = null,
       badgeEnabledOverride = null,
       picklistExcludeEnabledOverride = null,
-      uiOverrides = null
+      uiOverrides = null,
     ) => {
       try {
         const effectiveTodayEnabled =
-          todayEnabledOverride !== null && todayEnabledOverride !== undefined ? todayEnabledOverride : getTodayWidgetEnabled();
+          todayEnabledOverride !== null && todayEnabledOverride !== undefined
+            ? todayEnabledOverride
+            : getTodayWidgetEnabled();
         const effectiveBadgeEnabled =
-          badgeEnabledOverride !== null && badgeEnabledOverride !== undefined ? badgeEnabledOverride : getTodayBadgeEnabled();
+          badgeEnabledOverride !== null && badgeEnabledOverride !== undefined
+            ? badgeEnabledOverride
+            : getTodayBadgeEnabled();
 
         const config = buildSettingsConfig({
           todayEnabled: effectiveTodayEnabled,
@@ -916,13 +1291,13 @@ export default {
       extensionAPI.settings.set(TODAY_WIDGET_LAYOUT_SETTING, "Panel");
     }
     if (extensionAPI.settings.get(TODAY_WIDGET_OVERDUE_SETTING) == null) {
-      extensionAPI.settings.set(TODAY_WIDGET_OVERDUE_SETTING, false);
+      extensionAPI.settings.set(TODAY_WIDGET_OVERDUE_SETTING, true);
     }
     if (extensionAPI.settings.get(TODAY_WIDGET_COMPLETED_SETTING) == null) {
       extensionAPI.settings.set(TODAY_WIDGET_COMPLETED_SETTING, false);
     }
     if (extensionAPI.settings.get(TODAY_WIDGET_PLACEMENT_SETTING) == null) {
-      extensionAPI.settings.set(TODAY_WIDGET_PLACEMENT_SETTING, "Top");
+      extensionAPI.settings.set(TODAY_WIDGET_PLACEMENT_SETTING, "Bottom");
     }
     if (extensionAPI.settings.get(TODAY_WIDGET_HEADING_SETTING) == null) {
       extensionAPI.settings.set(TODAY_WIDGET_HEADING_SETTING, "None");
@@ -967,16 +1342,19 @@ export default {
       toast(
         translateString(
           "This extension automatically recognises {{[[TODO]]}} tasks in your graph and uses attributes to determine a recurrence pattern and other attributes. By default, it uses attributes like 'BT_attrRepeat' and 'BT_attrDue'. These can be changed in the extension settings.<BR><BR>If you already happen to use attributes like 'BT_attrRepeat' or 'BT_attrDue' for other functions in your graph, please change the defaults in the Roam Depot Settings for this extension BEFORE testing its functionality to avoid any unexpected behaviour.",
-          getLanguageSetting()
+          getLanguageSetting(),
         ),
         10000,
-        "betterTasks3 bt3-toast-info"
+        "betterTasks3 bt3-toast-info",
       );
       extensionAPI.settings.set(INSTALL_TOAST_KEY, "1");
     }
     currentLanguage = getLanguageSetting();
 
-    const cmdConvert = translateString("Convert TODO to Better Task", getLanguageSetting());
+    const cmdConvert = translateString(
+      "Convert TODO to Better Task",
+      getLanguageSetting(),
+    );
     extensionAPI.ui.commandPalette.addCommand({
       label: cmdConvert,
       callback: () => convertTODO(null),
@@ -985,7 +1363,10 @@ export default {
       label: cmdConvert,
       callback: (e) => convertTODO(e),
     });
-    const cmdCreate = translateString("Create a Better Task", getLanguageSetting());
+    const cmdCreate = translateString(
+      "Create a Better Task",
+      getLanguageSetting(),
+    );
     extensionAPI.ui.commandPalette.addCommand({
       label: cmdCreate,
       callback: () => createBetterTaskEntryPoint(),
@@ -996,8 +1377,14 @@ export default {
     });
     const slashCommandAPI = window.roamAlphaAPI?.ui?.slashCommand;
     if (slashCommandAPI) {
-      const slashCreate = translateString("Create a Better Task", getLanguageSetting());
-      const slashConvert = translateString("Convert TODO to Better Task", getLanguageSetting());
+      const slashCreate = translateString(
+        "Create a Better Task",
+        getLanguageSetting(),
+      );
+      const slashConvert = translateString(
+        "Convert TODO to Better Task",
+        getLanguageSetting(),
+      );
       slashCommandAPI.addCommand({
         label: slashCreate,
         callback: (args) => {
@@ -1032,11 +1419,16 @@ export default {
     }
 
     extensionAPI.ui.commandPalette.addCommand({
-      label: translateString("Toggle Better Tasks Dashboard", getLanguageSetting()),
+      label: translateString(
+        "Toggle Better Tasks Dashboard",
+        getLanguageSetting(),
+      ),
       callback: () => activeDashboardController.toggle(),
     });
     extensionAPI.ui.commandPalette.addCommand({
-      label: t(["commands", "toggleDashboardFullPage"], getLanguageSetting()) || "Toggle Better Tasks Dashboard (Full page)",
+      label:
+        t(["commands", "toggleDashboardFullPage"], getLanguageSetting()) ||
+        "Toggle Better Tasks Dashboard (Full page)",
       callback: () => {
         if (!activeDashboardController) return;
         if (!activeDashboardController.isOpen?.()) {
@@ -1050,17 +1442,26 @@ export default {
       },
     });
     extensionAPI.ui.commandPalette.addCommand({
-      label: translateString("Better Tasks: Switch view…", getLanguageSetting()),
+      label: translateString(
+        "Better Tasks: Switch view…",
+        getLanguageSetting(),
+      ),
       callback: async () => {
         try {
           if (!activeDashboardController?.isOpen?.()) {
-            toast(t("toasts.dashViewsOpenToSwitch", getLanguageSetting()) || "Open Better Tasks Dashboard to switch views.");
+            toast(
+              t("toasts.dashViewsOpenToSwitch", getLanguageSetting()) ||
+                "Open Better Tasks Dashboard to switch views.",
+            );
             return;
           }
           const store = activeDashboardController.loadViewsStore?.();
           const views = store?.views || [];
           if (!views.length) {
-            toast(t("toasts.dashViewsNoSaved", getLanguageSetting()) || "No saved views.");
+            toast(
+              t("toasts.dashViewsNoSaved", getLanguageSetting()) ||
+                "No saved views.",
+            );
             return;
           }
           const pickedId = await promptForDashView({
@@ -1073,52 +1474,68 @@ export default {
           const view = views.find((v) => v.id === pickedId);
           if (!view) return;
           const nextStore = setActiveDashView(store, pickedId);
-          const saved = activeDashboardController.saveViewsStore?.(nextStore) || nextStore;
+          const saved =
+            activeDashboardController.saveViewsStore?.(nextStore) || nextStore;
           activeDashboardController.notifyDashViewsStoreChanged?.(saved);
           activeDashboardController.requestApplyDashViewState?.(view.state);
         } catch (err) {
           console.warn("[BetterTasks] switch view command failed", err);
-          toast(t("toasts.dashViewsSwitchFailed", getLanguageSetting()) || "Unable to switch view.");
+          toast(
+            t("toasts.dashViewsSwitchFailed", getLanguageSetting()) ||
+              "Unable to switch view.",
+          );
         }
       },
     });
     extensionAPI.ui.commandPalette.addCommand({
-      label: translateString("Better Tasks: Save current view as…", getLanguageSetting()),
+      label: translateString(
+        "Better Tasks: Save current view as…",
+        getLanguageSetting(),
+      ),
       callback: async () => {
         try {
           if (!activeDashboardController?.isOpen?.()) {
-            toast(t("toasts.dashViewsOpenToSave", getLanguageSetting()) || "Open Better Tasks Dashboard to save views.");
+            toast(
+              t("toasts.dashViewsOpenToSave", getLanguageSetting()) ||
+                "Open Better Tasks Dashboard to save views.",
+            );
             return;
           }
           const dashState = activeDashboardController.getDashViewState?.();
           if (!dashState) {
             toast(
               t("toasts.dashViewsReadStateFailed", getLanguageSetting()) ||
-              "Unable to read dashboard state. Try reopening the dashboard."
+                "Unable to read dashboard state. Try reopening the dashboard.",
             );
             return;
           }
           const name = activeDashboardController.promptValue
             ? await activeDashboardController.promptValue({
-              title: "Better Tasks",
-              message: "Save current view as",
-              placeholder: "View name",
-              initial: "",
-            })
+                title: "Better Tasks",
+                message: "Save current view as",
+                placeholder: "View name",
+                initial: "",
+              })
             : null;
           if (!name) return;
           const store = activeDashboardController.loadViewsStore?.();
           const nextStore = createDashView(store, name, dashState);
-          const saved = activeDashboardController.saveViewsStore?.(nextStore) || nextStore;
+          const saved =
+            activeDashboardController.saveViewsStore?.(nextStore) || nextStore;
           activeDashboardController.notifyDashViewsStoreChanged?.(saved);
         } catch (err) {
           console.warn("[BetterTasks] save view command failed", err);
-          toast(t("toasts.dashViewsSaveFailed", getLanguageSetting()) || "Unable to save view.");
+          toast(
+            t("toasts.dashViewsSaveFailed", getLanguageSetting()) ||
+              "Unable to save view.",
+          );
         }
       },
     });
     extensionAPI.ui.commandPalette.addCommand({
-      label: t(["commands", "startReview"], getLanguageSetting()) || "Better Tasks: Weekly Review",
+      label:
+        t(["commands", "startReview"], getLanguageSetting()) ||
+        "Better Tasks: Weekly Review",
       callback: async () => {
         try {
           if (!activeDashboardController?.isOpen?.()) {
@@ -1127,7 +1544,10 @@ export default {
           activeDashboardController?.requestStartDashReview?.();
         } catch (err) {
           console.warn("[BetterTasks] start review command failed", err);
-          toast(t(["toasts", "dashReviewStartFailed"], getLanguageSetting()) || "Unable to start review.");
+          toast(
+            t(["toasts", "dashReviewStartFailed"], getLanguageSetting()) ||
+              "Unable to start review.",
+          );
         }
       },
     });
@@ -1146,7 +1566,9 @@ export default {
             },
           });
           if (result?.didSave) {
-            activeDashboardController?.notifyDashViewsStoreChanged?.(result.store);
+            activeDashboardController?.notifyDashViewsStoreChanged?.(
+              result.store,
+            );
           }
           const collisions = Array.isArray(result?.skippedNameCollisions)
             ? result.skippedNameCollisions
@@ -1158,23 +1580,25 @@ export default {
             toast(`${base} ${collisions.join(", ")}`);
             return;
           }
-          const installed = Array.isArray(result?.installedIds) ? result.installedIds.length : 0;
+          const installed = Array.isArray(result?.installedIds)
+            ? result.installedIds.length
+            : 0;
           if (installed > 0) {
             toast(
               t("toasts.dashViewsPresetInstalled", getLanguageSetting()) ||
-              "Preset dashboard views installed."
+                "Preset dashboard views installed.",
             );
             return;
           }
           toast(
             t("toasts.dashViewsPresetNothingToInstall", getLanguageSetting()) ||
-            "All preset dashboard views are already present."
+              "All preset dashboard views are already present.",
           );
         } catch (err) {
           console.warn("[BetterTasks] reinstall preset views failed", err);
           toast(
             t("toasts.dashViewsPresetInstallFailed", getLanguageSetting()) ||
-            "Unable to reinstall preset dashboard views."
+              "Unable to reinstall preset dashboard views.",
           );
         }
       },
@@ -1193,7 +1617,10 @@ export default {
           if (!activeDashboardController?.isOpen?.()) {
             if (window.__btDebugRefreshTimer) {
               const now = Date.now();
-              if (now - dashboardRefreshLogAt >= DASHBOARD_REFRESH_LOG_INTERVAL_MS) {
+              if (
+                now - dashboardRefreshLogAt >=
+                DASHBOARD_REFRESH_LOG_INTERVAL_MS
+              ) {
                 dashboardRefreshLogAt = now;
                 console.debug("[BetterTasks] dashboard refresh tick");
               }
@@ -1230,14 +1657,20 @@ export default {
         const focused = await window.roamAlphaAPI.ui.getFocusedBlock();
         fuid = focused && focused["block-uid"];
         if (!fuid) {
-          toast(t(["toasts", "placeCursorConvert"], getLanguageSetting()) || "Place the cursor in the block you wish to convert.");
+          toast(
+            t(["toasts", "placeCursorConvert"], getLanguageSetting()) ||
+              "Place the cursor in the block you wish to convert.",
+          );
           return;
         }
       }
 
       const block = await getBlock(fuid);
       if (!block) {
-        toast(t(["toasts", "unableReadBlock"], getLanguageSetting()) || "Unable to read the current block.");
+        toast(
+          t(["toasts", "unableReadBlock"], getLanguageSetting()) ||
+            "Unable to read the current block.",
+        );
         return;
       }
       const fstring = block.string || "";
@@ -1246,14 +1679,26 @@ export default {
       const childAttrs = parseAttrsFromChildBlocks(block.children || []);
       const attrNames = resolveAttributeNames();
       const existingMeta = parseRichMetadata(childAttrs, attrNames);
-      const childRepeatEntry = pickChildAttr(childAttrs, attrNames.repeatAliases);
+      const childRepeatEntry = pickChildAttr(
+        childAttrs,
+        attrNames.repeatAliases,
+      );
       const childDueEntry = pickChildAttr(childAttrs, attrNames.dueAliases);
       const childStartEntry = pickChildAttr(childAttrs, attrNames.startAliases);
       const childDeferEntry = pickChildAttr(childAttrs, attrNames.deferAliases);
-      const inlineRepeatVal = pickInlineAttr(inlineAttrs, attrNames.repeatAliases);
+      const inlineRepeatVal = pickInlineAttr(
+        inlineAttrs,
+        attrNames.repeatAliases,
+      );
       const inlineDueVal = pickInlineAttr(inlineAttrs, attrNames.dueAliases);
-      const inlineStartVal = pickInlineAttr(inlineAttrs, attrNames.startAliases);
-      const inlineDeferVal = pickInlineAttr(inlineAttrs, attrNames.deferAliases);
+      const inlineStartVal = pickInlineAttr(
+        inlineAttrs,
+        attrNames.startAliases,
+      );
+      const inlineDeferVal = pickInlineAttr(
+        inlineAttrs,
+        attrNames.deferAliases,
+      );
       const removalKeys = [
         ...new Set([
           ...attrNames.repeatRemovalKeys,
@@ -1269,7 +1714,8 @@ export default {
         includeTaskText: true,
         forceTaskInput: true,
         taskText: initialTaskText,
-        repeat: props.repeat || childRepeatEntry?.value || inlineRepeatVal || "",
+        repeat:
+          props.repeat || childRepeatEntry?.value || inlineRepeatVal || "",
         due: props.due || childDueEntry?.value || inlineDueVal || "",
         start: props.start || childStartEntry?.value || inlineStartVal || "",
         defer: props.defer || childDeferEntry?.value || inlineDeferVal || "",
@@ -1283,10 +1729,14 @@ export default {
       if (!promptResult) return;
 
       const set = S(attrNames);
-      const normalizedRepeat =
-        promptResult.repeat ? normalizeRepeatRuleText(promptResult.repeat) || promptResult.repeat : "";
+      const normalizedRepeat = promptResult.repeat
+        ? normalizeRepeatRuleText(promptResult.repeat) || promptResult.repeat
+        : "";
       if (normalizedRepeat && !parseRuleText(normalizedRepeat, set)) {
-        toast(t(["toasts", "unableUnderstandRepeat"], getLanguageSetting()) || "Unable to understand that repeat rule.");
+        toast(
+          t(["toasts", "unableUnderstandRepeat"], getLanguageSetting()) ||
+            "Unable to understand that repeat rule.",
+        );
         return;
       }
 
@@ -1295,18 +1745,23 @@ export default {
       const promptDueSource = promptResult.due || "";
       if (promptDueSource) {
         dueDate =
-          promptResult.dueDate instanceof Date && !Number.isNaN(promptResult.dueDate.getTime())
+          promptResult.dueDate instanceof Date &&
+          !Number.isNaN(promptResult.dueDate.getTime())
             ? new Date(promptResult.dueDate.getTime())
             : parseRoamDate(promptDueSource);
         if (!(dueDate instanceof Date) || Number.isNaN(dueDate.getTime())) {
-          toast(t(["toasts", "cannotParseDue"], getLanguageSetting()) || "Couldn't parse that due date.");
+          toast(
+            t(["toasts", "cannotParseDue"], getLanguageSetting()) ||
+              "Couldn't parse that due date.",
+          );
           return;
         }
         dueStr = formatDate(dueDate, set);
       }
 
       const startSourceFromPrompt = promptResult.start || "";
-      const startFallbackSource = props.start || childStartEntry?.value || inlineStartVal || "";
+      const startFallbackSource =
+        props.start || childStartEntry?.value || inlineStartVal || "";
       const startSource = startSourceFromPrompt || startFallbackSource;
       let startDate = null;
       let startStr = null;
@@ -1316,14 +1771,18 @@ export default {
             ? new Date(promptResult.startDate.getTime())
             : parseRoamDate(startSource);
         if (!(startDate instanceof Date) || Number.isNaN(startDate.getTime())) {
-          toast(t(["toasts", "cannotParseStart"], getLanguageSetting()) || "Couldn't parse that start date.");
+          toast(
+            t(["toasts", "cannotParseStart"], getLanguageSetting()) ||
+              "Couldn't parse that start date.",
+          );
           return;
         }
         startStr = formatDate(startDate, set);
       }
 
       const deferSourceFromPrompt = promptResult.defer || "";
-      const deferFallbackSource = props.defer || childDeferEntry?.value || inlineDeferVal || "";
+      const deferFallbackSource =
+        props.defer || childDeferEntry?.value || inlineDeferVal || "";
       const deferSource = deferSourceFromPrompt || deferFallbackSource;
       let deferDate = null;
       let deferStr = null;
@@ -1333,7 +1792,10 @@ export default {
             ? new Date(promptResult.deferDate.getTime())
             : parseRoamDate(deferSource);
         if (!(deferDate instanceof Date) || Number.isNaN(deferDate.getTime())) {
-          toast(t(["toasts", "cannotParseDefer"], getLanguageSetting()) || "Couldn't parse that defer date.");
+          toast(
+            t(["toasts", "cannotParseDefer"], getLanguageSetting()) ||
+              "Couldn't parse that defer date.",
+          );
           return;
         }
         deferStr = formatDate(deferDate, set);
@@ -1342,10 +1804,14 @@ export default {
       const taskSource =
         typeof promptResult.taskText === "string" && promptResult.taskText
           ? promptResult.taskText
-          : typeof promptResult.taskTextRaw === "string" && promptResult.taskTextRaw
+          : typeof promptResult.taskTextRaw === "string" &&
+              promptResult.taskTextRaw
             ? promptResult.taskTextRaw
             : initialTaskText;
-      const cleanedTaskText = removeInlineAttributes(taskSource || "", removalKeys).trim();
+      const cleanedTaskText = removeInlineAttributes(
+        taskSource || "",
+        removalKeys,
+      ).trim();
       const todoString = normalizeToTodoMacro(cleanedTaskText);
       if (todoString !== fstring) {
         await updateBlockString(fuid, todoString);
@@ -1362,7 +1828,10 @@ export default {
         (promptResult.gtd || "").trim()
       );
       if (!hasRepeat && !hasTimingInput && !hasMetadataInput) {
-        toast(t(["toasts", "addRepeatDateOrMetadata"], getLanguageSetting()) || "Add a repeat rule, a date, or metadata.");
+        toast(
+          t(["toasts", "addRepeatDateOrMetadata"], getLanguageSetting()) ||
+            "Add a repeat rule, a date, or metadata.",
+        );
         return;
       }
 
@@ -1374,7 +1843,12 @@ export default {
 
       const attrNamesForWrite = set.attrNames;
       if (hasRepeat) {
-        await ensureChildAttrForType(fuid, "repeat", normalizedRepeat, attrNamesForWrite);
+        await ensureChildAttrForType(
+          fuid,
+          "repeat",
+          normalizedRepeat,
+          attrNamesForWrite,
+        );
       } else {
         await removeChildAttrsForType(fuid, "repeat", attrNamesForWrite);
       }
@@ -1384,19 +1858,33 @@ export default {
         await removeChildAttrsForType(fuid, "due", attrNamesForWrite);
       }
       if (startStr) {
-        await ensureChildAttrForType(fuid, "start", startStr, attrNamesForWrite);
+        await ensureChildAttrForType(
+          fuid,
+          "start",
+          startStr,
+          attrNamesForWrite,
+        );
       } else {
         await removeChildAttrsForType(fuid, "start", attrNamesForWrite);
       }
       if (deferStr) {
-        await ensureChildAttrForType(fuid, "defer", deferStr, attrNamesForWrite);
+        await ensureChildAttrForType(
+          fuid,
+          "defer",
+          deferStr,
+          attrNamesForWrite,
+        );
       } else {
         await removeChildAttrsForType(fuid, "defer", attrNamesForWrite);
       }
-      await applyMetadataFromPrompt(fuid, promptResult, attrNamesForWrite, { initial: existingMeta });
+      await applyMetadataFromPrompt(fuid, promptResult, attrNamesForWrite, {
+        initial: existingMeta,
+      });
 
       repeatOverrides.delete(fuid);
-      const createdMsg = t(["toasts", "createdRecurring"], getLanguageSetting()) || "Created your Better Task";
+      const createdMsg =
+        t(["toasts", "createdRecurring"], getLanguageSetting()) ||
+        "Created your Better Task";
       toast(hasRepeat || hasTimingInput ? createdMsg : "Added metadata");
       scheduleSurfaceSync(set.attributeSurface);
       perfLog(perfConvert);
@@ -1410,14 +1898,20 @@ export default {
         const focused = await window.roamAlphaAPI.ui.getFocusedBlock();
         targetUid = focused && focused["block-uid"];
         if (!targetUid) {
-          toast(t(["toasts", "placeCursorCreate"], getLanguageSetting()) || "Place the cursor in the block where you wish to create the Better Task.");
+          toast(
+            t(["toasts", "placeCursorCreate"], getLanguageSetting()) ||
+              "Place the cursor in the block where you wish to create the Better Task.",
+          );
           return;
         }
       }
 
       const block = await getBlock(targetUid);
       if (!block) {
-        toast(t(["toasts", "unableReadBlock"], getLanguageSetting()) || "Unable to read the current block.");
+        toast(
+          t(["toasts", "unableReadBlock"], getLanguageSetting()) ||
+            "Unable to read the current block.",
+        );
         return;
       }
 
@@ -1438,7 +1932,10 @@ export default {
         if (!input) return;
         rawText = input.trim();
         if (!rawText) {
-          toast(t(["toasts", "enterText"], getLanguageSetting()) || "Enter some task text.");
+          toast(
+            t(["toasts", "enterText"], getLanguageSetting()) ||
+              "Enter some task text.",
+          );
           return;
         }
         await updateBlockString(targetUid, input);
@@ -1464,7 +1961,8 @@ export default {
         return;
       }
 
-      const aiAbort = typeof AbortController !== "undefined" ? new AbortController() : null;
+      const aiAbort =
+        typeof AbortController !== "undefined" ? new AbortController() : null;
       let suppressAiAbort = false;
       const pending = showPersistentToast("Parsing task with AI…", {
         onClosed: () => {
@@ -1474,7 +1972,9 @@ export default {
       });
       let aiResult = null;
       try {
-        aiResult = await parseTaskWithOpenAI(aiInput, aiSettings, { signal: aiAbort?.signal });
+        aiResult = await parseTaskWithOpenAI(aiInput, aiSettings, {
+          signal: aiAbort?.signal,
+        });
       } catch (err) {
         console.warn("[BetterTasks] AI parsing threw unexpectedly", err);
         aiResult = { ok: false, error: err };
@@ -1484,19 +1984,32 @@ export default {
       }
       if (aiResult?.reason === "aborted") return;
       if (aiResult.ok) {
-        const applied = await createTaskFromParsedJson(targetUid, aiResult.task, aiInput);
+        const applied = await createTaskFromParsedJson(
+          targetUid,
+          aiResult.task,
+          aiInput,
+        );
         if (applied) {
-          toast(t(["toasts", "createdWithAi"], getLanguageSetting()) || "Created Better Task with AI parsing");
+          toast(
+            t(["toasts", "createdWithAi"], getLanguageSetting()) ||
+              "Created Better Task with AI parsing",
+          );
           return;
         }
       } else {
-        console.warn("[BetterTasks] AI parsing unavailable", aiResult.error || aiResult.reason);
+        console.warn(
+          "[BetterTasks] AI parsing unavailable",
+          aiResult.error || aiResult.reason,
+        );
         if (aiResult.status === 429 || aiResult.code === "insufficient_quota") {
           toast(
-            `AI parsing unavailable (429 from OpenAI). Check your billing/credit: https://platform.openai.com/settings/organization/billing/overview`
+            `AI parsing unavailable (429 from OpenAI). Check your billing/credit: https://platform.openai.com/settings/organization/billing/overview`,
           );
         } else {
-          toast(t(["toasts", "aiFallback"], getLanguageSetting()) || "AI parsing unavailable, creating a normal Better Task instead.");
+          toast(
+            t(["toasts", "aiFallback"], getLanguageSetting()) ||
+              "AI parsing unavailable, creating a normal Better Task instead.",
+          );
         }
       }
 
@@ -1510,7 +2023,7 @@ export default {
         if (fuid == null || fuid == undefined) {
           toast(
             t(["toasts", "placeCursorTodo"], getLanguageSetting()) ||
-              "Place the cursor in the block where you wish to create the Better Task."
+              "Place the cursor in the block where you wish to create the Better Task.",
           );
           return;
         }
@@ -1518,7 +2031,10 @@ export default {
 
       const block = await getBlock(fuid);
       if (!block) {
-        toast(t(["toasts", "unableReadBlock"], getLanguageSetting()) || "Unable to read the current block.");
+        toast(
+          t(["toasts", "unableReadBlock"], getLanguageSetting()) ||
+            "Unable to read the current block.",
+        );
         return;
       }
 
@@ -1526,14 +2042,26 @@ export default {
       const inlineAttrs = parseAttrsFromBlockText(block.string || "");
       const childAttrs = parseAttrsFromChildBlocks(block.children || []);
       const attrNames = resolveAttributeNames();
-      const childRepeatEntry = pickChildAttr(childAttrs, attrNames.repeatAliases);
+      const childRepeatEntry = pickChildAttr(
+        childAttrs,
+        attrNames.repeatAliases,
+      );
       const childDueEntry = pickChildAttr(childAttrs, attrNames.dueAliases);
       const childStartEntry = pickChildAttr(childAttrs, attrNames.startAliases);
       const childDeferEntry = pickChildAttr(childAttrs, attrNames.deferAliases);
-      const inlineRepeatVal = pickInlineAttr(inlineAttrs, attrNames.repeatAliases);
+      const inlineRepeatVal = pickInlineAttr(
+        inlineAttrs,
+        attrNames.repeatAliases,
+      );
       const inlineDueVal = pickInlineAttr(inlineAttrs, attrNames.dueAliases);
-      const inlineStartVal = pickInlineAttr(inlineAttrs, attrNames.startAliases);
-      const inlineDeferVal = pickInlineAttr(inlineAttrs, attrNames.deferAliases);
+      const inlineStartVal = pickInlineAttr(
+        inlineAttrs,
+        attrNames.startAliases,
+      );
+      const inlineDeferVal = pickInlineAttr(
+        inlineAttrs,
+        attrNames.deferAliases,
+      );
       const removalKeys = [
         ...new Set([
           ...attrNames.repeatRemovalKeys,
@@ -1542,13 +2070,19 @@ export default {
           ...attrNames.deferRemovalKeys,
         ]),
       ];
-      const baseWithoutAttrs = removeInlineAttributes(block.string || "", removalKeys);
-      const initialTaskText = baseWithoutAttrs.replace(/^\{\{\[\[(?:TODO|DONE)\]\]\}\}\s*/i, "").trim();
+      const baseWithoutAttrs = removeInlineAttributes(
+        block.string || "",
+        removalKeys,
+      );
+      const initialTaskText = baseWithoutAttrs
+        .replace(/^\{\{\[\[(?:TODO|DONE)\]\]\}\}\s*/i, "")
+        .trim();
       const promptResult = await promptForRepeatAndDue({
         includeTaskText: true,
         forceTaskInput: true,
         taskText: initialTaskText,
-        repeat: props.repeat || childRepeatEntry?.value || inlineRepeatVal || "",
+        repeat:
+          props.repeat || childRepeatEntry?.value || inlineRepeatVal || "",
         due: props.due || childDueEntry?.value || inlineDueVal || "",
         start: props.start || childStartEntry?.value || inlineStartVal || "",
         defer: props.defer || childDeferEntry?.value || inlineDeferVal || "",
@@ -1556,10 +2090,14 @@ export default {
       if (!promptResult) return;
 
       const set = S(attrNames);
-      const normalizedRepeat =
-        promptResult.repeat ? normalizeRepeatRuleText(promptResult.repeat) || promptResult.repeat : "";
+      const normalizedRepeat = promptResult.repeat
+        ? normalizeRepeatRuleText(promptResult.repeat) || promptResult.repeat
+        : "";
       if (normalizedRepeat && !parseRuleText(normalizedRepeat, set)) {
-        toast(t(["toasts", "unableUnderstandRepeat"], getLanguageSetting()) || "Unable to understand that repeat rule.");
+        toast(
+          t(["toasts", "unableUnderstandRepeat"], getLanguageSetting()) ||
+            "Unable to understand that repeat rule.",
+        );
         return;
       }
 
@@ -1568,18 +2106,23 @@ export default {
       const promptDueSource = promptResult.due || "";
       if (promptDueSource) {
         dueDate =
-          promptResult.dueDate instanceof Date && !Number.isNaN(promptResult.dueDate.getTime())
+          promptResult.dueDate instanceof Date &&
+          !Number.isNaN(promptResult.dueDate.getTime())
             ? new Date(promptResult.dueDate.getTime())
             : parseRoamDate(promptDueSource);
         if (!(dueDate instanceof Date) || Number.isNaN(dueDate.getTime())) {
-          toast(t(["toasts", "cannotParseDue"], getLanguageSetting()) || "Couldn't parse that due date.");
+          toast(
+            t(["toasts", "cannotParseDue"], getLanguageSetting()) ||
+              "Couldn't parse that due date.",
+          );
           return;
         }
         dueStr = formatDate(dueDate, set);
       }
 
       const startSourceFromPrompt = promptResult.start || "";
-      const startFallbackSource = props.start || childStartEntry?.value || inlineStartVal || "";
+      const startFallbackSource =
+        props.start || childStartEntry?.value || inlineStartVal || "";
       const startSource = startSourceFromPrompt || startFallbackSource;
       let startDate = null;
       let startStr = null;
@@ -1589,14 +2132,18 @@ export default {
             ? new Date(promptResult.startDate.getTime())
             : parseRoamDate(startSource);
         if (!(startDate instanceof Date) || Number.isNaN(startDate.getTime())) {
-          toast(t(["toasts", "cannotParseStart"], getLanguageSetting()) || "Couldn't parse that start date.");
+          toast(
+            t(["toasts", "cannotParseStart"], getLanguageSetting()) ||
+              "Couldn't parse that start date.",
+          );
           return;
         }
         startStr = formatDate(startDate, set);
       }
 
       const deferSourceFromPrompt = promptResult.defer || "";
-      const deferFallbackSource = props.defer || childDeferEntry?.value || inlineDeferVal || "";
+      const deferFallbackSource =
+        props.defer || childDeferEntry?.value || inlineDeferVal || "";
       const deferSource = deferSourceFromPrompt || deferFallbackSource;
       let deferDate = null;
       let deferStr = null;
@@ -1606,7 +2153,10 @@ export default {
             ? new Date(promptResult.deferDate.getTime())
             : parseRoamDate(deferSource);
         if (!(deferDate instanceof Date) || Number.isNaN(deferDate.getTime())) {
-          toast(t(["toasts", "cannotParseDefer"], getLanguageSetting()) || "Couldn't parse that defer date.");
+          toast(
+            t(["toasts", "cannotParseDefer"], getLanguageSetting()) ||
+              "Couldn't parse that defer date.",
+          );
           return;
         }
         deferStr = formatDate(deferDate, set);
@@ -1625,7 +2175,7 @@ export default {
       if (!hasRepeat && !hasTimingInput && !hasMetadataInput) {
         toast(
           t(["toasts", "addRepeatDateOrMetadata"], getLanguageSetting()) ||
-            "Add a repeat rule, a date, or metadata."
+            "Add a repeat rule, a date, or metadata.",
         );
         return;
       }
@@ -1633,10 +2183,14 @@ export default {
       const taskTextInput =
         typeof promptResult.taskText === "string" && promptResult.taskText
           ? promptResult.taskText
-          : typeof promptResult.taskTextRaw === "string" && promptResult.taskTextRaw
+          : typeof promptResult.taskTextRaw === "string" &&
+              promptResult.taskTextRaw
             ? promptResult.taskTextRaw
             : initialTaskText;
-      const cleanedTaskText = removeInlineAttributes(taskTextInput || "", removalKeys).trim();
+      const cleanedTaskText = removeInlineAttributes(
+        taskTextInput || "",
+        removalKeys,
+      ).trim();
       const todoString = normalizeToTodoMacro(cleanedTaskText);
       if (todoString !== (block.string || "")) {
         await updateBlockString(fuid, todoString);
@@ -1648,20 +2202,31 @@ export default {
 
       await updateBlockProps(fuid, { rt: rtProps });
 
-      if (hasRepeat) await ensureChildAttrForType(fuid, "repeat", normalizedRepeat, set.attrNames);
+      if (hasRepeat)
+        await ensureChildAttrForType(
+          fuid,
+          "repeat",
+          normalizedRepeat,
+          set.attrNames,
+        );
       else await removeChildAttrsForType(fuid, "repeat", set.attrNames);
-      if (dueStr) await ensureChildAttrForType(fuid, "due", dueStr, set.attrNames);
+      if (dueStr)
+        await ensureChildAttrForType(fuid, "due", dueStr, set.attrNames);
       else await removeChildAttrsForType(fuid, "due", set.attrNames);
-      if (startStr) await ensureChildAttrForType(fuid, "start", startStr, set.attrNames);
+      if (startStr)
+        await ensureChildAttrForType(fuid, "start", startStr, set.attrNames);
       else await removeChildAttrsForType(fuid, "start", set.attrNames);
-      if (deferStr) await ensureChildAttrForType(fuid, "defer", deferStr, set.attrNames);
+      if (deferStr)
+        await ensureChildAttrForType(fuid, "defer", deferStr, set.attrNames);
       else await removeChildAttrsForType(fuid, "defer", set.attrNames);
       if (hasMetadataInput) {
         await applyMetadataFromPrompt(fuid, promptResult, set.attrNames);
       }
 
       repeatOverrides.delete(fuid);
-      const createdMsg = t(["toasts", "createdRecurring"], getLanguageSetting()) || "Created your Better Task";
+      const createdMsg =
+        t(["toasts", "createdRecurring"], getLanguageSetting()) ||
+        "Created your Better Task";
       toast(createdMsg);
       scheduleSurfaceSync(set.attributeSurface);
     }
@@ -1670,7 +2235,8 @@ export default {
       if (!blockUid || !parsed) return false;
       const block = await getBlock(blockUid);
       if (!block) return false;
-      const baseTitle = typeof parsed.title === "string" ? parsed.title.trim() : "";
+      const baseTitle =
+        typeof parsed.title === "string" ? parsed.title.trim() : "";
       if (!baseTitle) return false;
       const cleanedTitle = stripSchedulingFromTitle(baseTitle, parsed);
       const attrNames = resolveAttributeNames();
@@ -1683,11 +2249,16 @@ export default {
 
       let repeatVal = "";
       if (typeof parsed.repeatRule === "string" && parsed.repeatRule.trim()) {
-        const normalizedRepeat = normalizeRepeatRuleText(parsed.repeatRule) || parsed.repeatRule.trim();
+        const normalizedRepeat =
+          normalizeRepeatRuleText(parsed.repeatRule) ||
+          parsed.repeatRule.trim();
         if (parseRuleText(normalizedRepeat, set)) {
           repeatVal = normalizedRepeat;
         } else {
-          console.warn("[BetterTasks] AI repeat rule invalid, ignoring", normalizedRepeat);
+          console.warn(
+            "[BetterTasks] AI repeat rule invalid, ignoring",
+            normalizedRepeat,
+          );
         }
       }
 
@@ -1695,7 +2266,9 @@ export default {
         if (typeof value !== "string" || !value.trim()) return null;
         const original = value.trim();
         const cleaned = stripTimeFromDateText(original);
-        let dt = parseRoamDate(cleaned) || parseRelativeDateText(cleaned, set.weekStartCode);
+        let dt =
+          parseRoamDate(cleaned) ||
+          parseRelativeDateText(cleaned, set.weekStartCode);
         if (!dt && hasTimeOnlyHint(original)) {
           dt = pickAnchorDateFromTimeHint(original, set);
         }
@@ -1703,8 +2276,14 @@ export default {
         return formatDate(dt, set);
       };
 
-      const weekendSpan = parseWeekendSpan(parsed.dueDateText || parsed.startDateText || "", set);
-      const weekSpan = parseWeekSpan(parsed.dueDateText || parsed.startDateText || "", set);
+      const weekendSpan = parseWeekendSpan(
+        parsed.dueDateText || parsed.startDateText || "",
+        set,
+      );
+      const weekSpan = parseWeekSpan(
+        parsed.dueDateText || parsed.startDateText || "",
+        set,
+      );
 
       const dueStr =
         (weekendSpan?.due ? formatDate(weekendSpan.due, set) : null) ||
@@ -1722,13 +2301,32 @@ export default {
       if (!rtProps.tz) rtProps.tz = set.timezone;
       await updateBlockProps(blockUid, { rt: rtProps });
 
-      if (repeatVal) await ensureChildAttrForType(blockUid, "repeat", repeatVal, set.attrNames);
+      if (repeatVal)
+        await ensureChildAttrForType(
+          blockUid,
+          "repeat",
+          repeatVal,
+          set.attrNames,
+        );
       else await removeChildAttrsForType(blockUid, "repeat", set.attrNames);
-      if (dueStr) await ensureChildAttrForType(blockUid, "due", dueStr, set.attrNames);
+      if (dueStr)
+        await ensureChildAttrForType(blockUid, "due", dueStr, set.attrNames);
       else await removeChildAttrsForType(blockUid, "due", set.attrNames);
-      if (startStr) await ensureChildAttrForType(blockUid, "start", startStr, set.attrNames);
+      if (startStr)
+        await ensureChildAttrForType(
+          blockUid,
+          "start",
+          startStr,
+          set.attrNames,
+        );
       else await removeChildAttrsForType(blockUid, "start", set.attrNames);
-      if (deferStr) await ensureChildAttrForType(blockUid, "defer", deferStr, set.attrNames);
+      if (deferStr)
+        await ensureChildAttrForType(
+          blockUid,
+          "defer",
+          deferStr,
+          set.attrNames,
+        );
       else await removeChildAttrsForType(blockUid, "defer", set.attrNames);
       const hasAiMeta = !!(
         (parsed.project || "").trim() ||
@@ -1745,7 +2343,7 @@ export default {
             priority: parsed.priority || "",
             energy: parsed.energy || "",
           },
-          set.attrNames
+          set.attrNames,
         );
       }
 
@@ -1756,7 +2354,8 @@ export default {
 
     function getWeekStartSetting() {
       const raw = extensionAPI.settings.get("rt-week-start");
-      if (typeof raw === "string" && WEEK_START_OPTIONS.includes(raw)) return raw;
+      if (typeof raw === "string" && WEEK_START_OPTIONS.includes(raw))
+        return raw;
       return "Monday";
     }
 
@@ -1767,7 +2366,10 @@ export default {
           api?.settings?.set("rt-attribute-surface", "Child");
         }
       } catch (err) {
-        console.warn("[RecurringTasks] failed to enforce Child attribute surface", err);
+        console.warn(
+          "[RecurringTasks] failed to enforce Child attribute surface",
+          err,
+        );
       }
       return "Child";
     }
@@ -1861,15 +2463,18 @@ export default {
             if (signal?.aborted) {
               return { ok: false, reason: "aborted" };
             }
-            response = await fetch("https://api.openai.com/v1/chat/completions", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${aiSettings.apiKey}`,
+            response = await fetch(
+              "https://api.openai.com/v1/chat/completions",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${aiSettings.apiKey}`,
+                },
+                body: JSON.stringify(payload),
+                signal: signal || undefined,
               },
-              body: JSON.stringify(payload),
-              signal: signal || undefined,
-            });
+            );
           } catch (err) {
             if (err?.name === "AbortError") {
               return { ok: false, reason: "aborted" };
@@ -1877,7 +2482,10 @@ export default {
             lastError = err;
             if (attempt < AI_RETRY_MAX) {
               try {
-                await delayWithSignal(AI_RETRY_BASE_MS * Math.pow(2, attempt), signal);
+                await delayWithSignal(
+                  AI_RETRY_BASE_MS * Math.pow(2, attempt),
+                  signal,
+                );
               } catch (delayErr) {
                 if (delayErr?.name === "AbortError") {
                   return { ok: false, reason: "aborted" };
@@ -1888,7 +2496,11 @@ export default {
             throw err;
           }
           if (!response || response.ok) break;
-          if (!AI_RETRY_STATUSES.has(response.status) || attempt >= AI_RETRY_MAX) break;
+          if (
+            !AI_RETRY_STATUSES.has(response.status) ||
+            attempt >= AI_RETRY_MAX
+          )
+            break;
           let retryDelayMs = AI_RETRY_BASE_MS * Math.pow(2, attempt);
           if (response.status === 429) {
             const retryAfter = response.headers?.get?.("retry-after");
@@ -1899,7 +2511,10 @@ export default {
           }
           const jitterFactor = 0.8 + Math.random() * 0.4;
           try {
-            await delayWithSignal(Math.round(retryDelayMs * jitterFactor), signal);
+            await delayWithSignal(
+              Math.round(retryDelayMs * jitterFactor),
+              signal,
+            );
           } catch (delayErr) {
             if (delayErr?.name === "AbortError") {
               return { ok: false, reason: "aborted" };
@@ -1911,7 +2526,10 @@ export default {
         return { ok: false, error: err };
       }
       if (!response) {
-        return { ok: false, error: lastError || new Error("OpenAI request failed") };
+        return {
+          ok: false,
+          error: lastError || new Error("OpenAI request failed"),
+        };
       }
       let responseBodyText = null;
       try {
@@ -1950,7 +2568,9 @@ export default {
           // ignore parse issues
         }
         const message =
-          errorJson?.error?.message || errorText || `OpenAI response ${response?.status || "unknown"}`;
+          errorJson?.error?.message ||
+          errorText ||
+          `OpenAI response ${response?.status || "unknown"}`;
         const code = errorJson?.error?.code || errorJson?.error?.type || null;
         return {
           ok: false,
@@ -1979,40 +2599,63 @@ export default {
     }
 
     function validateParsedTask(raw) {
-      if (!raw || typeof raw !== "object") return { ok: false, error: new Error("Invalid JSON shape") };
+      if (!raw || typeof raw !== "object")
+        return { ok: false, error: new Error("Invalid JSON shape") };
       const title = typeof raw.title === "string" ? raw.title.trim() : "";
       if (!title) return { ok: false, error: new Error("Missing title") };
       const task = { title };
-      if (typeof raw.repeatRule === "string" && raw.repeatRule.trim()) task.repeatRule = raw.repeatRule.trim();
-      if (typeof raw.dueDateText === "string" && raw.dueDateText.trim()) task.dueDateText = raw.dueDateText.trim();
-      if (typeof raw.startDateText === "string" && raw.startDateText.trim()) task.startDateText = raw.startDateText.trim();
-      if (typeof raw.deferDateText === "string" && raw.deferDateText.trim()) task.deferDateText = raw.deferDateText.trim();
-      if (typeof raw.project === "string" && raw.project.trim()) task.project = raw.project.trim();
-      if (typeof raw.context === "string" && raw.context.trim()) task.context = raw.context.trim();
+      if (typeof raw.repeatRule === "string" && raw.repeatRule.trim())
+        task.repeatRule = raw.repeatRule.trim();
+      if (typeof raw.dueDateText === "string" && raw.dueDateText.trim())
+        task.dueDateText = raw.dueDateText.trim();
+      if (typeof raw.startDateText === "string" && raw.startDateText.trim())
+        task.startDateText = raw.startDateText.trim();
+      if (typeof raw.deferDateText === "string" && raw.deferDateText.trim())
+        task.deferDateText = raw.deferDateText.trim();
+      if (typeof raw.project === "string" && raw.project.trim())
+        task.project = raw.project.trim();
+      if (typeof raw.context === "string" && raw.context.trim())
+        task.context = raw.context.trim();
       const allowedRatings = new Set(["low", "medium", "high"]);
-      if (typeof raw.priority === "string" && allowedRatings.has(raw.priority)) task.priority = raw.priority;
+      if (typeof raw.priority === "string" && allowedRatings.has(raw.priority))
+        task.priority = raw.priority;
       if (raw.priority === null) task.priority = null;
-      if (typeof raw.energy === "string" && allowedRatings.has(raw.energy)) task.energy = raw.energy;
+      if (typeof raw.energy === "string" && allowedRatings.has(raw.energy))
+        task.energy = raw.energy;
       if (raw.energy === null) task.energy = null;
       return { ok: true, task };
     }
 
     function stripSchedulingFromTitle(title, parsed) {
-      const hasRepeat = typeof parsed?.repeatRule === "string" && parsed.repeatRule.trim();
+      const hasRepeat =
+        typeof parsed?.repeatRule === "string" && parsed.repeatRule.trim();
       const hasDate =
-        typeof parsed?.dueDateText === "string" && parsed.dueDateText.trim() ||
-        typeof parsed?.startDateText === "string" && parsed.startDateText.trim() ||
-        typeof parsed?.deferDateText === "string" && parsed.deferDateText.trim();
+        (typeof parsed?.dueDateText === "string" &&
+          parsed.dueDateText.trim()) ||
+        (typeof parsed?.startDateText === "string" &&
+          parsed.startDateText.trim()) ||
+        (typeof parsed?.deferDateText === "string" &&
+          parsed.deferDateText.trim());
       let t = (title || "").trim();
       if (!t) return t;
       if (hasRepeat) {
         t = t.replace(/,\s*every\b.+$/i, "").trim();
         t = t.replace(/\bevery\s+.+$/i, "").trim();
         // Only drop bare cadence words when they are effectively trailing schedule hints (optionally with at/on ...)
-        t = t.replace(/\b(daily|weekly|monthly|yearly|annually|weekdays|weekends)\b\s*(?:(?:at|on)\b.*)?$/i, "").trim();
+        t = t
+          .replace(
+            /\b(daily|weekly|monthly|yearly|annually|weekdays|weekends)\b\s*(?:(?:at|on)\b.*)?$/i,
+            "",
+          )
+          .trim();
       }
       if (hasDate) {
-        t = t.replace(/\s*(on|by|due|for)\s+(tomorrow|today|next\s+[a-z]+|this\s+[a-z]+)$/i, "").trim();
+        t = t
+          .replace(
+            /\s*(on|by|due|for)\s+(tomorrow|today|next\s+[a-z]+|this\s+[a-z]+)$/i,
+            "",
+          )
+          .trim();
         t = t.replace(/\s*(on\s+)?\[\[[^\]]+\]\]\s*$/i, "").trim();
         t = t.replace(/\s*(tomorrow|today|next\s+[a-z]+)$/i, "").trim();
       }
@@ -2087,7 +2730,9 @@ export default {
 
     function captureBlockLocation(block) {
       const parents = Array.isArray(block?.parents) ? block.parents : [];
-      const parentUid = parents.length ? parents[0]?.uid : block?.page?.uid || null;
+      const parentUid = parents.length
+        ? parents[0]?.uid
+        : block?.page?.uid || null;
       const order = typeof block?.order === "number" ? block.order : 0;
       return { parentUid, order };
     }
@@ -2099,13 +2744,24 @@ export default {
       const childMap = meta?.childAttrMap || {};
       const attrNames = set?.attrNames || resolveAttributeNames();
       const attrSurface = set?.attributeSurface || "Child";
-      const dueInfo = pickChildAttr(childMap, attrNames.dueAliases, { allowFallback: false }) || null;
-      const repeatInfo = pickChildAttr(childMap, attrNames.repeatAliases, { allowFallback: false }) || null;
+      const dueInfo =
+        pickChildAttr(childMap, attrNames.dueAliases, {
+          allowFallback: false,
+        }) || null;
+      const repeatInfo =
+        pickChildAttr(childMap, attrNames.repeatAliases, {
+          allowFallback: false,
+        }) || null;
       const inlineDueValue = pickInlineAttr(inlineAttrs, attrNames.dueAliases);
-      const inlineRepeatValue = pickInlineAttr(inlineAttrs, attrNames.repeatAliases);
+      const inlineRepeatValue = pickInlineAttr(
+        inlineAttrs,
+        attrNames.repeatAliases,
+      );
       const snapshot = captureBlockSnapshot(block);
       const previousDueDate =
-        meta?.due instanceof Date && !Number.isNaN(meta.due.getTime()) ? new Date(meta.due.getTime()) : null;
+        meta?.due instanceof Date && !Number.isNaN(meta.due.getTime())
+          ? new Date(meta.due.getTime())
+          : null;
       const previousDueStr =
         typeof props?.due === "string"
           ? props.due
@@ -2124,7 +2780,8 @@ export default {
         previousChildRepeatUid: repeatInfo?.uid || null,
         previousParentUid: location.parentUid,
         previousOrder: location.order,
-        previousProps: props && typeof props === "object" ? clonePlain(props) : {},
+        previousProps:
+          props && typeof props === "object" ? clonePlain(props) : {},
         previousInlineRepeat: inlineRepeatValue || null,
         hadInlineRepeat: inlineRepeatValue != null,
         snapshot,
@@ -2148,13 +2805,18 @@ export default {
         close: true,
         closeOnEscape: true,
         closeOnClick: false,
-        message: translateString(payload.message || "Due updated", getLanguageSetting()),
+        message: translateString(
+          payload.message || "Due updated",
+          getLanguageSetting(),
+        ),
         buttons: [
           [
             `<button>${escapeHtml(t(["buttons", "undo"], getLanguageSetting()) || "Undo")}</button>`,
             (instance, toastEl) => {
               instance.hide({ transitionOut: "fadeOut" }, toastEl, "button");
-              performDueUndo(payload).catch((err) => console.error("[RecurringTasks] due undo failed", err));
+              performDueUndo(payload).catch((err) =>
+                console.error("[RecurringTasks] due undo failed", err),
+              );
             },
             true,
           ],
@@ -2177,9 +2839,14 @@ export default {
       const snapshot = payload.snapshot || null;
       try {
         // Move back before restoring metadata so child updates apply under the correct parent
-        if (payload.wasMoved && payload.previousParentUid && payload.previousParentUid !== payload.newParentUid) {
+        if (
+          payload.wasMoved &&
+          payload.previousParentUid &&
+          payload.previousParentUid !== payload.newParentUid
+        ) {
           try {
-            const order = payload.previousOrder != null ? payload.previousOrder : 0;
+            const order =
+              payload.previousOrder != null ? payload.previousOrder : 0;
             await window.roamAlphaAPI.moveBlock({
               location: { "parent-uid": payload.previousParentUid, order },
               block: { uid },
@@ -2191,7 +2858,10 @@ export default {
         let block = await getBlock(uid);
 
         if (snapshot) {
-          if (typeof snapshot.string === "string" && block?.string !== snapshot.string) {
+          if (
+            typeof snapshot.string === "string" &&
+            block?.string !== snapshot.string
+          ) {
             await updateBlockString(uid, snapshot.string);
             block = await getBlock(uid);
           }
@@ -2203,45 +2873,84 @@ export default {
           await removeChildAttrsForType(uid, "due", set.attrNames);
           await removeChildAttr(uid, "rt-processed");
           const childAttrs = snapshot.childAttrs || {};
-          if (childAttrs.repeat?.value != null && childAttrs.repeat.value !== "") {
-            await ensureChildAttrForType(uid, "repeat", childAttrs.repeat.value, set.attrNames);
+          if (
+            childAttrs.repeat?.value != null &&
+            childAttrs.repeat.value !== ""
+          ) {
+            await ensureChildAttrForType(
+              uid,
+              "repeat",
+              childAttrs.repeat.value,
+              set.attrNames,
+            );
           }
           if (childAttrs.due?.value != null && childAttrs.due.value !== "") {
-            await ensureChildAttrForType(uid, "due", childAttrs.due.value, set.attrNames);
+            await ensureChildAttrForType(
+              uid,
+              "due",
+              childAttrs.due.value,
+              set.attrNames,
+            );
           }
-          if (childAttrs["rt-processed"]?.value != null && childAttrs["rt-processed"].value !== "") {
-            await ensureChildAttr(uid, "rt-processed", childAttrs["rt-processed"].value);
+          if (
+            childAttrs["rt-processed"]?.value != null &&
+            childAttrs["rt-processed"].value !== ""
+          ) {
+            await ensureChildAttr(
+              uid,
+              "rt-processed",
+              childAttrs["rt-processed"].value,
+            );
           }
         } else {
           const propsUpdate = {};
           if (payload.previousDueStr) propsUpdate.due = payload.previousDueStr;
           else propsUpdate.due = undefined;
           if (payload.previousInlineRepeat || payload.previousChildRepeat) {
-            propsUpdate.repeat = payload.previousInlineRepeat || payload.previousChildRepeat;
+            propsUpdate.repeat =
+              payload.previousInlineRepeat || payload.previousChildRepeat;
           } else {
             propsUpdate.repeat = undefined;
           }
           await updateBlockProps(uid, propsUpdate);
           block = await getBlock(uid);
           if (payload.previousChildRepeat != null) {
-            await ensureChildAttrForType(uid, "repeat", payload.previousChildRepeat, set.attrNames);
+            await ensureChildAttrForType(
+              uid,
+              "repeat",
+              payload.previousChildRepeat,
+              set.attrNames,
+            );
           } else {
             await removeChildAttrsForType(uid, "repeat", set.attrNames);
           }
           if (payload.hadChildDue && payload.previousChildDue != null) {
-            await ensureChildAttrForType(uid, "due", payload.previousChildDue, set.attrNames);
+            await ensureChildAttrForType(
+              uid,
+              "due",
+              payload.previousChildDue,
+              set.attrNames,
+            );
           } else {
             await removeChildAttrsForType(uid, "due", set.attrNames);
           }
-          if (snapshot?.childAttrs?.["rt-processed"]?.value != null && snapshot.childAttrs["rt-processed"].value !== "") {
-            await ensureChildAttr(uid, "rt-processed", snapshot.childAttrs["rt-processed"].value);
+          if (
+            snapshot?.childAttrs?.["rt-processed"]?.value != null &&
+            snapshot.childAttrs["rt-processed"].value !== ""
+          ) {
+            await ensureChildAttr(
+              uid,
+              "rt-processed",
+              snapshot.childAttrs["rt-processed"].value,
+            );
           } else {
             await removeChildAttr(uid, "rt-processed");
           }
         }
 
         const previousDueDate =
-          payload.previousDueDate instanceof Date && !Number.isNaN(payload.previousDueDate.getTime())
+          payload.previousDueDate instanceof Date &&
+          !Number.isNaN(payload.previousDueDate.getTime())
             ? new Date(payload.previousDueDate.getTime())
             : null;
         const snapshotRepeat =
@@ -2255,9 +2964,11 @@ export default {
           snapshotRepeat != null
             ? normalizeRepeatRuleText(snapshotRepeat) || snapshotRepeat
             : payload.previousInlineRepeat != null
-              ? normalizeRepeatRuleText(payload.previousInlineRepeat) || payload.previousInlineRepeat
+              ? normalizeRepeatRuleText(payload.previousInlineRepeat) ||
+                payload.previousInlineRepeat
               : payload.previousChildRepeat != null
-                ? normalizeRepeatRuleText(payload.previousChildRepeat) || payload.previousChildRepeat
+                ? normalizeRepeatRuleText(payload.previousChildRepeat) ||
+                  payload.previousChildRepeat
                 : undefined;
         const restoreDueStr =
           payload.previousDueStr != null
@@ -2265,12 +2976,17 @@ export default {
             : previousDueDate
               ? formatDate(previousDueDate, set)
               : undefined;
-        const restoreDueDate = restoreDueStr ? parseRoamDate(restoreDueStr) || previousDueDate : previousDueDate;
+        const restoreDueDate = restoreDueStr
+          ? parseRoamDate(restoreDueStr) || previousDueDate
+          : previousDueDate;
 
         const overridePatch = {};
         if (normalizedRepeat) overridePatch.repeat = normalizedRepeat;
         if (restoreDueStr !== undefined) {
-          if (restoreDueDate instanceof Date && !Number.isNaN(restoreDueDate.getTime())) {
+          if (
+            restoreDueDate instanceof Date &&
+            !Number.isNaN(restoreDueDate.getTime())
+          ) {
             overridePatch.due = restoreDueDate;
           } else {
             overridePatch.due = null;
@@ -2283,7 +2999,10 @@ export default {
           repeatOverrides.delete(uid);
         }
 
-        toast(t(["toasts", "undoSuccess"], getLanguageSetting()) || "Changes un-done successfully");
+        toast(
+          t(["toasts", "undoSuccess"], getLanguageSetting()) ||
+            "Changes un-done successfully",
+        );
       } catch (err) {
         console.warn("[RecurringTasks] due undo error", err);
       }
@@ -2357,7 +3076,10 @@ export default {
           });
           result.moved = true;
         } catch (err) {
-          console.warn("[RecurringTasks] relocateBlockForPlacement failed", err);
+          console.warn(
+            "[RecurringTasks] relocateBlockForPlacement failed",
+            err,
+          );
         }
       }
       return result;
@@ -2391,7 +3113,9 @@ export default {
       if (prev?.classList?.contains("rm-block-main")) {
         return prev;
       }
-      const container = childrenEl.closest?.(".roam-block-container, .roam-block");
+      const container = childrenEl.closest?.(
+        ".roam-block-container, .roam-block",
+      );
       if (!container) return null;
       return (
         container.querySelector?.(":scope > .rm-block-main") ||
@@ -2418,7 +3142,8 @@ export default {
     document.addEventListener("input", _handleAnyEdit, true);
     document.addEventListener("blur", _handleAnyEdit, true);
 
-    const checkboxInteractionSelectors = ".check-container input, .rm-checkbox input";
+    const checkboxInteractionSelectors =
+      ".check-container input, .rm-checkbox input";
     const _onCheckboxPointer = (event) => {
       if (!(event?.target instanceof HTMLElement)) return;
       if (!event.target.matches?.(checkboxInteractionSelectors)) return;
@@ -2437,11 +3162,16 @@ export default {
       setTimeout(() => {
         if (!host.classList?.contains("rm-done")) return;
         noteTodoRemoval(uid);
-        enqueueCompletion(uid, { checkbox, userInitiated: true, detectedAt: Date.now() });
+        enqueueCompletion(uid, {
+          checkbox,
+          userInitiated: true,
+          detectedAt: Date.now(),
+        });
       }, 0);
     };
     const _onCmdEnterKey = (event) => {
-      const isCmdEnter = (event.metaKey || event.ctrlKey) && event.key === "Enter";
+      const isCmdEnter =
+        (event.metaKey || event.ctrlKey) && event.key === "Enter";
       if (!isCmdEnter) return;
       if (!(event?.target instanceof HTMLElement)) return;
       const host =
@@ -2449,14 +3179,23 @@ export default {
         event.target.closest?.(".roam-block-container, .roam-block") ||
         null;
       const initialCheckbox =
-        host?.querySelector?.(":scope .rm-checkbox") || host?.querySelector?.(".rm-checkbox") || null;
-      const initialChecked = !!initialCheckbox?.querySelector?.("input[type='checkbox']")?.checked;
-      const initialDoneClass = !!initialCheckbox?.classList?.contains("rm-done");
+        host?.querySelector?.(":scope .rm-checkbox") ||
+        host?.querySelector?.(".rm-checkbox") ||
+        null;
+      const initialChecked = !!initialCheckbox?.querySelector?.(
+        "input[type='checkbox']",
+      )?.checked;
+      const initialDoneClass =
+        !!initialCheckbox?.classList?.contains("rm-done");
       const uid =
-        deriveUidFromMutationNode(initialCheckbox || host, host) || findBlockUidFromElement(host);
+        deriveUidFromMutationNode(initialCheckbox || host, host) ||
+        findBlockUidFromElement(host);
       if (!uid) return;
-      const initialMacroDone = /\{\{\s*\[\[done\]\]\s*\}\}/i.test(event.target.value || host?.textContent || "");
-      const initialIsDone = initialChecked || initialDoneClass || initialMacroDone;
+      const initialMacroDone = /\{\{\s*\[\[done\]\]\s*\}\}/i.test(
+        event.target.value || host?.textContent || "",
+      );
+      const initialIsDone =
+        initialChecked || initialDoneClass || initialMacroDone;
       markUserCheckboxInteraction();
 
       const findCheckbox = () => {
@@ -2466,7 +3205,9 @@ export default {
           document.querySelector?.(`.roam-block[data-uid='${uid}']`) ||
           null;
         const input =
-          container?.querySelector?.(":scope .rm-checkbox input[type='checkbox']") ||
+          container?.querySelector?.(
+            ":scope .rm-checkbox input[type='checkbox']",
+          ) ||
           container?.querySelector?.(".rm-checkbox input[type='checkbox']") ||
           null;
         if (!input) return null;
@@ -2482,7 +3223,11 @@ export default {
         const isDoneClass = checkboxHost?.classList?.contains("rm-done");
         if ((isChecked || isDoneClass) && !initialIsDone) {
           noteTodoRemoval(uid);
-          enqueueCompletion(uid, { checkbox: input, userInitiated: true, detectedAt: Date.now() });
+          enqueueCompletion(uid, {
+            checkbox: input,
+            userInitiated: true,
+            detectedAt: Date.now(),
+          });
           return;
         }
         if (tries < 20) {
@@ -2501,7 +3246,11 @@ export default {
           const toggledToDone = /\{\{\s*\[\[done\]\]\s*\}\}/i.test(text);
           if (toggledToDone && !initialIsDone) {
             noteTodoRemoval(uid);
-            enqueueCompletion(uid, { checkbox: null, userInitiated: true, detectedAt: Date.now() });
+            enqueueCompletion(uid, {
+              checkbox: null,
+              userInitiated: true,
+              detectedAt: Date.now(),
+            });
             return;
           }
         } catch (_) {
@@ -2547,11 +3296,15 @@ export default {
 
       for (const el of candidates) {
         if (!el) continue;
-        const dataUid = normalizeUid(el.getAttribute?.("data-uid") || el.dataset?.uid);
+        const dataUid = normalizeUid(
+          el.getAttribute?.("data-uid") || el.dataset?.uid,
+        );
         if (dataUid) return dataUid;
         const id = el.id || "";
-        if (id.startsWith("block-input-")) return normalizeUid(id.slice("block-input-".length));
-        if (id.startsWith("block-")) return normalizeUid(id.slice("block-".length));
+        if (id.startsWith("block-input-"))
+          return normalizeUid(id.slice("block-input-".length));
+        if (id.startsWith("block-"))
+          return normalizeUid(id.slice("block-".length));
       }
 
       const roamBlock = input.closest?.(".roam-block");
@@ -2572,7 +3325,10 @@ export default {
             if (uid) return uid;
           }
         } catch (err) {
-          console.warn("[RecurringTasks] Failed to derive UID via dom util", err);
+          console.warn(
+            "[RecurringTasks] Failed to derive UID via dom util",
+            err,
+          );
         }
       }
 
@@ -2582,29 +3338,41 @@ export default {
     function findBlockUidFromElement(el) {
       if (!el) return null;
 
-      const direct = normalizeUid(el.getAttribute?.("data-uid") || el.dataset?.uid);
+      const direct = normalizeUid(
+        el.getAttribute?.("data-uid") || el.dataset?.uid,
+      );
       if (direct) return direct;
 
       const withData = el.closest?.("[data-uid]");
       if (withData) {
-        const cand = normalizeUid(withData.getAttribute?.("data-uid") || withData.dataset?.uid);
+        const cand = normalizeUid(
+          withData.getAttribute?.("data-uid") || withData.dataset?.uid,
+        );
         if (cand) return cand;
       }
 
       const id = el.id || "";
-      if (id.startsWith("block-input-")) return normalizeUid(id.slice("block-input-".length));
-      if (id.startsWith("block-")) return normalizeUid(id.slice("block-".length));
+      if (id.startsWith("block-input-"))
+        return normalizeUid(id.slice("block-input-".length));
+      if (id.startsWith("block-"))
+        return normalizeUid(id.slice("block-".length));
 
       const blockInput =
-        el.querySelector?.("[id^='block-input-']") || el.closest?.("[id^='block-input-']");
+        el.querySelector?.("[id^='block-input-']") ||
+        el.closest?.("[id^='block-input-']");
       if (blockInput) {
-        const extracted = normalizeUid(blockInput.id.replace(/^block-input-/, ""));
+        const extracted = normalizeUid(
+          blockInput.id.replace(/^block-input-/, ""),
+        );
         if (extracted) return extracted;
       }
 
-      const roamBlock = el.closest?.(".roam-block") || el.querySelector?.(".roam-block");
+      const roamBlock =
+        el.closest?.(".roam-block") || el.querySelector?.(".roam-block");
       if (roamBlock) {
-        const cand = normalizeUid(roamBlock.getAttribute?.("data-uid") || roamBlock.dataset?.uid);
+        const cand = normalizeUid(
+          roamBlock.getAttribute?.("data-uid") || roamBlock.dataset?.uid,
+        );
         if (cand) return cand;
       }
 
@@ -2620,7 +3388,10 @@ export default {
             if (cand) return cand;
           }
         } catch (err) {
-          console.warn("[RecurringTasks] Failed to derive UID from element", err);
+          console.warn(
+            "[RecurringTasks] Failed to derive UID from element",
+            err,
+          );
         }
       }
 
@@ -2644,7 +3415,9 @@ export default {
 
     function markUserCheckboxInteraction() {
       lastUserCheckboxInteraction = Date.now();
-      logCompletionDebug("user-checkbox-interaction", { at: lastUserCheckboxInteraction });
+      logCompletionDebug("user-checkbox-interaction", {
+        at: lastUserCheckboxInteraction,
+      });
     }
 
     function deriveUidFromMutationNode(node, fallbackTarget) {
@@ -2672,7 +3445,8 @@ export default {
     function noteTodoRemoval(uid) {
       if (!uid) return;
       const now = Date.now();
-      const recentClick = now - lastUserCheckboxInteraction <= USER_COMPLETION_BYPASS_MS;
+      const recentClick =
+        now - lastUserCheckboxInteraction <= USER_COMPLETION_BYPASS_MS;
       if (now < pageLoadQuietUntil && !recentClick) {
         logCompletionDebug("skip-todo-removal-quiet", {
           uid,
@@ -2691,7 +3465,8 @@ export default {
     function noteDoneAddition(uid, checkbox) {
       if (!uid) return;
       const now = Date.now();
-      const recentClick = now - lastUserCheckboxInteraction <= USER_COMPLETION_BYPASS_MS;
+      const recentClick =
+        now - lastUserCheckboxInteraction <= USER_COMPLETION_BYPASS_MS;
       const entry = completionPairs.get(uid) || {};
       const pairedRemoval =
         entry.removedAt && now - entry.removedAt <= COMPLETION_PAIR_WINDOW_MS;
@@ -2706,14 +3481,25 @@ export default {
         });
         return;
       }
-      if (entry.removedAt && now - entry.removedAt <= COMPLETION_PAIR_WINDOW_MS) {
+      if (
+        entry.removedAt &&
+        now - entry.removedAt <= COMPLETION_PAIR_WINDOW_MS
+      ) {
         completionPairs.delete(uid);
-        logCompletionDebug("done-added-paired", { uid, removedAt: entry.removedAt, addedAt: now });
+        logCompletionDebug("done-added-paired", {
+          uid,
+          removedAt: entry.removedAt,
+          addedAt: now,
+        });
         enqueueCompletion(uid, { checkbox, userInitiated, detectedAt: now });
         return;
       }
       completionPairs.set(uid, { ...entry, addedAt: now, userInitiated });
-      logCompletionDebug("done-added-no-pair", { uid, addedAt: now, userInitiated });
+      logCompletionDebug("done-added-no-pair", {
+        uid,
+        addedAt: now,
+        userInitiated,
+      });
     }
 
     function enqueueCompletion(uid, options = {}) {
@@ -2722,7 +3508,10 @@ export default {
       if (!completionQueueTimer && !completionQueueFlushInFlight) {
         completionQueueTimer = setTimeout(flushCompletionQueue, 0);
       }
-      logCompletionDebug("enqueue-completion", { uid, queueSize: completionQueue.size });
+      logCompletionDebug("enqueue-completion", {
+        uid,
+        queueSize: completionQueue.size,
+      });
     }
 
     async function flushCompletionQueue() {
@@ -2739,7 +3528,10 @@ export default {
               await processTaskCompletion(uid, opts);
             } catch (err) {
               console.error("[RecurringTasks] completion handling failed", err);
-              logCompletionDebug("flush-queue-error", { uid, error: err?.message });
+              logCompletionDebug("flush-queue-error", {
+                uid,
+                error: err?.message,
+              });
             }
           }
         }
@@ -2833,7 +3625,9 @@ export default {
       const targetNode1 = document?.getElementsByClassName
         ? document.getElementsByClassName("roam-main")[0]
         : null;
-      const targetNode2 = document?.getElementById ? document.getElementById("right-sidebar") : null;
+      const targetNode2 = document?.getElementById
+        ? document.getElementById("right-sidebar")
+        : null;
       if (!targetNode1 && !targetNode2) return;
 
       lastNavigationAt = Date.now();
@@ -2867,15 +3661,23 @@ export default {
             // Ignore attribute churn caused by Better Tasks pill DOM itself.
             if (isBtPillMutationNode(target)) continue;
             const attrName = mutation.attributeName;
-            if (attrName === "class" && target.classList?.contains("rm-checkbox")) {
+            if (
+              attrName === "class" &&
+              target.classList?.contains("rm-checkbox")
+            ) {
               const wasTodo = (mutation.oldValue || "").includes("rm-todo");
               const isDone = target.classList.contains("rm-done");
               if (wasTodo && isDone) {
                 const uid = deriveUidFromMutationNode(target, null);
                 if (uid) {
-                  const checkbox = target.querySelector?.("input[type='checkbox']") || null;
+                  const checkbox =
+                    target.querySelector?.("input[type='checkbox']") || null;
                   noteTodoRemoval(uid);
-                  enqueueCompletion(uid, { checkbox, userInitiated: true, detectedAt: Date.now() });
+                  enqueueCompletion(uid, {
+                    checkbox,
+                    userInitiated: true,
+                    detectedAt: Date.now(),
+                  });
                   shouldBatchRefreshPills = true;
                   continue;
                 }
@@ -2888,7 +3690,10 @@ export default {
             let main = null;
             if (target.classList?.contains("rm-block-main")) {
               main = target;
-            } else if (target.classList?.contains("roam-block-container") || target.classList?.contains("roam-block")) {
+            } else if (
+              target.classList?.contains("roam-block-container") ||
+              target.classList?.contains("roam-block")
+            ) {
               main = target.querySelector?.(":scope > .rm-block-main") || null;
             } else {
               main = target.closest?.(".rm-block-main") || null;
@@ -2899,7 +3704,8 @@ export default {
             }
             continue;
           }
-          const target = mutation.target instanceof HTMLElement ? mutation.target : null;
+          const target =
+            mutation.target instanceof HTMLElement ? mutation.target : null;
           // Ignore childList churn caused by Better Tasks pill DOM itself.
           if (target && isBtPillMutationNode(target)) continue;
 
@@ -2909,7 +3715,9 @@ export default {
               if (isBtPillMutationNode(node)) continue;
               const todoHosts = [];
               if (node.matches?.(".rm-checkbox.rm-todo")) todoHosts.push(node);
-              node.querySelectorAll?.(".rm-checkbox.rm-todo")?.forEach((el) => todoHosts.push(el));
+              node
+                .querySelectorAll?.(".rm-checkbox.rm-todo")
+                ?.forEach((el) => todoHosts.push(el));
               for (const host of todoHosts) {
                 const uid = deriveUidFromMutationNode(host, target);
                 if (uid) {
@@ -2919,25 +3727,33 @@ export default {
               }
               // New blocks/checkboxes disappearing can invalidate pills.
               if (
-                node.matches?.(".rm-block-main, .roam-block-container, .roam-block, .rm-checkbox") ||
-                node.querySelector?.(".rm-block-main, .roam-block-container, .roam-block, .rm-checkbox")
+                node.matches?.(
+                  ".rm-block-main, .roam-block-container, .roam-block, .rm-checkbox",
+                ) ||
+                node.querySelector?.(
+                  ".rm-block-main, .roam-block-container, .roam-block, .rm-checkbox",
+                )
               ) {
                 shouldBatchRefreshPills = true;
               }
             }
           }
 
-          if (!mutation.addedNodes || mutation.addedNodes.length === 0) continue;
+          if (!mutation.addedNodes || mutation.addedNodes.length === 0)
+            continue;
 
           for (const node of mutation.addedNodes) {
             if (!(node instanceof HTMLElement)) continue;
             if (isBtPillMutationNode(node)) continue;
             const doneHosts = [];
             if (node.matches?.(".rm-checkbox.rm-done")) doneHosts.push(node);
-            node.querySelectorAll?.(".rm-checkbox.rm-done")?.forEach((el) => doneHosts.push(el));
+            node
+              .querySelectorAll?.(".rm-checkbox.rm-done")
+              ?.forEach((el) => doneHosts.push(el));
 
             for (const host of doneHosts) {
-              const checkbox = host.querySelector?.("input[type='checkbox']") || null;
+              const checkbox =
+                host.querySelector?.("input[type='checkbox']") || null;
               const uid = deriveUidFromMutationNode(host, target);
               if (uid) {
                 noteDoneAddition(uid, checkbox);
@@ -2946,8 +3762,12 @@ export default {
             }
             // New blocks/checkboxes appearing are the main case for pill decoration (scroll/render).
             if (
-              node.matches?.(".rm-block-main, .roam-block-container, .roam-block, .rm-checkbox") ||
-              node.querySelector?.(".rm-block-main, .roam-block-container, .roam-block, .rm-checkbox")
+              node.matches?.(
+                ".rm-block-main, .roam-block-container, .roam-block, .rm-checkbox",
+              ) ||
+              node.querySelector?.(
+                ".rm-block-main, .roam-block-container, .roam-block, .rm-checkbox",
+              )
             ) {
               shouldBatchRefreshPills = true;
             }
@@ -3001,9 +3821,11 @@ export default {
       const now = Date.now();
       processedMap.set(uid, now);
       const checkbox = options.checkbox || null;
-      const userClickRecent = now - lastUserCheckboxInteraction <= USER_COMPLETION_BYPASS_MS;
+      const userClickRecent =
+        now - lastUserCheckboxInteraction <= USER_COMPLETION_BYPASS_MS;
       const userInitiated = !!options.userInitiated && userClickRecent;
-      const detectedAt = typeof options.detectedAt === "number" ? options.detectedAt : null;
+      const detectedAt =
+        typeof options.detectedAt === "number" ? options.detectedAt : null;
       try {
         const set = S();
         await flushChildAttrSync(uid);
@@ -3031,7 +3853,8 @@ export default {
 
         const detectionTs = detectedAt || now;
         const recentNavigation =
-          !!lastNavigationAt && detectionTs - lastNavigationAt <= NAV_COMPLETION_BLOCK_MS;
+          !!lastNavigationAt &&
+          detectionTs - lastNavigationAt <= NAV_COMPLETION_BLOCK_MS;
         if (!userInitiated && recentNavigation) {
           processedMap.delete(uid);
           logCompletionDebug("skip-completion-nav", {
@@ -3055,15 +3878,25 @@ export default {
 
         if (meta.processedTs && now - meta.processedTs < 4000) {
           processedMap.delete(uid);
-          logCompletionDebug("skip-completion-recent-meta", { uid, metaProcessed: meta.processedTs, now });
+          logCompletionDebug("skip-completion-recent-meta", {
+            uid,
+            metaProcessed: meta.processedTs,
+            now,
+          });
           return null;
         }
 
         if (!userInitiated) {
-          const staleProcessed = meta.processedTs && now - meta.processedTs > COMPLETION_STALE_WINDOW_MS;
+          const staleProcessed =
+            meta.processedTs &&
+            now - meta.processedTs > COMPLETION_STALE_WINDOW_MS;
           // Allow keyboard completions (cmd/ctrl+Enter) which won't mark userInitiated,
           // but still block re-processing when a completed child attr already exists.
-          const completedEntry = pickChildAttr(meta.childAttrMap, set.attrNames.completedAliases, { allowFallback: true });
+          const completedEntry = pickChildAttr(
+            meta.childAttrMap,
+            set.attrNames.completedAliases,
+            { allowFallback: true },
+          );
           if (completedEntry || staleProcessed) {
             processedMap.delete(uid);
             logCompletionDebug("skip-completion-stale", {
@@ -3085,7 +3918,13 @@ export default {
             const completion = await markCompleted(block, meta, set);
             processedMap.set(uid, completion.processedAt);
             const anchor =
-              pickPlacementDate({ start: meta.start, defer: meta.defer, due: meta.due }) || meta.due || null;
+              pickPlacementDate({
+                start: meta.start,
+                defer: meta.defer,
+                due: meta.due,
+              }) ||
+              meta.due ||
+              null;
             registerUndoAction({
               blockUid: uid,
               snapshot,
@@ -3100,13 +3939,19 @@ export default {
             repeatOverrides.delete(uid);
             void syncPillsForSurface(lastAttrSurface);
             activeDashboardController?.notifyBlockChange?.(uid);
-            logCompletionDebug("completion-one-off", { uid, processedAt: completion.processedAt });
+            logCompletionDebug("completion-one-off", {
+              uid,
+              processedAt: completion.processedAt,
+            });
             return { type: "one-off" };
           } catch (err) {
             console.error("[RecurringTasks] one-off completion failed", err);
             await revertBlockCompletion(block);
             processedMap.delete(uid);
-            logCompletionDebug("completion-one-off-error", { uid, error: err?.message });
+            logCompletionDebug("completion-one-off-error", {
+              uid,
+              error: err?.message,
+            });
             return null;
           }
         }
@@ -3130,9 +3975,18 @@ export default {
         }
         if (overrideDue) {
           meta.due = overrideDue;
-          meta.props = { ...(meta.props || {}), due: formatDate(overrideDue, set) };
+          meta.props = {
+            ...(meta.props || {}),
+            due: formatDate(overrideDue, set),
+          };
         }
-        const advanceMode = await ensureAdvancePreference(uid, block, meta, set, checkbox);
+        const advanceMode = await ensureAdvancePreference(
+          uid,
+          block,
+          meta,
+          set,
+          checkbox,
+        );
         if (!advanceMode) {
           processedMap.delete(uid);
           return null;
@@ -3141,26 +3995,39 @@ export default {
         const setWithAdvance = { ...set, advanceFrom: advanceMode };
         const completion = await markCompleted(block, meta, setWithAdvance);
         processedMap.set(uid, completion.processedAt);
-        logCompletionDebug("completion-recurring-marked", { uid, processedAt: completion.processedAt });
-
-        const { meta: resolvedMeta, block: resolvedBlock } = await resolveMetaAfterCompletion(
-          snapshot,
+        logCompletionDebug("completion-recurring-marked", {
           uid,
-          meta,
-          setWithAdvance
-        );
+          processedAt: completion.processedAt,
+        });
+
+        const { meta: resolvedMeta, block: resolvedBlock } =
+          await resolveMetaAfterCompletion(snapshot, uid, meta, setWithAdvance);
         if (overrideRepeat) {
           resolvedMeta.repeat = overrideRepeat;
-          resolvedMeta.props = { ...(resolvedMeta.props || {}), repeat: overrideRepeat };
+          resolvedMeta.props = {
+            ...(resolvedMeta.props || {}),
+            repeat: overrideRepeat,
+          };
         }
         if (overrideDue) {
           resolvedMeta.due = overrideDue;
-          resolvedMeta.props = { ...(resolvedMeta.props || {}), due: formatDate(overrideDue, set) };
+          resolvedMeta.props = {
+            ...(resolvedMeta.props || {}),
+            due: formatDate(overrideDue, set),
+          };
         }
-        const overrideRule = overrideRepeat ? parseRuleText(overrideRepeat, setWithAdvance) : null;
+        const overrideRule = overrideRepeat
+          ? parseRuleText(overrideRepeat, setWithAdvance)
+          : null;
         const nextDueCandidate =
-          overrideDue && overrideDue instanceof Date && !Number.isNaN(overrideDue.getTime()) ? overrideDue : null;
-        const nextDue = nextDueCandidate || computeNextDue(resolvedMeta, setWithAdvance, 0, overrideRule);
+          overrideDue &&
+          overrideDue instanceof Date &&
+          !Number.isNaN(overrideDue.getTime())
+            ? overrideDue
+            : null;
+        const nextDue =
+          nextDueCandidate ||
+          computeNextDue(resolvedMeta, setWithAdvance, 0, overrideRule);
         if (!nextDue) {
           processedMap.delete(uid);
           return null;
@@ -3173,23 +4040,43 @@ export default {
           resolvedMeta.defer instanceof Date && resolvedMeta.due instanceof Date
             ? resolvedMeta.defer.getTime() - resolvedMeta.due.getTime()
             : null;
-        const nextStartDate = startOffsetMs != null ? applyOffsetToDate(nextDue, startOffsetMs) : null;
-        const nextDeferDate = deferOffsetMs != null ? applyOffsetToDate(nextDue, deferOffsetMs) : null;
+        const nextStartDate =
+          startOffsetMs != null
+            ? applyOffsetToDate(nextDue, startOffsetMs)
+            : null;
+        const nextDeferDate =
+          deferOffsetMs != null
+            ? applyOffsetToDate(nextDue, deferOffsetMs)
+            : null;
         const parentForSpawn = resolvedBlock || (await getBlock(uid)) || block;
-        const newUid = await spawnNextOccurrence(parentForSpawn, resolvedMeta, nextDue, setWithAdvance);
+        const newUid = await spawnNextOccurrence(
+          parentForSpawn,
+          resolvedMeta,
+          nextDue,
+          setWithAdvance,
+        );
         registerUndoAction({
           blockUid: uid,
           snapshot,
           completion,
           newBlockUid: newUid,
           nextDue,
-          nextAnchor: pickPlacementDate({ start: nextStartDate, defer: nextDeferDate, due: nextDue }) || nextDue,
+          nextAnchor:
+            pickPlacementDate({
+              start: nextStartDate,
+              defer: nextDeferDate,
+              due: nextDue,
+            }) || nextDue,
           set: setWithAdvance,
           overrideEntry: overrideEntry
             ? {
-              ...(overrideEntry.repeat ? { repeat: overrideEntry.repeat } : {}),
-              ...(overrideEntry.due ? { due: new Date(overrideEntry.due.getTime()) } : {}),
-            }
+                ...(overrideEntry.repeat
+                  ? { repeat: overrideEntry.repeat }
+                  : {}),
+                ...(overrideEntry.due
+                  ? { due: new Date(overrideEntry.due.getTime()) }
+                  : {}),
+              }
             : null,
         });
         repeatOverrides.delete(uid);
@@ -3198,7 +4085,11 @@ export default {
         if (newUid) {
           activeDashboardController?.notifyBlockChange?.(newUid);
         }
-        logCompletionDebug("completion-recurring-spawned", { uid, nextUid: newUid, nextDue: nextDue?.toISOString?.() });
+        logCompletionDebug("completion-recurring-spawned", {
+          uid,
+          nextUid: newUid,
+          nextDue: nextDue?.toISOString?.(),
+        });
         return { type: "recurring", nextUid: newUid };
       } catch (err) {
         console.error("[RecurringTasks] error:", err);
@@ -3213,7 +4104,11 @@ export default {
     let blockCache = new Map();
 
     function ensureBlockCache() {
-      if (!blockCache || typeof blockCache.get !== "function" || typeof blockCache.set !== "function") {
+      if (
+        !blockCache ||
+        typeof blockCache.get !== "function" ||
+        typeof blockCache.set !== "function"
+      ) {
         blockCache = new Map();
       }
       return blockCache;
@@ -3281,7 +4176,8 @@ export default {
     }
 
     function syncActiveTextarea(uid, string) {
-      const active = typeof document !== "undefined" ? document.activeElement : null;
+      const active =
+        typeof document !== "undefined" ? document.activeElement : null;
       if (!active || typeof string !== "string") return false;
       const host = active.closest?.(".rm-block-main");
       if (!host) return false;
@@ -3298,23 +4194,29 @@ export default {
       if (PARENT_WRITE_DELAY_MS > 0) {
         await delay(PARENT_WRITE_DELAY_MS);
       }
-      const result = await window.roamAlphaAPI.updateBlock({ block: { uid, string } });
+      const result = await window.roamAlphaAPI.updateBlock({
+        block: { uid, string },
+      });
       try {
         if (typeof string === "string") {
           const synced = syncActiveTextarea(uid, string);
           if (!synced) {
-            const blockMain = document.querySelector(`.rm-block-main[data-uid="${uid}"]`);
+            const blockMain = document.querySelector(
+              `.rm-block-main[data-uid="${uid}"]`,
+            );
             const textarea =
               blockMain?.querySelector?.("textarea.rm-block-input") ||
               blockMain?.querySelector?.("textarea.rm-block__input") ||
-              document.querySelector(`textarea.rm-block-input[data-roamjs-block-uid="${uid}"]`);
+              document.querySelector(
+                `textarea.rm-block-input[data-roamjs-block-uid="${uid}"]`,
+              );
             if (textarea && textarea.value !== string) {
               textarea.value = string;
               textarea.dispatchEvent(new Event("input", { bubbles: true }));
             }
           }
         }
-      } catch (_) { }
+      } catch (_) {}
       invalidateBlockCache(uid);
       return result;
     }
@@ -3339,7 +4241,7 @@ export default {
       }
       const safeUid = escapeDatalogString(uid);
       const current = await window.roamAlphaAPI.q(
-        `[:find ?p :where [?b :block/uid "${safeUid}"] [?b :block/props ?p]]`
+        `[:find ?p :where [?b :block/uid "${safeUid}"] [?b :block/props ?p]]`,
       );
       const props = parseProps(current?.[0]?.[0]);
       const next = { ...props, ...enrichedMerge };
@@ -3349,18 +4251,25 @@ export default {
       for (const key of Object.keys(next)) {
         if (next[key] === undefined) delete next[key];
       }
-      const result = await window.roamAlphaAPI.updateBlock({ block: { uid, props: next } });
+      const result = await window.roamAlphaAPI.updateBlock({
+        block: { uid, props: next },
+      });
       invalidateBlockCache(uid);
       return result;
     }
 
     async function setBlockProps(uid, propsObject) {
-      const nextProps = propsObject && typeof propsObject === "object" ? { ...propsObject } : {};
+      const nextProps =
+        propsObject && typeof propsObject === "object"
+          ? { ...propsObject }
+          : {};
       if (nextProps.repeat !== undefined) delete nextProps.repeat;
       if (nextProps.due !== undefined) delete nextProps.due;
       if (nextProps.start !== undefined) delete nextProps.start;
       if (nextProps.defer !== undefined) delete nextProps.defer;
-      const result = await window.roamAlphaAPI.updateBlock({ block: { uid, props: nextProps } });
+      const result = await window.roamAlphaAPI.updateBlock({
+        block: { uid, props: nextProps },
+      });
       invalidateBlockCache(uid);
       return result;
     }
@@ -3394,7 +4303,9 @@ export default {
     }
 
     async function deleteBlock(uid) {
-      const result = await window.roamAlphaAPI.deleteBlock({ block: { "uid": uid.toString() } });
+      const result = await window.roamAlphaAPI.deleteBlock({
+        block: { uid: uid.toString() },
+      });
       invalidateBlockCache(uid);
       return result;
     }
@@ -3410,7 +4321,9 @@ export default {
     }
 
     function escapeDatalogString(value) {
-      return String(value ?? "").replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+      return String(value ?? "")
+        .replace(/\\/g, "\\\\")
+        .replace(/"/g, '\\"');
     }
 
     async function getPageUidByTitle(title) {
@@ -3418,7 +4331,7 @@ export default {
       try {
         const safeTitle = escapeDatalogString(title);
         const found = await window.roamAlphaAPI.q(
-          `[:find ?u :where [?p :node/title "${safeTitle}"] [?p :block/uid ?u]]`
+          `[:find ?u :where [?p :node/title "${safeTitle}"] [?p :block/uid ?u]]`,
         );
         return found?.[0]?.[0] || null;
       } catch (err) {
@@ -3433,7 +4346,8 @@ export default {
       if (!title) return null;
       const existing = await getPageUidByTitle(title);
       if (existing) return existing;
-      if (pendingPageUidByTitle.has(title)) return pendingPageUidByTitle.get(title);
+      if (pendingPageUidByTitle.has(title))
+        return pendingPageUidByTitle.get(title);
       const promise = (async () => {
         const uid = window.roamAlphaAPI.util.generateUID();
         try {
@@ -3441,7 +4355,11 @@ export default {
         } catch (err) {
           const msg = String(err?.message || "");
           if (!/already exists/i.test(msg)) {
-            console.warn("[BetterTasks] createPage failed", { title, uid, err });
+            console.warn("[BetterTasks] createPage failed", {
+              title,
+              uid,
+              err,
+            });
           }
         }
         for (let i = 0; i < 8; i++) {
@@ -3468,7 +4386,9 @@ export default {
       const children = await window.roamAlphaAPI.q(`
         [:find (pull ?c [:block/uid :block/string])
          :where [?p :block/uid "${safeParentUid}"] [?c :block/parents ?p]]`);
-      const hit = children?.map((r) => r[0]).find((c) => (c.string || "").trim() === headingText.trim());
+      const hit = children
+        ?.map((r) => r[0])
+        .find((c) => (c.string || "").trim() === headingText.trim());
       if (hit) return hit.uid;
       const uid = window.roamAlphaAPI.util.generateUID();
       await createBlock(parentUid, 0, headingText, uid);
@@ -3506,39 +4426,66 @@ export default {
       });
       const processedChild = childAttrMap["rt-processed"];
       const inlineAttrs = parseAttrsFromBlockText(block.string || "");
-      const inlineRepeat = pickInlineAttr(inlineAttrs, attrNames.repeatAliases, { allowFallback: false });
-      const inlineDue = pickInlineAttr(inlineAttrs, attrNames.dueAliases, { allowFallback: false });
-      const inlineStart = pickInlineAttr(inlineAttrs, attrNames.startAliases, { allowFallback: false });
-      const inlineDefer = pickInlineAttr(inlineAttrs, attrNames.deferAliases, { allowFallback: false });
+      const inlineRepeat = pickInlineAttr(
+        inlineAttrs,
+        attrNames.repeatAliases,
+        { allowFallback: false },
+      );
+      const inlineDue = pickInlineAttr(inlineAttrs, attrNames.dueAliases, {
+        allowFallback: false,
+      });
+      const inlineStart = pickInlineAttr(inlineAttrs, attrNames.startAliases, {
+        allowFallback: false,
+      });
+      const inlineDefer = pickInlineAttr(inlineAttrs, attrNames.deferAliases, {
+        allowFallback: false,
+      });
 
       const canonicalRepeatKey = DEFAULT_REPEAT_ATTR.toLowerCase();
       const canonicalDueKey = DEFAULT_DUE_ATTR.toLowerCase();
       const canonicalStartKey = DEFAULT_START_ATTR.toLowerCase();
       const canonicalDeferKey = DEFAULT_DEFER_ATTR.toLowerCase();
       const hasCanonicalRepeatSignal =
-        !!childAttrMap[canonicalRepeatKey] || inlineAttrs[canonicalRepeatKey] != null;
+        !!childAttrMap[canonicalRepeatKey] ||
+        inlineAttrs[canonicalRepeatKey] != null;
       const hasCanonicalDueSignal =
         !!childAttrMap[canonicalDueKey] || inlineAttrs[canonicalDueKey] != null;
       const hasCanonicalStartSignal =
-        !!childAttrMap[canonicalStartKey] || inlineAttrs[canonicalStartKey] != null;
+        !!childAttrMap[canonicalStartKey] ||
+        inlineAttrs[canonicalStartKey] != null;
       const hasCanonicalDeferSignal =
-        !!childAttrMap[canonicalDeferKey] || inlineAttrs[canonicalDeferKey] != null;
+        !!childAttrMap[canonicalDeferKey] ||
+        inlineAttrs[canonicalDeferKey] != null;
       const hasCustomRepeatSignal =
-        !!childAttrMap[attrNames.repeatKey] || inlineAttrs[attrNames.repeatKey] != null;
+        !!childAttrMap[attrNames.repeatKey] ||
+        inlineAttrs[attrNames.repeatKey] != null;
       const hasCustomDueSignal =
-        !!childAttrMap[attrNames.dueKey] || inlineAttrs[attrNames.dueKey] != null;
+        !!childAttrMap[attrNames.dueKey] ||
+        inlineAttrs[attrNames.dueKey] != null;
       const hasCustomStartSignal =
-        !!childAttrMap[attrNames.startKey] || inlineAttrs[attrNames.startKey] != null;
+        !!childAttrMap[attrNames.startKey] ||
+        inlineAttrs[attrNames.startKey] != null;
       const hasCustomDeferSignal =
-        !!childAttrMap[attrNames.deferKey] || inlineAttrs[attrNames.deferKey] != null;
-      const propsRepeatMatches = attrNames.repeatAttr === DEFAULT_REPEAT_ATTR || rt.attrRepeat === attrNames.repeatAttr;
-      const propsDueMatches = attrNames.dueAttr === DEFAULT_DUE_ATTR || rt.attrDue === attrNames.dueAttr;
-      const propsStartMatches = attrNames.startAttr === DEFAULT_START_ATTR || rt.attrStart === attrNames.startAttr;
-      const propsDeferMatches = attrNames.deferAttr === DEFAULT_DEFER_ATTR || rt.attrDefer === attrNames.deferAttr;
+        !!childAttrMap[attrNames.deferKey] ||
+        inlineAttrs[attrNames.deferKey] != null;
+      const propsRepeatMatches =
+        attrNames.repeatAttr === DEFAULT_REPEAT_ATTR ||
+        rt.attrRepeat === attrNames.repeatAttr;
+      const propsDueMatches =
+        attrNames.dueAttr === DEFAULT_DUE_ATTR ||
+        rt.attrDue === attrNames.dueAttr;
+      const propsStartMatches =
+        attrNames.startAttr === DEFAULT_START_ATTR ||
+        rt.attrStart === attrNames.startAttr;
+      const propsDeferMatches =
+        attrNames.deferAttr === DEFAULT_DEFER_ATTR ||
+        rt.attrDefer === attrNames.deferAttr;
       const allowPropsRepeat = propsRepeatMatches || hasCustomRepeatSignal;
       const allowPropsDue = propsDueMatches || hasCustomDueSignal;
-      const allowPropsStart = propsStartMatches || hasCustomStartSignal || hasCanonicalStartSignal;
-      const allowPropsDefer = propsDeferMatches || hasCustomDeferSignal || hasCanonicalDeferSignal;
+      const allowPropsStart =
+        propsStartMatches || hasCustomStartSignal || hasCanonicalStartSignal;
+      const allowPropsDefer =
+        propsDeferMatches || hasCustomDeferSignal || hasCanonicalDeferSignal;
 
       const startSignals = [
         startChild?.value,
@@ -3560,15 +4507,14 @@ export default {
         deferSignals.some((value) => !!value) ||
         dueSignals.some((value) => !!value);
       const richMeta = parseRichMetadata(childAttrMap, attrNames);
-      const hasMetadataSignal =
-        !!(
-          richMeta.project ||
-          richMeta.waitingFor ||
-          (richMeta.context || []).length ||
-          richMeta.priority ||
-          richMeta.energy ||
-          richMeta.gtd
-        );
+      const hasMetadataSignal = !!(
+        richMeta.project ||
+        richMeta.waitingFor ||
+        (richMeta.context || []).length ||
+        richMeta.priority ||
+        richMeta.energy ||
+        richMeta.gtd
+      );
 
       let repeatText = null;
       let dueDate = null;
@@ -3610,7 +4556,11 @@ export default {
           if (!Number.isNaN(parsed)) processedTs = parsed;
         }
       } else {
-        if (allowPropsRepeat && typeof props.repeat === "string" && props.repeat) {
+        if (
+          allowPropsRepeat &&
+          typeof props.repeat === "string" &&
+          props.repeat
+        ) {
           repeatText = props.repeat;
         } else if (inlineRepeat) {
           repeatText = inlineRepeat;
@@ -3659,7 +4609,9 @@ export default {
         }
       }
 
-      const overrideEntry = normalizeOverrideEntry(repeatOverrides.get(block.uid));
+      const overrideEntry = normalizeOverrideEntry(
+        repeatOverrides.get(block.uid),
+      );
       const overrideRepeat = overrideEntry?.repeat || null;
       if (overrideRepeat) {
         repeatText = normalizeRepeatRuleText(overrideRepeat) || overrideRepeat;
@@ -3700,7 +4652,13 @@ export default {
       };
     }
 
-    async function resolveMetaAfterCompletion(snapshot, uid, baseMeta, set, attempts = 3) {
+    async function resolveMetaAfterCompletion(
+      snapshot,
+      uid,
+      baseMeta,
+      set,
+      attempts = 3,
+    ) {
       let lastBlock = null;
       let metaCandidate = baseMeta;
       for (let i = 0; i < attempts; i++) {
@@ -3779,9 +4737,11 @@ export default {
           }
         }
       }
-      fallbackMeta.childAttrMap = metaCandidate?.childAttrMap || baseMeta?.childAttrMap || {};
+      fallbackMeta.childAttrMap =
+        metaCandidate?.childAttrMap || baseMeta?.childAttrMap || {};
       fallbackMeta.rtId = metaCandidate?.rtId || baseMeta?.rtId || null;
-      fallbackMeta.rtParent = metaCandidate?.rtParent || baseMeta?.rtParent || null;
+      fallbackMeta.rtParent =
+        metaCandidate?.rtParent || baseMeta?.rtParent || null;
       fallbackMeta.props = metaCandidate?.props || baseMeta?.props || {};
       return { meta: fallbackMeta, block: lastBlock };
     }
@@ -3789,7 +4749,9 @@ export default {
     function parseProps(propsJson) {
       if (!propsJson) return {};
       try {
-        return typeof propsJson === "string" ? JSON.parse(propsJson) : propsJson;
+        return typeof propsJson === "string"
+          ? JSON.parse(propsJson)
+          : propsJson;
       } catch {
         return {};
       }
@@ -3908,12 +4870,22 @@ export default {
       if (!raw || typeof raw !== "string" || !Array.isArray(keys)) return null;
       const input = raw.trim().toLowerCase();
       const langs = Array.from(
-        new Set([currentLanguage, getLanguageSetting(), ...(SUPPORTED_LANGUAGES || [])].filter(Boolean))
+        new Set(
+          [
+            currentLanguage,
+            getLanguageSetting(),
+            ...(SUPPORTED_LANGUAGES || []),
+          ].filter(Boolean),
+        ),
       );
       for (const key of keys) {
         for (const lang of langs) {
           const localized = t(["dashboard", "filterValues", key], lang);
-          if (typeof localized === "string" && localized.trim().toLowerCase() === input) return key;
+          if (
+            typeof localized === "string" &&
+            localized.trim().toLowerCase() === input
+          )
+            return key;
         }
         if (input === key.toLowerCase()) return key;
       }
@@ -3925,8 +4897,10 @@ export default {
       const s = raw.trim().toLowerCase();
       const localized = normalizeFromLocalized(s, ["low", "medium", "high"]);
       if (localized) return localized;
-      if (["high", "h", "p1", "urgent", "important", "critical"].includes(s)) return "high";
-      if (["medium", "med", "m", "p2", "normal", "standard"].includes(s)) return "medium";
+      if (["high", "h", "p1", "urgent", "important", "critical"].includes(s))
+        return "high";
+      if (["medium", "med", "m", "p2", "normal", "standard"].includes(s))
+        return "medium";
       if (["low", "l", "p3", "minor"].includes(s)) return "low";
       return null;
     }
@@ -3945,22 +4919,31 @@ export default {
     function normalizeGtdStatus(raw) {
       if (!raw || typeof raw !== "string") return null;
       const stripped = stripLinkOrTag(raw).replace(/:+$/, "");
-      const s = stripped.replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim().toLowerCase();
-      const localized = normalizeFromLocalized(s, ["next action", "delegated", "deferred", "someday"]);
+      const s = stripped
+        .replace(/[_-]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toLowerCase();
+      const localized = normalizeFromLocalized(s, [
+        "next action",
+        "delegated",
+        "deferred",
+        "someday",
+      ]);
       if (localized) return localized;
       const aliases = {
         "next action": "next action",
-        "next": "next action",
-        "na": "next action",
-        "nextaction": "next action",
-        "delegated": "delegated",
+        next: "next action",
+        na: "next action",
+        nextaction: "next action",
+        delegated: "delegated",
         "waiting for": "delegated",
-        "waiting": "delegated",
-        "deferred": "deferred",
-        "defer": "deferred",
-        "someday": "someday",
+        waiting: "delegated",
+        deferred: "deferred",
+        defer: "deferred",
+        someday: "someday",
         "someday maybe": "someday",
-        "maybe": "someday",
+        maybe: "someday",
       };
       const match = aliases[s];
       if (match) return match;
@@ -3970,7 +4953,9 @@ export default {
 
     function formatGtdStatusDisplay(value, lang = getLanguageSetting()) {
       const normalized = normalizeGtdStatus(value);
-      const source = normalized || (typeof value === "string" ? value.trim().toLowerCase() : "");
+      const source =
+        normalized ||
+        (typeof value === "string" ? value.trim().toLowerCase() : "");
       if (!source) return "";
       const translated = t(["dashboard", "filterValues", source], lang);
       if (translated) return translated;
@@ -4000,17 +4985,48 @@ export default {
       return value;
     }
 
-    function parseRichMetadata(childAttrMap, attrNames = resolveAttributeNames()) {
-      const projectEntry = pickChildAttr(childAttrMap, attrNames.projectAliases || [], { allowFallback: true });
-      const waitingEntry = pickChildAttr(childAttrMap, attrNames.waitingForAliases || [], { allowFallback: true });
-      const contextEntry = pickChildAttr(childAttrMap, attrNames.contextAliases || [], { allowFallback: true });
-      const priorityEntry = pickChildAttr(childAttrMap, attrNames.priorityAliases || [], { allowFallback: true });
-      const energyEntry = pickChildAttr(childAttrMap, attrNames.energyAliases || [], { allowFallback: true });
-      const gtdEntry = pickChildAttr(childAttrMap, attrNames.gtdAliases || [], { allowFallback: true });
+    function parseRichMetadata(
+      childAttrMap,
+      attrNames = resolveAttributeNames(),
+    ) {
+      const projectEntry = pickChildAttr(
+        childAttrMap,
+        attrNames.projectAliases || [],
+        { allowFallback: true },
+      );
+      const waitingEntry = pickChildAttr(
+        childAttrMap,
+        attrNames.waitingForAliases || [],
+        { allowFallback: true },
+      );
+      const contextEntry = pickChildAttr(
+        childAttrMap,
+        attrNames.contextAliases || [],
+        { allowFallback: true },
+      );
+      const priorityEntry = pickChildAttr(
+        childAttrMap,
+        attrNames.priorityAliases || [],
+        { allowFallback: true },
+      );
+      const energyEntry = pickChildAttr(
+        childAttrMap,
+        attrNames.energyAliases || [],
+        { allowFallback: true },
+      );
+      const gtdEntry = pickChildAttr(childAttrMap, attrNames.gtdAliases || [], {
+        allowFallback: true,
+      });
 
-      const project = projectEntry?.value ? stripLinkOrTag(projectEntry.value) || null : null;
-      const waitingFor = waitingEntry?.value ? stripLinkOrTag(waitingEntry.value) || null : null;
-      const context = contextEntry?.value ? normalizeContextList(contextEntry.value) : [];
+      const project = projectEntry?.value
+        ? stripLinkOrTag(projectEntry.value) || null
+        : null;
+      const waitingFor = waitingEntry?.value
+        ? stripLinkOrTag(waitingEntry.value) || null
+        : null;
+      const context = contextEntry?.value
+        ? normalizeContextList(contextEntry.value)
+        : [];
       const priority = normalizePriorityValue(priorityEntry?.value || null);
       const energy = normalizeEnergyValue(energyEntry?.value || null);
       const gtd = normalizeGtdStatus(gtdEntry?.value || null);
@@ -4078,7 +5094,10 @@ export default {
     function saveAttrNameHistory() {
       if (typeof window === "undefined") return;
       try {
-        window.localStorage?.setItem(ATTR_NAME_HISTORY_KEY, JSON.stringify(attrNameHistory || {}));
+        window.localStorage?.setItem(
+          ATTR_NAME_HISTORY_KEY,
+          JSON.stringify(attrNameHistory || {}),
+        );
       } catch (_) {
         // ignore storage errors
       }
@@ -4094,7 +5113,9 @@ export default {
       const normalized = normalizeAttrLabel(name);
       if (!normalized) return;
       loadAttrNameHistory();
-      const list = Array.isArray(attrNameHistory?.[settingId]) ? attrNameHistory[settingId] : [];
+      const list = Array.isArray(attrNameHistory?.[settingId])
+        ? attrNameHistory[settingId]
+        : [];
       if (!list.includes(normalized)) {
         attrNameHistory[settingId] = [...list, normalized];
         saveAttrNameHistory();
@@ -4127,23 +5148,38 @@ export default {
     function isChildrenVisible(el) {
       if (!el) return false;
       if (el.childElementCount === 0) return false;
-      if (el.style?.display === "none" || el.style?.visibility === "hidden") return false;
-      const computed = typeof window !== "undefined" && window.getComputedStyle ? window.getComputedStyle(el) : null;
-      if (computed && (computed.display === "none" || computed.visibility === "hidden")) return false;
+      if (el.style?.display === "none" || el.style?.visibility === "hidden")
+        return false;
+      const computed =
+        typeof window !== "undefined" && window.getComputedStyle
+          ? window.getComputedStyle(el)
+          : null;
+      if (
+        computed &&
+        (computed.display === "none" || computed.visibility === "hidden")
+      )
+        return false;
       return el.offsetHeight > 0;
     }
 
     function buildAttrConfig(settingId, defaultName) {
-      const attr = sanitizeAttrName(extensionAPI.settings.get(settingId) || defaultName, defaultName);
+      const attr = sanitizeAttrName(
+        extensionAPI.settings.get(settingId) || defaultName,
+        defaultName,
+      );
       const key = attr.toLowerCase();
       const defaultKey = defaultName.toLowerCase();
       const history = getAttrNameHistory(settingId);
-      const aliasKeys = Array.from(new Set([key, defaultKey, ...history])).filter(Boolean);
+      const aliasKeys = Array.from(
+        new Set([key, defaultKey, ...history]),
+      ).filter(Boolean);
       return {
         attr,
         key,
         aliases: aliasKeys,
-        removalKeys: Array.from(new Set([attr, defaultName, ...history])).filter(Boolean),
+        removalKeys: Array.from(
+          new Set([attr, defaultName, ...history]),
+        ).filter(Boolean),
         defaultName,
         canonicalKey: defaultKey,
         isDefault: key === defaultKey,
@@ -4155,12 +5191,21 @@ export default {
       const due = buildAttrConfig("rt-due-attr", DEFAULT_DUE_ATTR);
       const start = buildAttrConfig("rt-start-attr", DEFAULT_START_ATTR);
       const defer = buildAttrConfig("rt-defer-attr", DEFAULT_DEFER_ATTR);
-      const completed = buildAttrConfig("rt-completed-attr", DEFAULT_COMPLETED_ATTR);
+      const completed = buildAttrConfig(
+        "rt-completed-attr",
+        DEFAULT_COMPLETED_ATTR,
+      );
       const project = buildAttrConfig("bt-attr-project", DEFAULT_PROJECT_ATTR);
       const gtd = buildAttrConfig("bt-attr-gtd", DEFAULT_GTD_ATTR);
-      const waitingFor = buildAttrConfig("bt-attr-waitingFor", DEFAULT_WAITING_FOR_ATTR);
+      const waitingFor = buildAttrConfig(
+        "bt-attr-waitingFor",
+        DEFAULT_WAITING_FOR_ATTR,
+      );
       const context = buildAttrConfig("bt-attr-context", DEFAULT_CONTEXT_ATTR);
-      const priority = buildAttrConfig("bt-attr-priority", DEFAULT_PRIORITY_ATTR);
+      const priority = buildAttrConfig(
+        "bt-attr-priority",
+        DEFAULT_PRIORITY_ATTR,
+      );
       const energy = buildAttrConfig("bt-attr-energy", DEFAULT_ENERGY_ATTR);
       const attrByType = {
         repeat,
@@ -4275,7 +5320,10 @@ export default {
 
     function buildOrderedChildAttrLabels(attrNames = resolveAttributeNames()) {
       return [
-        { type: "completed", label: getAttrLabel("completed", attrNames) || "completed" },
+        {
+          type: "completed",
+          label: getAttrLabel("completed", attrNames) || "completed",
+        },
         { type: "repeat", label: getAttrLabel("repeat", attrNames) },
         { type: "advance", label: ADVANCE_ATTR },
         { type: "start", label: getAttrLabel("start", attrNames) },
@@ -4287,10 +5335,15 @@ export default {
         { type: "context", label: getAttrLabel("context", attrNames) },
         { type: "priority", label: getAttrLabel("priority", attrNames) },
         { type: "energy", label: getAttrLabel("energy", attrNames) },
-      ].filter((entry) => typeof entry.label === "string" && entry.label.trim());
+      ].filter(
+        (entry) => typeof entry.label === "string" && entry.label.trim(),
+      );
     }
 
-    async function enforceChildAttrOrder(parentUid, attrNames = resolveAttributeNames()) {
+    async function enforceChildAttrOrder(
+      parentUid,
+      attrNames = resolveAttributeNames(),
+    ) {
       if (!parentUid) return;
       const parent = await getBlock(parentUid);
       if (!parent) return;
@@ -4298,7 +5351,10 @@ export default {
       if (!children.length) return;
       const orderedLabels = buildOrderedChildAttrLabels(attrNames);
       const labelToIndex = new Map(
-        orderedLabels.map((entry, idx) => [entry.label.trim().toLowerCase(), idx])
+        orderedLabels.map((entry, idx) => [
+          entry.label.trim().toLowerCase(),
+          idx,
+        ]),
       );
       const managed = [];
       for (const child of children) {
@@ -4320,7 +5376,10 @@ export default {
             block: { uid: entry.uid },
           });
         } catch (err) {
-          console.warn("[RecurringTasks] enforceChildAttrOrder move failed", err);
+          console.warn(
+            "[RecurringTasks] enforceChildAttrOrder move failed",
+            err,
+          );
         }
         nextOrder += 1;
       }
@@ -4433,12 +5492,22 @@ export default {
 
     async function ensureChildAttrForType(uid, type, value, attrNames) {
       const order = getChildOrderForType(type);
-      const result = await ensureChildAttr(uid, getAttrLabel(type, attrNames), value, order);
+      const result = await ensureChildAttr(
+        uid,
+        getAttrLabel(type, attrNames),
+        value,
+        order,
+      );
       await enforceChildAttrOrder(uid, attrNames);
       return result;
     }
 
-    async function setRichAttribute(uid, type, value, attrNames = resolveAttributeNames()) {
+    async function setRichAttribute(
+      uid,
+      type,
+      value,
+      attrNames = resolveAttributeNames(),
+    ) {
       if (!uid) return;
       const hasValue =
         (Array.isArray(value) && value.length > 0) ||
@@ -4518,10 +5587,17 @@ export default {
       }
     }
 
-    async function handleMetadataClick(uid, type, payload = {}, event = null, controllerRef = null) {
+    async function handleMetadataClick(
+      uid,
+      type,
+      payload = {},
+      event = null,
+      controllerRef = null,
+    ) {
       if (!uid || !type) return;
       const rawList = Array.isArray(payload.list) ? payload.list : [];
-      const rawValue = typeof payload.value === "string" ? payload.value : rawList[0] || "";
+      const rawValue =
+        typeof payload.value === "string" ? payload.value : rawList[0] || "";
       const title = stripLinkOrTag(rawValue);
       const attrNames = resolveAttributeNames();
       const isMeta = !!(event?.metaKey || event?.ctrlKey);
@@ -4538,9 +5614,15 @@ export default {
         if (type === "context") {
           const contexts = trimmed
             ? trimmed
-              .split(",")
-              .map((t) => t.replace(/^#/, "").replace(/^@/, "").replace(/^\[\[(.*)\]\]$/, "$1").trim())
-              .filter(Boolean)
+                .split(",")
+                .map((t) =>
+                  t
+                    .replace(/^#/, "")
+                    .replace(/^@/, "")
+                    .replace(/^\[\[(.*)\]\]$/, "$1")
+                    .trim(),
+                )
+                .filter(Boolean)
             : [];
           await setRichAttribute(uid, "context", contexts, attrNames);
         } else if (type === "project") {
@@ -4551,7 +5633,8 @@ export default {
           await setRichAttribute(uid, type, trimmed || null, attrNames);
         }
         const notifier =
-          controllerRef?.notifyBlockChange || activeDashboardController?.notifyBlockChange;
+          controllerRef?.notifyBlockChange ||
+          activeDashboardController?.notifyBlockChange;
         if (typeof notifier === "function") {
           await notifier(uid, { bypassFilters: true });
         }
@@ -4598,7 +5681,9 @@ export default {
 
     async function ensureInlineAttrForType(block, type, value, attrNames) {
       const label = getAttrLabel(type, attrNames);
-      const aliases = getAttrRemovalKeys(type, attrNames).filter((name) => name !== label);
+      const aliases = getAttrRemovalKeys(type, attrNames).filter(
+        (name) => name !== label,
+      );
       await ensureInlineAttribute(block, label, value, { aliases });
     }
 
@@ -4618,7 +5703,11 @@ export default {
 
     function getMetaChildAttr(meta, type, attrNames, options = {}) {
       if (!meta) return null;
-      return pickChildAttr(meta.childAttrMap || {}, getAttrAliases(type, attrNames), options);
+      return pickChildAttr(
+        meta.childAttrMap || {},
+        getAttrAliases(type, attrNames),
+        options,
+      );
     }
 
     function setMetaChildAttr(meta, type, entry, attrNames) {
@@ -4652,14 +5741,22 @@ export default {
       return mode === "completion" ? "completion date" : "due date";
     }
 
-    async function ensureAdvanceChildAttr(uid, mode, meta, attrNames = resolveAttributeNames()) {
+    async function ensureAdvanceChildAttr(
+      uid,
+      mode,
+      meta,
+      attrNames = resolveAttributeNames(),
+    ) {
       const label = advanceLabelForMode(mode);
       const order = getChildOrderForType("advance");
       const result = await ensureChildAttr(uid, ADVANCE_ATTR, label, order);
       await enforceChildAttrOrder(uid, attrNames);
       if (meta) {
         meta.childAttrMap = meta.childAttrMap || {};
-        meta.childAttrMap[ADVANCE_ATTR.toLowerCase()] = { value: label, uid: result.uid };
+        meta.childAttrMap[ADVANCE_ATTR.toLowerCase()] = {
+          value: label,
+          uid: result.uid,
+        };
       }
     }
 
@@ -4693,7 +5790,10 @@ export default {
       const next = new Promise((resolve) => {
         release = resolve;
       });
-      childAttrLocks.set(token, previous.then(() => next));
+      childAttrLocks.set(
+        token,
+        previous.then(() => next),
+      );
       try {
         await previous;
         return await fn();
@@ -4709,10 +5809,15 @@ export default {
       const block = await getBlock(uid);
       if (!block) return;
       const children = Array.isArray(block?.children) ? block.children : [];
-      const keyRegex = new RegExp(`^\\s*${escapeRegExp(String(key || "").trim())}::\\s*`, "i");
+      const keyRegex = new RegExp(
+        `^\\s*${escapeRegExp(String(key || "").trim())}::\\s*`,
+        "i",
+      );
       const matches = children
         .filter((child) => keyRegex.test((child?.string || "").trim()))
-        .map((child) => (typeof child?.uid === "string" ? child.uid.trim() : ""))
+        .map((child) =>
+          typeof child?.uid === "string" ? child.uid.trim() : "",
+        )
         .filter(Boolean);
       for (const matchUid of matches) {
         if (keepUid && matchUid === keepUid) continue;
@@ -4731,8 +5836,13 @@ export default {
           return { created: false, uid: null, previousValue: null };
         }
         const children = Array.isArray(parent.children) ? parent.children : [];
-        const keyRegex = new RegExp(`^\\s*${escapeRegExp(String(key || "").trim())}::\\s*`, "i");
-        const match = children.find((child) => keyRegex.test((child?.string || "").trim()));
+        const keyRegex = new RegExp(
+          `^\\s*${escapeRegExp(String(key || "").trim())}::\\s*`,
+          "i",
+        );
+        const match = children.find((child) =>
+          keyRegex.test((child?.string || "").trim()),
+        );
         const matchUid = typeof match?.uid === "string" ? match.uid.trim() : "";
         if (!matchUid) {
           const newUid = window.roamAlphaAPI.util.generateUID();
@@ -4755,9 +5865,14 @@ export default {
           "";
         if (curVal !== value) {
           try {
-            await window.roamAlphaAPI.updateBlock({ block: { uid: matchUid, string: `${key}:: ${value}` } });
+            await window.roamAlphaAPI.updateBlock({
+              block: { uid: matchUid, string: `${key}:: ${value}` },
+            });
           } catch (err) {
-            console.warn("[RecurringTasks] ensureChildAttr update failed, recreating", err);
+            console.warn(
+              "[RecurringTasks] ensureChildAttr update failed, recreating",
+              err,
+            );
             const newUid = window.roamAlphaAPI.util.generateUID();
             await createBlock(uid, order, `${key}:: ${value}`, newUid);
             await moveChildToOrder(uid, newUid, order);
@@ -4795,11 +5910,17 @@ export default {
           const block = await getBlock(uid);
           if (!block) return;
           const children = Array.isArray(block?.children) ? block.children : [];
-          const keyRegex = new RegExp(`^\\s*${escapeRegExp(String(key || "").trim())}::\\s*`, "i");
-          const matches = children.filter((entry) => keyRegex.test((entry?.string || "").trim()));
+          const keyRegex = new RegExp(
+            `^\\s*${escapeRegExp(String(key || "").trim())}::\\s*`,
+            "i",
+          );
+          const matches = children.filter((entry) =>
+            keyRegex.test((entry?.string || "").trim()),
+          );
           if (!matches.length) return;
           for (const entry of matches) {
-            const targetUid = typeof entry?.uid === "string" ? entry.uid.trim() : "";
+            const targetUid =
+              typeof entry?.uid === "string" ? entry.uid.trim() : "";
             if (!targetUid) continue;
             try {
               const exists = await getBlock(targetUid);
@@ -4824,7 +5945,12 @@ export default {
       let stringChanged = false;
       let completedAttrChange = null;
 
-      completedAttrChange = await ensureChildAttrForType(uid, "completed", completedDate, set.attrNames);
+      completedAttrChange = await ensureChildAttrForType(
+        uid,
+        "completed",
+        completedDate,
+        set.attrNames,
+      );
       await removeChildAttr(uid, "rt-processed");
 
       await updateBlockProps(uid, {
@@ -4857,14 +5983,17 @@ export default {
     function showUndoToast(data) {
       const { nextAnchor, nextDue, toastMessage } = data;
       const displaySource = nextAnchor || nextDue;
-      const displayDate = displaySource ? formatRoamDateTitle(displaySource) : "";
+      const displayDate = displaySource
+        ? formatRoamDateTitle(displaySource)
+        : "";
       const message = toastMessage
         ? toastMessage
         : displaySource
-          ? translateString("Next occurrence scheduled for {{date}}", getLanguageSetting())?.replace(
-            "{{date}}",
-            displayDate
-          ) || `Next occurrence scheduled for ${displayDate}`
+          ? translateString(
+              "Next occurrence scheduled for {{date}}",
+              getLanguageSetting(),
+            )?.replace("{{date}}", displayDate) ||
+            `Next occurrence scheduled for ${displayDate}`
           : translateString("Next occurrence scheduled", getLanguageSetting());
       iziToast.show({
         theme: "light",
@@ -4882,7 +6011,7 @@ export default {
             (instance, toastEl) => {
               instance.hide({ transitionOut: "fadeOut" }, toastEl, "button");
               performUndo(data).catch((err) =>
-                console.error("[RecurringTasks] undo failed", err)
+                console.error("[RecurringTasks] undo failed", err),
               );
             },
             true,
@@ -4898,7 +6027,14 @@ export default {
     }
 
     async function performUndo(data) {
-      const { blockUid, snapshot, completion, newBlockUid, set, overrideEntry } = data;
+      const {
+        blockUid,
+        snapshot,
+        completion,
+        newBlockUid,
+        set,
+        overrideEntry,
+      } = data;
       const attrNames = set?.attrNames || resolveAttributeNames();
       undoRegistry.delete(blockUid);
       try {
@@ -4922,18 +6058,38 @@ export default {
 
         const restoreOrRemove = async (type, snapshotEntry) => {
           if (snapshotEntry) {
-            await ensureChildAttrForType(blockUid, type, snapshotEntry.value || "", attrNames);
+            await ensureChildAttrForType(
+              blockUid,
+              type,
+              snapshotEntry.value || "",
+              attrNames,
+            );
           } else {
             await removeChildAttrsForType(blockUid, type, attrNames);
           }
         };
 
-        await restoreOrRemove("repeat", hadRepeatChild ? snapshot.childAttrs["repeat"] : null);
-        await restoreOrRemove("due", hadDueChild ? snapshot.childAttrs["due"] : null);
-        await restoreOrRemove("start", hadStartChild ? snapshot.childAttrs["start"] : null);
-        await restoreOrRemove("defer", hadDeferChild ? snapshot.childAttrs["defer"] : null);
+        await restoreOrRemove(
+          "repeat",
+          hadRepeatChild ? snapshot.childAttrs["repeat"] : null,
+        );
+        await restoreOrRemove(
+          "due",
+          hadDueChild ? snapshot.childAttrs["due"] : null,
+        );
+        await restoreOrRemove(
+          "start",
+          hadStartChild ? snapshot.childAttrs["start"] : null,
+        );
+        await restoreOrRemove(
+          "defer",
+          hadDeferChild ? snapshot.childAttrs["defer"] : null,
+        );
       } catch (err) {
-        console.warn("[RecurringTasks] undo restore recurring attrs failed", err);
+        console.warn(
+          "[RecurringTasks] undo restore recurring attrs failed",
+          err,
+        );
       }
 
       if (newBlockUid) {
@@ -4949,13 +6105,16 @@ export default {
         "completed",
         snapshot.childAttrs?.["completed"],
         completion.childChanges.completed,
-        attrNames
+        attrNames,
       );
       const processedSnapshot = snapshot.childAttrs?.["rt-processed"];
       if (processedSnapshot?.uid) {
         try {
           await window.roamAlphaAPI.updateBlock({
-            block: { uid: processedSnapshot.uid, string: `rt-processed:: ${processedSnapshot.value}` },
+            block: {
+              uid: processedSnapshot.uid,
+              string: `rt-processed:: ${processedSnapshot.value}`,
+            },
           });
         } catch (err) {
           console.warn("[RecurringTasks] restore processed attr failed", err);
@@ -4976,11 +6135,20 @@ export default {
           await activeDashboardController.refresh?.({ reason: "undo" });
         }
       }
-      toast(t(["toasts", "undoSuccess"], getLanguageSetting()) || "Changes un-done successfully");
+      toast(
+        t(["toasts", "undoSuccess"], getLanguageSetting()) ||
+          "Changes un-done successfully",
+      );
       void syncPillsForSurface(lastAttrSurface);
     }
 
-    async function restoreChildAttr(blockUid, type, beforeInfo, changeInfo, attrNames = resolveAttributeNames()) {
+    async function restoreChildAttr(
+      blockUid,
+      type,
+      beforeInfo,
+      changeInfo,
+      attrNames = resolveAttributeNames(),
+    ) {
       const label = getAttrLabel(type, attrNames) || type;
       if (beforeInfo?.uid) {
         const value = beforeInfo.value || "";
@@ -5015,11 +6183,19 @@ export default {
           ? meta.defer.getTime() - meta.due.getTime()
           : null;
       const nextStartDate =
-        startOffsetMs != null ? applyOffsetToDate(nextDueDate, startOffsetMs) : null;
+        startOffsetMs != null
+          ? applyOffsetToDate(nextDueDate, startOffsetMs)
+          : null;
       const nextDeferDate =
-        deferOffsetMs != null ? applyOffsetToDate(nextDueDate, deferOffsetMs) : null;
-      const nextStartStr = nextStartDate ? formatDate(nextStartDate, set) : null;
-      const nextDeferStr = nextDeferDate ? formatDate(nextDeferDate, set) : null;
+        deferOffsetMs != null
+          ? applyOffsetToDate(nextDueDate, deferOffsetMs)
+          : null;
+      const nextStartStr = nextStartDate
+        ? formatDate(nextStartDate, set)
+        : null;
+      const nextDeferStr = nextDeferDate
+        ? formatDate(nextDeferDate, set)
+        : null;
       const removalKeys = [
         ...new Set([
           ...set.attrNames.repeatRemovalKeys,
@@ -5029,14 +6205,28 @@ export default {
           "completed",
         ]),
       ];
-      const prevText = removeInlineAttributes(prevBlock.string || "", removalKeys);
+      const prevText = removeInlineAttributes(
+        prevBlock.string || "",
+        removalKeys,
+      );
 
       const seriesId = meta.rtId || shortId();
-      if (!meta.rtId) await updateBlockProps(prevBlock.uid, { rt: { id: seriesId, tz: set.timezone } });
+      if (!meta.rtId)
+        await updateBlockProps(prevBlock.uid, {
+          rt: { id: seriesId, tz: set.timezone },
+        });
 
       const placementDate =
-        pickPlacementDate({ start: nextStartDate, defer: nextDeferDate, due: nextDueDate }) || nextDueDate;
-      let targetPageUid = await chooseTargetPageUid(placementDate, prevBlock, set);
+        pickPlacementDate({
+          start: nextStartDate,
+          defer: nextDeferDate,
+          due: nextDueDate,
+        }) || nextDueDate;
+      let targetPageUid = await chooseTargetPageUid(
+        placementDate,
+        prevBlock,
+        set,
+      );
       let parentBlock = await getBlock(targetPageUid);
       if (!parentBlock) {
         await new Promise((resolve) => setTimeout(resolve, 80));
@@ -5046,10 +6236,14 @@ export default {
         if (set.destination === "DNP under heading" && set.dnpHeading) {
           const dnpTitle = toDnpTitle(placementDate);
           const dnpUid = await getOrCreatePageUid(dnpTitle);
-          targetPageUid = await getOrCreateChildUnderHeading(dnpUid, set.dnpHeading);
+          targetPageUid = await getOrCreateChildUnderHeading(
+            dnpUid,
+            set.dnpHeading,
+          );
           parentBlock = await getBlock(targetPageUid);
         } else if (set.destination === "Same Page") {
-          const parent = prevBlock.page?.uid || (await getOrCreatePageUid("Misc"));
+          const parent =
+            prevBlock.page?.uid || (await getOrCreatePageUid("Misc"));
           targetPageUid = parent;
           parentBlock = await getBlock(targetPageUid);
         } else {
@@ -5066,21 +6260,41 @@ export default {
       const newUid = window.roamAlphaAPI.util.generateUID();
       await createBlock(targetPageUid, 0, taskLine, newUid);
 
-      await ensureChildAttrForType(newUid, "repeat", meta.repeat, set.attrNames);
+      await ensureChildAttrForType(
+        newUid,
+        "repeat",
+        meta.repeat,
+        set.attrNames,
+      );
       await ensureChildAttrForType(newUid, "due", nextDueStr, set.attrNames);
       if (nextStartStr) {
-        await ensureChildAttrForType(newUid, "start", nextStartStr, set.attrNames);
+        await ensureChildAttrForType(
+          newUid,
+          "start",
+          nextStartStr,
+          set.attrNames,
+        );
       } else {
         await removeChildAttrsForType(newUid, "start", set.attrNames);
       }
       if (nextDeferStr) {
-        await ensureChildAttrForType(newUid, "defer", nextDeferStr, set.attrNames);
+        await ensureChildAttrForType(
+          newUid,
+          "defer",
+          nextDeferStr,
+          set.attrNames,
+        );
       } else {
         await removeChildAttrsForType(newUid, "defer", set.attrNames);
       }
       const advanceEntry = meta.childAttrMap?.[ADVANCE_ATTR.toLowerCase()];
       if (advanceEntry?.value) {
-        await ensureChildAttr(newUid, ADVANCE_ATTR, advanceEntry.value, getChildOrderForType("advance"));
+        await ensureChildAttr(
+          newUid,
+          ADVANCE_ATTR,
+          advanceEntry.value,
+          getChildOrderForType("advance"),
+        );
         await enforceChildAttrOrder(newUid, set.attrNames);
       }
 
@@ -5100,11 +6314,17 @@ export default {
       if (set.destination === "Same Page") {
         return prevBlock.page?.uid || (await getOrCreatePageUid("Misc"));
       }
-      const targetDate = anchorDate instanceof Date && !Number.isNaN(anchorDate.getTime()) ? anchorDate : todayLocal();
+      const targetDate =
+        anchorDate instanceof Date && !Number.isNaN(anchorDate.getTime())
+          ? anchorDate
+          : todayLocal();
       const dnpTitle = toDnpTitle(targetDate);
       const dnpUid = await getOrCreatePageUid(dnpTitle);
       if (set.destination === "DNP under heading" && set.dnpHeading) {
-        const headingUid = await getOrCreateChildUnderHeading(dnpUid, set.dnpHeading);
+        const headingUid = await getOrCreateChildUnderHeading(
+          dnpUid,
+          set.dnpHeading,
+        );
         return headingUid || dnpUid;
       }
       return dnpUid;
@@ -5116,7 +6336,10 @@ export default {
         try {
           return util.dateToPageTitle(d);
         } catch (err) {
-          console.warn("[RecurringTasks] dateToPageTitle failed, falling back to ISO", err);
+          console.warn(
+            "[RecurringTasks] dateToPageTitle failed, falling back to ISO",
+            err,
+          );
         }
       }
       // Fallback: ISO style
@@ -5124,14 +6347,18 @@ export default {
     }
 
     function parseDateFromText(value, set) {
-      if (typeof value !== "string" || !value.trim()) return { date: null, text: null };
+      if (typeof value !== "string" || !value.trim())
+        return { date: null, text: null };
       const original = value.trim();
       const cleaned = stripTimeFromDateText(original);
-      let dt = parseRoamDate(cleaned) || parseRelativeDateText(cleaned, set.weekStartCode);
+      let dt =
+        parseRoamDate(cleaned) ||
+        parseRelativeDateText(cleaned, set.weekStartCode);
       if (!dt && hasTimeOnlyHint(original)) {
         dt = pickAnchorDateFromTimeHint(original, set);
       }
-      if (!(dt instanceof Date) || Number.isNaN(dt.getTime())) return { date: null, text: null };
+      if (!(dt instanceof Date) || Number.isNaN(dt.getTime()))
+        return { date: null, text: null };
       return { date: dt, text: formatDate(dt, set) };
     }
 
@@ -5145,7 +6372,9 @@ export default {
 
       let repeatVal = "";
       if (typeof parsed.repeatRule === "string" && parsed.repeatRule.trim()) {
-        const normalized = normalizeRepeatRuleText(parsed.repeatRule) || parsed.repeatRule.trim();
+        const normalized =
+          normalizeRepeatRuleText(parsed.repeatRule) ||
+          parsed.repeatRule.trim();
         if (parseRuleText(normalized, set)) {
           repeatVal = normalized;
         }
@@ -5155,14 +6384,26 @@ export default {
       const startInfo = parseDateFromText(parsed.startDateText || "", set);
       const deferInfo = parseDateFromText(parsed.deferDateText || "", set);
 
-      const anchorDate = dueInfo.date || deferInfo.date || startInfo.date || todayLocal();
-      let targetPageUid = await ensureTargetReady(anchorDate, { page: { uid: null } }, set);
+      const anchorDate =
+        dueInfo.date || deferInfo.date || startInfo.date || todayLocal();
+      let targetPageUid = await ensureTargetReady(
+        anchorDate,
+        { page: { uid: null } },
+        set,
+      );
       if (!targetPageUid) {
-        targetPageUid = await chooseTargetPageUid(anchorDate, { page: { uid: null } }, set);
+        targetPageUid = await chooseTargetPageUid(
+          anchorDate,
+          { page: { uid: null } },
+          set,
+        );
       }
       if (!targetPageUid) {
         console.warn("[BetterTasks] quick add parsed task missing target page");
-        toast(t(["toasts", "pageNotFound"], getLanguageSetting()) || "Couldn't find a page to create that task.");
+        toast(
+          t(["toasts", "pageNotFound"], getLanguageSetting()) ||
+            "Couldn't find a page to create that task.",
+        );
         return false;
       }
       const newUid = window.roamAlphaAPI.util.generateUID();
@@ -5171,13 +6412,37 @@ export default {
       const props = { rt: { id: shortId(), tz: set.timezone } };
       await updateBlockProps(newUid, props);
 
-      if (repeatVal) await ensureChildAttrForType(newUid, "repeat", repeatVal, set.attrNames);
+      if (repeatVal)
+        await ensureChildAttrForType(
+          newUid,
+          "repeat",
+          repeatVal,
+          set.attrNames,
+        );
       else await removeChildAttrsForType(newUid, "repeat", set.attrNames);
-      if (dueInfo.text) await ensureChildAttrForType(newUid, "due", dueInfo.text, set.attrNames);
+      if (dueInfo.text)
+        await ensureChildAttrForType(
+          newUid,
+          "due",
+          dueInfo.text,
+          set.attrNames,
+        );
       else await removeChildAttrsForType(newUid, "due", set.attrNames);
-      if (startInfo.text) await ensureChildAttrForType(newUid, "start", startInfo.text, set.attrNames);
+      if (startInfo.text)
+        await ensureChildAttrForType(
+          newUid,
+          "start",
+          startInfo.text,
+          set.attrNames,
+        );
       else await removeChildAttrsForType(newUid, "start", set.attrNames);
-      if (deferInfo.text) await ensureChildAttrForType(newUid, "defer", deferInfo.text, set.attrNames);
+      if (deferInfo.text)
+        await ensureChildAttrForType(
+          newUid,
+          "defer",
+          deferInfo.text,
+          set.attrNames,
+        );
       else await removeChildAttrsForType(newUid, "defer", set.attrNames);
       const hasAiMeta = !!(
         (parsed.project || "").trim() ||
@@ -5194,12 +6459,14 @@ export default {
             priority: parsed.priority || "",
             energy: parsed.energy || "",
           },
-          set.attrNames
+          set.attrNames,
         );
       }
 
       scheduleSurfaceSync(set.attributeSurface);
-      activeDashboardController?.notifyBlockChange?.(newUid, { bypassFilters: true });
+      activeDashboardController?.notifyBlockChange?.(newUid, {
+        bypassFilters: true,
+      });
       return true;
     }
 
@@ -5208,11 +6475,16 @@ export default {
       const set = S();
       const attrNames = set.attrNames;
       const title =
-        (typeof promptResult.taskText === "string" && promptResult.taskText.trim()) ||
-        (typeof promptResult.taskTextRaw === "string" && promptResult.taskTextRaw.trim()) ||
+        (typeof promptResult.taskText === "string" &&
+          promptResult.taskText.trim()) ||
+        (typeof promptResult.taskTextRaw === "string" &&
+          promptResult.taskTextRaw.trim()) ||
         "";
       if (!title) {
-        toast(t(["toasts", "taskTextRequired"], getLanguageSetting()) || "Task text is required.");
+        toast(
+          t(["toasts", "taskTextRequired"], getLanguageSetting()) ||
+            "Task text is required.",
+        );
         return false;
       }
       const cleanedTitle = stripSchedulingFromTitle(title, null);
@@ -5220,24 +6492,30 @@ export default {
 
       const repeatVal = promptResult.repeat || "";
       if (repeatVal && !parseRuleText(repeatVal, set)) {
-        toast(t(["toasts", "unableUnderstandRepeat"], getLanguageSetting()) || "Unable to understand that repeat rule.");
+        toast(
+          t(["toasts", "unableUnderstandRepeat"], getLanguageSetting()) ||
+            "Unable to understand that repeat rule.",
+        );
         return false;
       }
 
       const dueDate =
-        promptResult.dueDate instanceof Date && !Number.isNaN(promptResult.dueDate.getTime())
+        promptResult.dueDate instanceof Date &&
+        !Number.isNaN(promptResult.dueDate.getTime())
           ? promptResult.dueDate
           : promptResult.due
             ? parseRoamDate(promptResult.due)
             : null;
       const startDate =
-        promptResult.startDate instanceof Date && !Number.isNaN(promptResult.startDate.getTime())
+        promptResult.startDate instanceof Date &&
+        !Number.isNaN(promptResult.startDate.getTime())
           ? promptResult.startDate
           : promptResult.start
             ? parseRoamDate(promptResult.start)
             : null;
       const deferDate =
-        promptResult.deferDate instanceof Date && !Number.isNaN(promptResult.deferDate.getTime())
+        promptResult.deferDate instanceof Date &&
+        !Number.isNaN(promptResult.deferDate.getTime())
           ? promptResult.deferDate
           : promptResult.defer
             ? parseRoamDate(promptResult.defer)
@@ -5248,13 +6526,24 @@ export default {
       const deferStr = deferDate ? formatDate(deferDate, set) : null;
 
       const anchorDate = dueDate || deferDate || startDate || todayLocal();
-      let targetPageUid = await ensureTargetReady(anchorDate, { page: { uid: null } }, set);
+      let targetPageUid = await ensureTargetReady(
+        anchorDate,
+        { page: { uid: null } },
+        set,
+      );
       if (!targetPageUid) {
-        targetPageUid = await chooseTargetPageUid(anchorDate, { page: { uid: null } }, set);
+        targetPageUid = await chooseTargetPageUid(
+          anchorDate,
+          { page: { uid: null } },
+          set,
+        );
       }
       if (!targetPageUid) {
         console.warn("[BetterTasks] quick add prompt task missing target page");
-        toast(t(["toasts", "pageNotFound"], getLanguageSetting()) || "Couldn't find a page to create that task.");
+        toast(
+          t(["toasts", "pageNotFound"], getLanguageSetting()) ||
+            "Couldn't find a page to create that task.",
+        );
         return false;
       }
       const newUid = window.roamAlphaAPI.util.generateUID();
@@ -5263,18 +6552,24 @@ export default {
       const props = { rt: { id: shortId(), tz: set.timezone } };
       await updateBlockProps(newUid, { rt: props.rt });
 
-      if (repeatVal) await ensureChildAttrForType(newUid, "repeat", repeatVal, attrNames);
+      if (repeatVal)
+        await ensureChildAttrForType(newUid, "repeat", repeatVal, attrNames);
       else await removeChildAttrsForType(newUid, "repeat", attrNames);
-      if (dueStr) await ensureChildAttrForType(newUid, "due", dueStr, attrNames);
+      if (dueStr)
+        await ensureChildAttrForType(newUid, "due", dueStr, attrNames);
       else await removeChildAttrsForType(newUid, "due", attrNames);
-      if (startStr) await ensureChildAttrForType(newUid, "start", startStr, attrNames);
+      if (startStr)
+        await ensureChildAttrForType(newUid, "start", startStr, attrNames);
       else await removeChildAttrsForType(newUid, "start", attrNames);
-      if (deferStr) await ensureChildAttrForType(newUid, "defer", deferStr, attrNames);
+      if (deferStr)
+        await ensureChildAttrForType(newUid, "defer", deferStr, attrNames);
       else await removeChildAttrsForType(newUid, "defer", attrNames);
       await applyMetadataFromPrompt(newUid, promptResult, attrNames);
 
       scheduleSurfaceSync(set.attributeSurface);
-      activeDashboardController?.notifyBlockChange?.(newUid, { bypassFilters: true });
+      activeDashboardController?.notifyBlockChange?.(newUid, {
+        bypassFilters: true,
+      });
       return true;
     }
 
@@ -5283,14 +6578,17 @@ export default {
       if (!s) return null;
       const t = s.trim().replace(/\s+/g, " ").toLowerCase();
       const weekStartCode = normalizeWeekStartCode(
-        options.weekStartCode || options.weekStart || getWeekStartSetting()
+        options.weekStartCode || options.weekStart || getWeekStartSetting(),
       );
-      const ordinalHint = /\b(first|second|third|fourth|fifth|last|day|month)\b/.test(t) || /\d/.test(t);
+      const ordinalHint =
+        /\b(first|second|third|fourth|fifth|last|day|month)\b/.test(t) ||
+        /\d/.test(t);
       if (!ordinalHint) {
         const quickSet = parseAbbrevSet(t);
         if (quickSet) return { kind: "WEEKLY", interval: 1, byDay: quickSet };
         const looseDays = normalizeByDayList(t, weekStartCode);
-        if (looseDays.length) return { kind: "WEEKLY", interval: 1, byDay: looseDays };
+        if (looseDays.length)
+          return { kind: "WEEKLY", interval: 1, byDay: looseDays };
       }
 
       const keywordInterval = keywordIntervalFromText(t);
@@ -5299,25 +6597,43 @@ export default {
       }
 
       // 0) Simple daily & weekday/weekend anchors
-      if (t === "daily" || t === "every day") return { kind: "DAILY", interval: 1 };
+      if (t === "daily" || t === "every day")
+        return { kind: "DAILY", interval: 1 };
       if (
-        t === "every other day" || t === "every second day" ||
-        t === "every two days" || t === "second daily"
-      ) return { kind: "DAILY", interval: 2 };
-      if (t === "every third day" || t === "every three days") return { kind: "DAILY", interval: 3 };
-      if (t === "every fourth day" || t === "every four days") return { kind: "DAILY", interval: 4 };
-      if (t === "every fifth day" || t === "every five days") return { kind: "DAILY", interval: 5 };
+        t === "every other day" ||
+        t === "every second day" ||
+        t === "every two days" ||
+        t === "second daily"
+      )
+        return { kind: "DAILY", interval: 2 };
+      if (t === "every third day" || t === "every three days")
+        return { kind: "DAILY", interval: 3 };
+      if (t === "every fourth day" || t === "every four days")
+        return { kind: "DAILY", interval: 4 };
+      if (t === "every fifth day" || t === "every five days")
+        return { kind: "DAILY", interval: 5 };
 
-      if (t === "every weekday" || t === "weekdays" || t === "on weekdays" || t === "business days" || t === "workdays")
+      if (
+        t === "every weekday" ||
+        t === "weekdays" ||
+        t === "on weekdays" ||
+        t === "business days" ||
+        t === "workdays"
+      )
         return { kind: "WEEKDAY" };
       if (t === "every weekend" || t === "weekend" || t === "weekends")
         return { kind: "WEEKLY", interval: 1, byDay: ["SA", "SU"] };
 
       // 1) "every <dow>" (singular/plural) — use your DOW_MAP and aliases
       const singleDow = Object.keys(DOW_ALIASES).find(
-        a => t === `every ${a}` || t === `every ${a}s`
+        (a) => t === `every ${a}` || t === `every ${a}s`,
       );
-      if (singleDow) return { kind: "WEEKLY", interval: 1, byDay: [dowFromAlias(singleDow)] };
+      if (singleDow)
+        return {
+          kind: "WEEKLY",
+          interval: 1,
+          byDay: [dowFromAlias(singleDow)],
+        };
 
       // 2) "every N days"
       let m = t.match(/^every (\d+)\s*days?$/);
@@ -5328,8 +6644,15 @@ export default {
       if (m) return { kind: "BUSINESS_DAILY", interval: parseInt(m[1], 10) };
 
       // 4) Weekly base words + biweekly/fortnightly
-      if (t === "weekly" || t === "every week") return { kind: "WEEKLY", interval: 1, byDay: null };
-      if (t === "every other week" || t === "every second week" || t === "biweekly" || t === "fortnightly" || t === "every fortnight")
+      if (t === "weekly" || t === "every week")
+        return { kind: "WEEKLY", interval: 1, byDay: null };
+      if (
+        t === "every other week" ||
+        t === "every second week" ||
+        t === "biweekly" ||
+        t === "fortnightly" ||
+        t === "every fortnight"
+      )
         return { kind: "WEEKLY", interval: 2, byDay: null };
       m = t.match(/^every\s+(other|second|2nd)\s+([a-z]+)s?$/);
       if (m) {
@@ -5341,7 +6664,8 @@ export default {
         const intervalNum = parseInt(m[1], 10);
         const dowCode = dowFromAlias(m[2]);
         if (dowCode && intervalNum >= 1) {
-          if (intervalNum === 1) return { kind: "WEEKLY", interval: 1, byDay: [dowCode] };
+          if (intervalNum === 1)
+            return { kind: "WEEKLY", interval: 1, byDay: [dowCode] };
           return { kind: "WEEKLY", interval: intervalNum, byDay: [dowCode] };
         }
       }
@@ -5350,14 +6674,22 @@ export default {
       let weeklyOn = t.match(/^(?:every week|weekly)\s+on\s+(.+)$/);
       if (weeklyOn) {
         const byDay = normalizeByDayList(weeklyOn[1], weekStartCode);
-        return { kind: "WEEKLY", interval: 1, byDay: byDay.length ? byDay : null };
+        return {
+          kind: "WEEKLY",
+          interval: 1,
+          byDay: byDay.length ? byDay : null,
+        };
       }
       // 5b) "every N weeks (on …)?"
       m = t.match(/^every (\d+)\s*weeks?(?:\s*on\s*(.+))?$/);
       if (m) {
         const interval = parseInt(m[1], 10);
         const byDay = m[2] ? normalizeByDayList(m[2], weekStartCode) : null;
-        return { kind: "WEEKLY", interval, byDay: (byDay && byDay.length) ? byDay : null };
+        return {
+          kind: "WEEKLY",
+          interval,
+          byDay: byDay && byDay.length ? byDay : null,
+        };
       }
       // 5c) "weekly on …"
       m = t.match(/^weekly on (.+)$/);
@@ -5385,12 +6717,17 @@ export default {
         return { kind: "MONTHLY_LAST_DAY" };
 
       // 7) Monthly: semimonthly / multi-day
-      m = t.match(/^(?:on\s+)?(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)?\s*(?:,|and|&)\s*(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?(?:each|every)\s+month$/);
+      m = t.match(
+        /^(?:on\s+)?(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)?\s*(?:,|and|&)\s*(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?(?:each|every)\s+month$/,
+      );
       if (m) {
-        const d1 = parseInt(m[1], 10), d2 = parseInt(m[2], 10);
+        const d1 = parseInt(m[1], 10),
+          d2 = parseInt(m[2], 10);
         return { kind: "MONTHLY_MULTI_DAY", days: [d1, d2] };
       }
-      m = t.match(/^(?:on\s+)?(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)?\s+and\s+last\s+day\s+(?:of\s+)?(?:each|every)\s+month$/);
+      m = t.match(
+        /^(?:on\s+)?(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)?\s+and\s+last\s+day\s+(?:of\s+)?(?:each|every)\s+month$/,
+      );
       if (m) {
         const d = parseInt(m[1], 10);
         return { kind: "MONTHLY_MIXED_DAY", days: [d], last: true };
@@ -5399,56 +6736,73 @@ export default {
       if (m) {
         const parts = splitList(m[1].replace(/\b(?:and|&)\b/g, ","));
         const days = parts
-          .map(x => x.replace(/(st|nd|rd|th)$/i, ""))
-          .map(x => parseInt(x, 10))
-          .filter(n => Number.isInteger(n) && n >= 1 && n <= 31);
+          .map((x) => x.replace(/(st|nd|rd|th)$/i, ""))
+          .map((x) => parseInt(x, 10))
+          .filter((n) => Number.isInteger(n) && n >= 1 && n <= 31);
         if (days.length >= 1) return { kind: "MONTHLY_MULTI_DAY", days };
       }
 
       // 8) Monthly: your existing single-day variants
-      if (t === "monthly") return { kind: "MONTHLY_DAY", day: todayLocal().getDate() };
+      if (t === "monthly")
+        return { kind: "MONTHLY_DAY", day: todayLocal().getDate() };
       m = t.match(/^every month on day (\d{1,2})$/);
       if (m) return { kind: "MONTHLY_DAY", day: parseInt(m[1], 10) };
-      m = t.match(/^(?:the\s+)?(\d{1,2}|1st|2nd|3rd|4th)\s+day\s+of\s+(?:each|every)\s+month$/);
+      m = t.match(
+        /^(?:the\s+)?(\d{1,2}|1st|2nd|3rd|4th)\s+day\s+of\s+(?:each|every)\s+month$/,
+      );
       if (m) return { kind: "MONTHLY_DAY", day: ordFromText(m[1]) };
       m = t.match(/^day\s+(\d{1,2})\s+(?:of|in)?\s*(?:each|every)\s+month$/);
       if (m) return { kind: "MONTHLY_DAY", day: parseInt(m[1], 10) };
 
       // 9) Monthly: ordinal weekday (incl. compact), plus penultimate/weekday
-      m = t.match(/^(?:every month on the|on the|every month the|the)\s+(1st|first|2nd|second|3rd|third|4th|fourth|last)\s+([a-z]+)$/);
+      m = t.match(
+        /^(?:every month on the|on the|every month the|the)\s+(1st|first|2nd|second|3rd|third|4th|fourth|last)\s+([a-z]+)$/,
+      );
       if (m) {
         const nth = m[1].toLowerCase();
         const dow = dowFromAlias(m[2]);
         if (dow) return { kind: "MONTHLY_NTH", nth, dow };
       }
-      m = t.match(/^(?:the\s+)?(1st|first|2nd|second|3rd|third|4th|fourth|last)\s+([a-z]+)\s+(?:of\s+)?(?:each|every)\s+month$/);
+      m = t.match(
+        /^(?:the\s+)?(1st|first|2nd|second|3rd|third|4th|fourth|last)\s+([a-z]+)\s+(?:of\s+)?(?:each|every)\s+month$/,
+      );
       if (m) {
         const nth = m[1].toLowerCase();
         const dow = dowFromAlias(m[2]);
         if (dow) return { kind: "MONTHLY_NTH", nth, dow };
       }
-      m = t.match(/^(?:the\s+)?(1st|first|2nd|second|3rd|third|4th|fourth)\s+and\s+(1st|first|2nd|second|3rd|third|4th|fourth)\s+([a-z]+)\s+(?:of\s+)?(?:each|every)\s+month$/);
+      m = t.match(
+        /^(?:the\s+)?(1st|first|2nd|second|3rd|third|4th|fourth)\s+and\s+(1st|first|2nd|second|3rd|third|4th|fourth)\s+([a-z]+)\s+(?:of\s+)?(?:each|every)\s+month$/,
+      );
       if (m) {
         const nths = [m[1].toLowerCase(), m[2].toLowerCase()];
         const dow = dowFromAlias(m[3]);
         if (dow) return { kind: "MONTHLY_MULTI_NTH", nths, dow };
       }
-      m = t.match(/^(?:second\s+last|penultimate)\s+([a-z]+)\s+(?:of\s+)?(?:each|every)\s+month$/);
+      m = t.match(
+        /^(?:second\s+last|penultimate)\s+([a-z]+)\s+(?:of\s+)?(?:each|every)\s+month$/,
+      );
       if (m) {
         const dow = dowFromAlias(m[1]);
         if (dow) return { kind: "MONTHLY_NTH_FROM_END", nth: 2, dow };
       }
-      m = t.match(/^(first|last)\s+weekday\s+(?:of\s+)?(?:each|every)\s+month$/);
+      m = t.match(
+        /^(first|last)\s+weekday\s+(?:of\s+)?(?:each|every)\s+month$/,
+      );
       if (m) return { kind: "MONTHLY_NTH_WEEKDAY", nth: m[1].toLowerCase() };
 
       // 10) Every N months (date or ordinal weekday)
-      m = t.match(/^every (\d+)\s*months?(?:\s+on\s+the\s+(\d{1,2})(?:st|nd|rd|th)?)?$/);
+      m = t.match(
+        /^every (\d+)\s*months?(?:\s+on\s+the\s+(\d{1,2})(?:st|nd|rd|th)?)?$/,
+      );
       if (m) {
         const interval = parseInt(m[1], 10);
         const day = m[2] ? parseInt(m[2], 10) : todayLocal().getDate();
         return { kind: "MONTHLY_DAY", interval, day };
       }
-      m = t.match(/^every (\d+)\s*months?\s+on\s+the\s+(1st|first|2nd|second|3rd|third|4th|fourth|last)\s+([a-z]+)$/);
+      m = t.match(
+        /^every (\d+)\s*months?\s+on\s+the\s+(1st|first|2nd|second|3rd|third|4th|fourth|last)\s+([a-z]+)$/,
+      );
       if (m) {
         const interval = parseInt(m[1], 10);
         const nth = m[2].toLowerCase();
@@ -5475,7 +6829,9 @@ export default {
         const month = monthFromText(m[2]);
         if (month) return { kind: "YEARLY", month, day };
       }
-      m = t.match(/^on\s+(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]+)\s+(?:every\s+year|annually|yearly)$/);
+      m = t.match(
+        /^on\s+(\d{1,2})(?:st|nd|rd|th)?\s+([a-z]+)\s+(?:every\s+year|annually|yearly)$/,
+      );
       if (m) {
         const day = parseInt(m[1], 10);
         const month = monthFromText(m[2]);
@@ -5493,7 +6849,9 @@ export default {
         const month = monthFromText(m[2]);
         if (month && day) return { kind: "YEARLY", month, day };
       }
-      m = t.match(/^(?:the\s+)?(1st|first|2nd|second|3rd|third|4th|fourth|last)\s+([a-z]+)\s+of\s+([a-z]+)\s+(?:every\s+year|annually|yearly)?$/);
+      m = t.match(
+        /^(?:the\s+)?(1st|first|2nd|second|3rd|third|4th|fourth|last)\s+([a-z]+)\s+of\s+([a-z]+)\s+(?:every\s+year|annually|yearly)?$/,
+      );
       if (m) {
         const nth = m[1].toLowerCase();
         const dow = dowFromAlias(m[2]);
@@ -5512,7 +6870,10 @@ export default {
 
     function resolveMonthlyDay(rule, meta) {
       if (Number.isInteger(rule?.day) && rule.day >= 1) return rule.day;
-      const due = meta?.due instanceof Date && !Number.isNaN(meta.due.getTime()) ? meta.due : null;
+      const due =
+        meta?.due instanceof Date && !Number.isNaN(meta.due.getTime())
+          ? meta.due
+          : null;
       if (due) return due.getDate();
       return todayLocal().getDate();
     }
@@ -5523,11 +6884,16 @@ export default {
         clearRepeatParseFailure(meta?.uid || null);
       }
       if (!rule) {
-        console.warn(`[RecurringTasks] Unable to parse repeat rule "${meta.repeat}"`);
+        console.warn(
+          `[RecurringTasks] Unable to parse repeat rule "${meta.repeat}"`,
+        );
         noteRepeatParseFailure(meta?.uid || null);
         return null;
       }
-      const base = set.advanceFrom === "completion" ? todayLocal() : meta.due || todayLocal();
+      const base =
+        set.advanceFrom === "completion"
+          ? todayLocal()
+          : meta.due || todayLocal();
       let next = null;
       switch (rule.kind) {
         case "DAILY":
@@ -5594,7 +6960,8 @@ export default {
     function nextWeekly(base, rule, set) {
       const interval = Math.max(1, rule.interval || 1);
       const weekStartCode =
-        (set && (set.weekStartCode || normalizeWeekStartCode(set.weekStart))) || DEFAULT_WEEK_START_CODE;
+        (set && (set.weekStartCode || normalizeWeekStartCode(set.weekStart))) ||
+        DEFAULT_WEEK_START_CODE;
       if (!rule.byDay || rule.byDay.length === 0) {
         return addDaysLocal(base, 7 * interval);
       }
@@ -5609,11 +6976,21 @@ export default {
       return addDaysLocal(nextAnchor, offsets[0]);
     }
     function nextMonthOnDay(base, day, interval = 1) {
-      const step = Number.isFinite(interval) && interval > 0 ? Math.trunc(interval) : 1;
+      const step =
+        Number.isFinite(interval) && interval > 0 ? Math.trunc(interval) : 1;
       let year = base.getFullYear();
       let monthIndex = base.getMonth();
-      const currentMonthCandidate = new Date(year, monthIndex, clampDayInMonth(year, monthIndex, day), 12, 0, 0, 0);
-      if (currentMonthCandidate > base && step === 1) return currentMonthCandidate;
+      const currentMonthCandidate = new Date(
+        year,
+        monthIndex,
+        clampDayInMonth(year, monthIndex, day),
+        12,
+        0,
+        0,
+        0,
+      );
+      if (currentMonthCandidate > base && step === 1)
+        return currentMonthCandidate;
       ({ year, month: monthIndex } = advanceMonth(year, monthIndex, step));
       const safeDay = clampDayInMonth(year, monthIndex, day);
       return new Date(year, monthIndex, safeDay, 12, 0, 0, 0);
@@ -5621,10 +6998,16 @@ export default {
     function nextMonthOnNthDow(base, nthText, dowCode, interval = 1) {
       const nthValue = ordFromText(nthText);
       if (nthValue == null) return null;
-      const step = Number.isFinite(interval) && interval > 0 ? Math.trunc(interval) : 1;
+      const step =
+        Number.isFinite(interval) && interval > 0 ? Math.trunc(interval) : 1;
       let year = base.getFullYear();
       let monthIndex = base.getMonth();
-      let candidate = computeNthDowForMonth(year, monthIndex, nthValue, dowCode);
+      let candidate = computeNthDowForMonth(
+        year,
+        monthIndex,
+        nthValue,
+        dowCode,
+      );
       if (candidate && candidate > base && step === 1) {
         return candidate;
       }
@@ -5676,10 +7059,17 @@ export default {
     }
 
     function resolveYearlyMonth(rule, meta) {
-      if (Number.isInteger(rule?.month) && rule.month >= 1 && rule.month <= 12) {
+      if (
+        Number.isInteger(rule?.month) &&
+        rule.month >= 1 &&
+        rule.month <= 12
+      ) {
         return Math.trunc(rule.month);
       }
-      const due = meta?.due instanceof Date && !Number.isNaN(meta.due.getTime()) ? meta.due : null;
+      const due =
+        meta?.due instanceof Date && !Number.isNaN(meta.due.getTime())
+          ? meta.due
+          : null;
       if (due) return due.getMonth() + 1;
       return todayLocal().getMonth() + 1;
     }
@@ -5688,7 +7078,10 @@ export default {
       if (Number.isInteger(rule?.day) && rule.day >= 1 && rule.day <= 31) {
         return Math.trunc(rule.day);
       }
-      const due = meta?.due instanceof Date && !Number.isNaN(meta.due.getTime()) ? meta.due : null;
+      const due =
+        meta?.due instanceof Date && !Number.isNaN(meta.due.getTime())
+          ? meta.due
+          : null;
       if (due) return due.getDate();
       return todayLocal().getDate();
     }
@@ -5699,10 +7092,26 @@ export default {
       if (!month || !day) return null;
       const monthIndex = month - 1;
       let year = base.getFullYear();
-      const candidate = new Date(year, monthIndex, clampDayInMonth(year, monthIndex, day), 12, 0, 0, 0);
+      const candidate = new Date(
+        year,
+        monthIndex,
+        clampDayInMonth(year, monthIndex, day),
+        12,
+        0,
+        0,
+        0,
+      );
       if (candidate > base) return candidate;
       year += 1;
-      return new Date(year, monthIndex, clampDayInMonth(year, monthIndex, day), 12, 0, 0, 0);
+      return new Date(
+        year,
+        monthIndex,
+        clampDayInMonth(year, monthIndex, day),
+        12,
+        0,
+        0,
+        0,
+      );
     }
 
     function nextYearlyNthDow(base, rule, meta) {
@@ -5749,7 +7158,9 @@ export default {
     }
 
     function nextMonthlyNthFromEnd(base, rule) {
-      const nth = Number.isInteger(rule?.nth) ? rule.nth : Number.parseInt(rule?.nth, 10);
+      const nth = Number.isInteger(rule?.nth)
+        ? rule.nth
+        : Number.parseInt(rule?.nth, 10);
       const dow = rule?.dow;
       if (!nth || !dow) return null;
       let year = base.getFullYear();
@@ -5769,7 +7180,9 @@ export default {
       let monthIndex = base.getMonth();
       for (let attempts = 0; attempts < 48; attempts++) {
         const candidate =
-          nth === "first" ? firstWeekdayOfMonth(year, monthIndex) : lastWeekdayOfMonth(year, monthIndex);
+          nth === "first"
+            ? firstWeekdayOfMonth(year, monthIndex)
+            : lastWeekdayOfMonth(year, monthIndex);
         if (candidate && (attempts > 0 || candidate > base)) return candidate;
         ({ year, month: monthIndex } = advanceMonth(year, monthIndex, 1));
       }
@@ -5798,9 +7211,15 @@ export default {
       const list = Array.isArray(rule.days) ? rule.days : [];
       if (!list.length) return null;
       const normalized = list
-        .map((token) => (typeof token === "string" ? token.toUpperCase() : token))
+        .map((token) =>
+          typeof token === "string" ? token.toUpperCase() : token,
+        )
         .map((token) => (token === "LAST" ? "LAST" : Number(token)))
-        .filter((token) => token === "LAST" || (Number.isInteger(token) && token >= 1 && token <= 31))
+        .filter(
+          (token) =>
+            token === "LAST" ||
+            (Number.isInteger(token) && token >= 1 && token <= 31),
+        )
         .sort((a, b) => {
           if (a === "LAST") return 1;
           if (b === "LAST") return -1;
@@ -5856,7 +7275,11 @@ export default {
     function computeNthDowForMonth(year, monthIndex, nthValue, dowCode) {
       if (nthValue == null) return null;
       if (nthValue > 0) {
-        return nthDowOfMonth(new Date(year, monthIndex, 1, 12, 0, 0, 0), dowCode, nthValue);
+        return nthDowOfMonth(
+          new Date(year, monthIndex, 1, 12, 0, 0, 0),
+          dowCode,
+          nthValue,
+        );
       }
       return nthDowFromEnd(year, monthIndex, dowCode, Math.abs(nthValue));
     }
@@ -5876,8 +7299,19 @@ export default {
       return x;
     }
     function startOfWeek(date, weekStartCode) {
-      const target = weekStartCode && DOW_IDX.includes(weekStartCode) ? weekStartCode : DEFAULT_WEEK_START_CODE;
-      let cursor = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0, 0);
+      const target =
+        weekStartCode && DOW_IDX.includes(weekStartCode)
+          ? weekStartCode
+          : DEFAULT_WEEK_START_CODE;
+      let cursor = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+        12,
+        0,
+        0,
+        0,
+      );
       for (let i = 0; i < 7 && DOW_IDX[cursor.getDay()] !== target; i++) {
         cursor = addDaysLocal(cursor, -1);
       }
@@ -5897,7 +7331,8 @@ export default {
       if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return new Date(`${raw}T12:00:00`);
 
       // 2) [[DNP title]] e.g. [[November 5th, 2025]] or bare DNP title "November 5th, 2025"
-      const dnpTitle = raw.startsWith("[[") && raw.endsWith("]]") ? raw.slice(2, -2) : raw;
+      const dnpTitle =
+        raw.startsWith("[[") && raw.endsWith("]]") ? raw.slice(2, -2) : raw;
 
       // Prefer Roam's converter if available
       const util = window.roamAlphaAPI?.util;
@@ -5909,7 +7344,7 @@ export default {
             dt.setHours(12, 0, 0, 0);
             return dt;
           }
-        } catch (_) { }
+        } catch (_) {}
       }
 
       // Fallback: strip ordinal ("st/nd/rd/th") and parse "Month Day, Year"
@@ -5946,7 +7381,9 @@ export default {
       return (
         /\b(before|by)\s*\d{1,2}(:\d{2})?\s*(am|pm)?\b/.test(raw) ||
         /\b\d{1,2}(:\d{2})?\s*(am|pm)?\b/.test(raw) ||
-        /\b(morning|afternoon|evening|night|end of day|eod|lunch)\b/.test(raw) ||
+        /\b(morning|afternoon|evening|night|end of day|eod|lunch)\b/.test(
+          raw,
+        ) ||
         /\b(before|by)\s+lunch\b/.test(raw) ||
         /\b(noon|midnight)\b/.test(raw)
       );
@@ -5972,15 +7409,30 @@ export default {
       if (suffix === "pm" && hour < 12) hour += 12;
       if (suffix === "am" && hour === 12) hour = 0;
       const now = new Date();
-      const target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute, 0, 0);
-      const anchor = now.getTime() <= target.getTime() ? todayLocal() : addDaysLocal(todayLocal(), 1);
+      const target = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        hour,
+        minute,
+        0,
+        0,
+      );
+      const anchor =
+        now.getTime() <= target.getTime()
+          ? todayLocal()
+          : addDaysLocal(todayLocal(), 1);
       return anchor;
     }
 
     function parseWeekSpan(text, set) {
       if (!text || typeof text !== "string") return null;
       const raw = text.toLowerCase();
-      if (!/\b(this week|sometime this week|later this week|start of this week|end of the week|end of week|before the end of the week)\b/.test(raw))
+      if (
+        !/\b(this week|sometime this week|later this week|start of this week|end of the week|end of week|before the end of the week)\b/.test(
+          raw,
+        )
+      )
         return null;
       const start = startOfWeek(todayLocal(), set?.weekStartCode);
       const due = addDaysLocal(start, 6);
@@ -5994,7 +7446,8 @@ export default {
       const now = new Date();
       const dow = now.getDay(); // 0 Sun .. 6 Sat
       const baseStart = startOfWeek(todayLocal(), set?.weekStartCode);
-      const isLateSunday = raw.includes("this weekend") && dow === 0 && now.getHours() >= 12;
+      const isLateSunday =
+        raw.includes("this weekend") && dow === 0 && now.getHours() >= 12;
       const weekOffset = raw.includes("next weekend") || isLateSunday ? 7 : 0;
       const saturday = addDaysLocal(baseStart, weekOffset + 5);
       const sunday = addDaysLocal(saturday, 1);
@@ -6028,8 +7481,10 @@ export default {
         const monthIndex = MONTH_MAP[monthName];
         if (monthIndex != null) {
           const now = todayLocal();
-          const year = now.getFullYear() + (monthIndex - 1 < now.getMonth() ? 1 : 0);
-          const day = descriptor === "early" ? 5 : descriptor === "mid" ? 15 : 25;
+          const year =
+            now.getFullYear() + (monthIndex - 1 < now.getMonth() ? 1 : 0);
+          const day =
+            descriptor === "early" ? 5 : descriptor === "mid" ? 15 : 25;
           return new Date(year, monthIndex - 1, day, 12, 0, 0, 0);
         }
       }
@@ -6039,15 +7494,23 @@ export default {
         const monthIndex = MONTH_MAP[monthName];
         if (monthIndex != null) {
           const now = todayLocal();
-          const year = now.getFullYear() + (monthIndex - 1 < now.getMonth() ? 1 : 0);
-          const day = raw.startsWith("early") ? 5 : raw.startsWith("mid") ? 15 : 25;
+          const year =
+            now.getFullYear() + (monthIndex - 1 < now.getMonth() ? 1 : 0);
+          const day = raw.startsWith("early")
+            ? 5
+            : raw.startsWith("mid")
+              ? 15
+              : 25;
           return new Date(year, monthIndex - 1, day, 12, 0, 0, 0);
         }
       }
       const nextWeekMatch = raw.match(/^(early|mid|late)\s+next\s+week$/);
       if (nextWeekMatch) {
         const descriptor = nextWeekMatch[1];
-        const anchor = addDaysLocal(startOfWeek(todayLocal(), weekStartCode), 7);
+        const anchor = addDaysLocal(
+          startOfWeek(todayLocal(), weekStartCode),
+          7,
+        );
         if (descriptor === "early") return anchor;
         if (descriptor === "mid") return addDaysLocal(anchor, 3);
         return addDaysLocal(anchor, 5);
@@ -6057,7 +7520,9 @@ export default {
         const thisWeekStart = startOfWeek(anchor, weekStartCode);
         return addDaysLocal(thisWeekStart, 7);
       }
-      const thisWeekMatch = raw.match(/^(?:sometime|later|early)\s+this\s+week$/);
+      const thisWeekMatch = raw.match(
+        /^(?:sometime|later|early)\s+this\s+week$/,
+      );
       if (thisWeekMatch) {
         const anchor = startOfWeek(todayLocal(), weekStartCode);
         if (/early/.test(raw)) return anchor;
@@ -6076,7 +7541,9 @@ export default {
           return addDaysLocal(today, delta);
         }
       }
-      const theFirstMatch = raw.match(/^the\s+first(?:\s+of)?\s+every\s+month$/);
+      const theFirstMatch = raw.match(
+        /^the\s+first(?:\s+of)?\s+every\s+month$/,
+      );
       if (theFirstMatch) {
         const now = todayLocal();
         const y = now.getFullYear();
@@ -6097,7 +7564,10 @@ export default {
         const now = new Date();
         const dow = now.getDay(); // 0 Sun .. 6 Sat
         if (dow === 0 && now.getHours() >= 12) {
-          const anchorNext = addDaysLocal(startOfWeek(todayLocal(), weekStartCode), 7);
+          const anchorNext = addDaysLocal(
+            startOfWeek(todayLocal(), weekStartCode),
+            7,
+          );
           return addDaysLocal(anchorNext, 5);
         }
         const anchor = startOfWeek(todayLocal(), weekStartCode);
@@ -6105,13 +7575,17 @@ export default {
         return addDaysLocal(anchor, 5);
       }
       if (raw === "next weekend") {
-        const anchor = addDaysLocal(startOfWeek(todayLocal(), weekStartCode), 7);
+        const anchor = addDaysLocal(
+          startOfWeek(todayLocal(), weekStartCode),
+          7,
+        );
         return addDaysLocal(anchor, 5);
       }
       return null;
     }
     function nextDowDate(anchor, dowCode) {
-      if (!(anchor instanceof Date) || Number.isNaN(anchor.getTime())) return null;
+      if (!(anchor instanceof Date) || Number.isNaN(anchor.getTime()))
+        return null;
       if (!dowCode || !DOW_IDX.includes(dowCode)) return null;
       const current = DOW_IDX[anchor.getDay()];
       const curIdx = DOW_IDX.indexOf(current);
@@ -6123,7 +7597,7 @@ export default {
     function formatDate(d, set) {
       if (set.dateFormat === "ISO") {
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
-          d.getDate()
+          d.getDate(),
         ).padStart(2, "0")}`;
       }
       // ROAM: always link to the Daily Note Page title, e.g. [[November 5th, 2025]]
@@ -6132,16 +7606,21 @@ export default {
     }
 
     // ========================= Render helpers =========================
-    const TODO_MACRO_PREFIX_RE = /^\s*\{\{\s*(?:\[\[\s*TODO\s*\]\]|TODO)\s*\}\}\s*/i;
+    const TODO_MACRO_PREFIX_RE =
+      /^\s*\{\{\s*(?:\[\[\s*TODO\s*\]\]|TODO)\s*\}\}\s*/i;
     const TODO_WORD_PREFIX_RE = /^\s*TODO\s+/i;
-    const DONE_MACRO_PREFIX_RE = /^\s*\{\{\s*(?:\[\[\s*(?:DONE)\s*\]\]|DONE)\s*\}\}\s*/i;
+    const DONE_MACRO_PREFIX_RE =
+      /^\s*\{\{\s*(?:\[\[\s*(?:DONE)\s*\]\]|DONE)\s*\}\}\s*/i;
     const DONE_WORD_PREFIX_RE = /^\s*DONE\s+/i;
 
     function normalizeToTodoMacro(s) {
       var t = s.replace(/^\s+/, "");
       if (/^\-\s+/.test(t)) t = t.replace(/^\-\s+/, "");
       // Match {{[[TODO]]}}, {{TODO}}, {{ [[DONE]] }}, etc.
-      t = t.replace(/^\{\{\s*(?:\[\[(?:TODO|DONE)\]\]|(?:TODO|DONE))\s*\}\}\s*/i, "");
+      t = t.replace(
+        /^\{\{\s*(?:\[\[(?:TODO|DONE)\]\]|(?:TODO|DONE))\s*\}\}\s*/i,
+        "",
+      );
       t = t.replace(/^(?:TODO|DONE)\s+/i, "");
       return "{{[[TODO]]}} " + t;
     }
@@ -6191,9 +7670,12 @@ export default {
           const keyEsc = escapeRegExp(key);
           const inlinePattern = new RegExp(
             `(^|\\s)(${keyEsc}::\\s*[^\\n]*?)(?=(?:\\s+[\\p{L}\\p{N}_\\-/]+::)|$)`,
-            "giu"
+            "giu",
           );
-          result = result.replace(inlinePattern, (match, leading) => leading || "");
+          result = result.replace(
+            inlinePattern,
+            (match, leading) => leading || "",
+          );
         }
         return result;
       });
@@ -6216,10 +7698,13 @@ export default {
       const keyEsc = escapeRegExp(key);
       const regex = new RegExp(
         `(^|\\s)(${keyEsc}::\\s*)([^\\n]*?)(?=(?:\\s+[\\p{L}\\p{N}_\\-/]+::)|$)`,
-        "iu"
+        "iu",
       );
       if (regex.test(source)) {
-        return source.replace(regex, (match, leading, prefix) => `${leading}${prefix}${value}`);
+        return source.replace(
+          regex,
+          (match, leading, prefix) => `${leading}${prefix}${value}`,
+        );
       }
       return source;
     }
@@ -6227,7 +7712,9 @@ export default {
     async function ensureInlineAttribute(block, key, value, options = {}) {
       if (!block || !block.uid) return;
       const original = block.string || "";
-      const candidateKeys = Array.from(new Set([key, ...(options.aliases || [])]));
+      const candidateKeys = Array.from(
+        new Set([key, ...(options.aliases || [])]),
+      );
       let current = original;
       for (const candidate of candidateKeys) {
         const keyEsc = escapeRegExp(candidate);
@@ -6261,10 +7748,10 @@ export default {
         const yesLabel = t("buttons.yes", lang) || "Yes";
         const noLabel = t("buttons.no", lang) || "No";
         iziToast.question({
-          theme: 'light',
-          color: 'black',
+          theme: "light",
+          color: "black",
           layout: 2,
-          class: 'betterTasks bt-toast-strong-icon',
+          class: "betterTasks bt-toast-strong-icon",
           drag: false,
           timeout: false,
           close: true,
@@ -6275,15 +7762,19 @@ export default {
           iconColor: "#1f7a34",
           title: titleText,
           message: messageText,
-          position: 'center',
+          position: "center",
           onOpening: (_instance, toastEl) => {
             applyToastA11y(toastEl);
           },
           buttons: [
-            [`<button>${escapeHtml(yesLabel)}</button>`, function (instance, toast, button, e, inputs) {
-              instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
-              finish(true);
-            }, true], // true to focus
+            [
+              `<button>${escapeHtml(yesLabel)}</button>`,
+              function (instance, toast, button, e, inputs) {
+                instance.hide({ transitionOut: "fadeOut" }, toast, "button");
+                finish(true);
+              },
+              true,
+            ], // true to focus
             [
               `<button>${escapeHtml(noLabel)}</button>`,
               function (instance, toast, button, e) {
@@ -6307,15 +7798,13 @@ export default {
     function toast(msg, timer = 3000, className = "betterTasks bt-toast-info") {
       const lang = getLanguageSetting();
       const message =
-        typeof msg === "string"
-          ? translateString(msg, lang)
-          : msg;
+        typeof msg === "string" ? translateString(msg, lang) : msg;
       iziToast.show({
-        theme: 'light',
-        color: 'black',
+        theme: "light",
+        color: "black",
         message: message,
         class: className,
-        position: 'center',
+        position: "center",
         close: false,
         closeOnEscape: true,
         timeout: timer,
@@ -6329,7 +7818,8 @@ export default {
 
     function showPersistentToast(msg, opts = {}) {
       const lang = getLanguageSetting();
-      const message = typeof msg === "string" ? translateString(msg, lang) : msg;
+      const message =
+        typeof msg === "string" ? translateString(msg, lang) : msg;
       try {
         return iziToast.show({
           theme: "light",
@@ -6364,7 +7854,9 @@ export default {
         (instance && instance.toastRef) ||
         (instance && instance.toast) ||
         (instance && instance.el) ||
-        (typeof instance === "string" ? document.getElementById(instance) : null) ||
+        (typeof instance === "string"
+          ? document.getElementById(instance)
+          : null) ||
         document.getElementById(fallbackId);
       if (!targetEl) return;
       try {
@@ -6394,7 +7886,10 @@ export default {
       if (!uid || invalidRepeatToasted.has(uid)) return;
       invalidRepeatToasted.add(uid);
       pruneSetMax(invalidRepeatToasted, MAX_INVALID_PARSE_TOASTED);
-      toast(t(["toasts", "couldNotParseRecurrence"], getLanguageSetting()) || "Could not parse the task recurrence pattern. Please check your task and review the README for supported patterns.");
+      toast(
+        t(["toasts", "couldNotParseRecurrence"], getLanguageSetting()) ||
+          "Could not parse the task recurrence pattern. Please check your task and review the README for supported patterns.",
+      );
     }
 
     function clearRepeatParseFailure(uid) {
@@ -6406,7 +7901,10 @@ export default {
       if (!uid || invalidDueToasted.has(uid)) return;
       invalidDueToasted.add(uid);
       pruneSetMax(invalidDueToasted, MAX_INVALID_PARSE_TOASTED);
-      toast(t(["toasts", "cannotParseDue"], getLanguageSetting()) || "Could not parse the task due date. Please ensure it uses Roam's standard date format (e.g. [[November 8th, 2025]]).");
+      toast(
+        t(["toasts", "cannotParseDue"], getLanguageSetting()) ||
+          "Could not parse the task due date. Please ensure it uses Roam's standard date format (e.g. [[November 8th, 2025]]).",
+      );
     }
 
     function clearDueParseFailure(uid) {
@@ -6440,7 +7938,7 @@ export default {
         const cancelLabel = t("buttons.cancel", lang) || "Cancel";
         const inputClass = `rt-prompt-input-${Date.now()}`;
         const inputHtml = `<input type="text" class="${inputClass}" placeholder="${escapeHtml(
-          placeholderText || ""
+          placeholderText || "",
         )}" value="${escapeHtml(initial || "")}" />`;
         iziToast.question({
           theme: "light",
@@ -6467,7 +7965,8 @@ export default {
               },
             ],
           ],
-          buttons: [/*
+          buttons: [
+            /*
             [
               "<button>Today</button>",
               (instance, toastInstance) => {
@@ -6490,7 +7989,11 @@ export default {
               `<button>${escapeHtml(saveLabel)}</button>`,
               (instance, toastInstance, _button, _e, inputs) => {
                 const val = inputs?.[0]?.value?.trim();
-                instance.hide({ transitionOut: "fadeOut" }, toastInstance, "button");
+                instance.hide(
+                  { transitionOut: "fadeOut" },
+                  toastInstance,
+                  "button",
+                );
                 finish(val || null);
               },
               true,
@@ -6498,7 +8001,11 @@ export default {
             [
               `<button>${escapeHtml(cancelLabel)}</button>`,
               (instance, toastInstance) => {
-                instance.hide({ transitionOut: "fadeOut" }, toastInstance, "button");
+                instance.hide(
+                  { transitionOut: "fadeOut" },
+                  toastInstance,
+                  "button",
+                );
                 finish(null);
               },
             ],
@@ -6521,7 +8028,8 @@ export default {
 
     let projectPickerStylesInjected = false;
     function ensureProjectPickerStyles() {
-      if (projectPickerStylesInjected || typeof document === "undefined") return;
+      if (projectPickerStylesInjected || typeof document === "undefined")
+        return;
       projectPickerStylesInjected = true;
       const style = document.createElement("style");
       style.id = "rt-project-picker-style";
@@ -6565,7 +8073,12 @@ export default {
       document.head.appendChild(style);
     }
 
-    function promptForDashView({ title = "Better Tasks", placeholder = "Filter views", views = [], initialId = null } = {}) {
+    function promptForDashView({
+      title = "Better Tasks",
+      placeholder = "Filter views",
+      views = [],
+      initialId = null,
+    } = {}) {
       const options = Array.isArray(views) ? views : [];
       const lang = getLanguageSetting();
       const titleText = translateString(title, lang);
@@ -6575,7 +8088,9 @@ export default {
       const listId = `bt-view-list-${Date.now()}`;
       ensureProjectPickerStyles();
       const sortByName = (a, b) =>
-        String(a?.name || "").localeCompare(String(b?.name || ""), undefined, { sensitivity: "base" });
+        String(a?.name || "").localeCompare(String(b?.name || ""), undefined, {
+          sensitivity: "base",
+        });
       const sorted = options.slice().sort(sortByName);
       return new Promise((resolve) => {
         let settled = false;
@@ -6595,7 +8110,11 @@ export default {
           container.textContent = "";
           const filter = (filterText || "").trim().toLowerCase();
           const matches = sorted.filter((v) =>
-            filter ? String(v?.name || "").toLowerCase().includes(filter) : true
+            filter
+              ? String(v?.name || "")
+                  .toLowerCase()
+                  .includes(filter)
+              : true,
           );
           if (!matches.length) {
             const empty = document.createElement("div");
@@ -6637,8 +8156,8 @@ export default {
           message: `
             <div class="rt-project-picker">
               <input type="text" class="rt-project-picker__input ${inputClass}" placeholder="${escapeHtml(
-            placeholderText
-          )}" value="" />
+                placeholderText,
+              )}" value="" />
               <div class="rt-project-picker__list" id="${listId}"></div>
             </div>
           `,
@@ -6659,7 +8178,9 @@ export default {
             const list = toastEl.querySelector?.(`#${listId}`);
             renderOptions(list, "");
             if (input) {
-              input.addEventListener("input", () => renderOptions(list, input.value));
+              input.addEventListener("input", () =>
+                renderOptions(list, input.value),
+              );
               input.addEventListener("keydown", (event) => {
                 if (event.key === "Escape") {
                   event.preventDefault();
@@ -6702,20 +8223,30 @@ export default {
       },
     };
 
-    async function promptForAttribute(type = "project", { initialValue = "", allowMulti = false } = {}) {
+    async function promptForAttribute(
+      type = "project",
+      { initialValue = "", allowMulti = false } = {},
+    ) {
       const cfg = ATTR_PICKER_CONFIG[type] || ATTR_PICKER_CONFIG.project;
       await cfg.refresh?.(true);
       const lang = getLanguageSetting();
       const pickerStrings = t(cfg.stringsKey, lang) || {};
       const titleText = translateString(pickerStrings.title || "Select", lang);
-      const placeholderText = translateString(pickerStrings.placeholder || "Search or create", lang);
-      const noItemsText = translateString(pickerStrings.noItems || "No options yet — type to create one", lang);
+      const placeholderText = translateString(
+        pickerStrings.placeholder || "Search or create",
+        lang,
+      );
+      const noItemsText = translateString(
+        pickerStrings.noItems || "No options yet — type to create one",
+        lang,
+      );
       const saveLabel = t("buttons.save", lang) || "Save";
       const cancelLabel = t("buttons.cancel", lang) || "Cancel";
       const inputClass = `rt-attr-input-${Date.now()}`;
       const listId = `rt-attr-list-${Date.now()}`;
       ensureProjectPickerStyles();
-      const normalize = cfg.normalize || ((v) => (typeof v === "string" ? v.trim() : ""));
+      const normalize =
+        cfg.normalize || ((v) => (typeof v === "string" ? v.trim() : ""));
       const initialList = allowMulti
         ? Array.isArray(initialValue)
           ? initialValue.map(normalize).filter(Boolean)
@@ -6738,7 +8269,11 @@ export default {
           if (settled) return;
           settled = true;
           if (allowMulti) {
-            const list = Array.isArray(value) ? value : typeof value === "string" ? value.split(",") : [];
+            const list = Array.isArray(value)
+              ? value
+              : typeof value === "string"
+                ? value.split(",")
+                : [];
             const normalizedList = list.map(normalize).filter(Boolean);
             resolve(normalizedList.length ? normalizedList : null);
           } else {
@@ -6746,12 +8281,19 @@ export default {
             resolve(normalized || null);
           }
         };
-        const renderOptions = (container, filterText, onSelect, selectedSet) => {
+        const renderOptions = (
+          container,
+          filterText,
+          onSelect,
+          selectedSet,
+        ) => {
           if (!container) return;
           container.textContent = "";
           const filter = (filterText || "").trim().toLowerCase();
           const options = cfg.getOptions ? cfg.getOptions() : [];
-          const matches = options.filter((opt) => (filter ? opt.toLowerCase().includes(filter) : true));
+          const matches = options.filter((opt) =>
+            filter ? opt.toLowerCase().includes(filter) : true,
+          );
           if (!matches.length) {
             const empty = document.createElement("div");
             empty.className = "rt-project-picker__empty";
@@ -6789,8 +8331,8 @@ export default {
           message: `
             <div class="rt-project-picker">
               <input type="text" class="rt-project-picker__input ${inputClass}" placeholder="${escapeHtml(
-            placeholderText
-          )}" value="${allowMulti ? "" : escapeHtml(current || "")}" />
+                placeholderText,
+              )}" value="${allowMulti ? "" : escapeHtml(current || "")}" />
               <div class="rt-project-picker__list" id="${listId}"></div>
             </div>
           `,
@@ -6800,9 +8342,12 @@ export default {
               (_instance, toastEl) => {
                 toastElement = toastEl || toastElement;
                 const input = toastEl?.querySelector(`.${inputClass}`);
-                const domVal = typeof input?.value === "string" ? input.value : "";
+                const domVal =
+                  typeof input?.value === "string" ? input.value : "";
                 if (allowMulti) {
-                  const selected = new Set(Array.isArray(current) ? current : []);
+                  const selected = new Set(
+                    Array.isArray(current) ? current : [],
+                  );
                   if (domVal && domVal.trim()) selected.add(normalize(domVal));
                   finish(Array.from(selected));
                 } else {
@@ -6863,9 +8408,12 @@ export default {
       });
     }
 
-    const promptForProject = (opts = {}) => promptForAttribute("project", { ...opts, allowMulti: false });
-    const promptForWaiting = (opts = {}) => promptForAttribute("waitingFor", { ...opts, allowMulti: false });
-    const promptForContext = (opts = {}) => promptForAttribute("context", { ...opts, allowMulti: true });
+    const promptForProject = (opts = {}) =>
+      promptForAttribute("project", { ...opts, allowMulti: false });
+    const promptForWaiting = (opts = {}) =>
+      promptForAttribute("waitingFor", { ...opts, allowMulti: false });
+    const promptForContext = (opts = {}) =>
+      promptForAttribute("context", { ...opts, allowMulti: true });
 
     function promptForDate({ title, message, initial }) {
       return new Promise((resolve) => {
@@ -6916,12 +8464,13 @@ export default {
               `<button>${escapeHtml(saveLabel)}</button>`,
               (instance, toastInstance, _button, _e, inputs) => {
                 const raw =
-                  inputEl?.value ??
-                  inputs?.[0]?.value ??
-                  current ??
-                  "";
+                  inputEl?.value ?? inputs?.[0]?.value ?? current ?? "";
                 const val = raw.trim();
-                instance.hide({ transitionOut: "fadeOut" }, toastInstance, "button");
+                instance.hide(
+                  { transitionOut: "fadeOut" },
+                  toastInstance,
+                  "button",
+                );
                 finish(val || null);
               },
               true,
@@ -6929,7 +8478,11 @@ export default {
             [
               `<button>${escapeHtml(cancelLabel)}</button>`,
               (instance, toastInstance) => {
-                instance.hide({ transitionOut: "fadeOut" }, toastInstance, "button");
+                instance.hide(
+                  { transitionOut: "fadeOut" },
+                  toastInstance,
+                  "button",
+                );
                 finish(null);
               },
             ],
@@ -6974,13 +8527,18 @@ export default {
       const includeTaskText = true;
       const setSnapshot = S();
       const snapshot = {
-        repeat: typeof initial.repeat === "string" && initial.repeat ? initial.repeat : initial.repeatRaw || "",
+        repeat:
+          typeof initial.repeat === "string" && initial.repeat
+            ? initial.repeat
+            : initial.repeatRaw || "",
         due:
           typeof initial.due === "string" && initial.due
             ? initial.due
             : initial.dueText || initial.rawDue || "",
         task:
-          includeTaskText && typeof initial.taskText === "string" && initial.taskText
+          includeTaskText &&
+          typeof initial.taskText === "string" &&
+          initial.taskText
             ? initial.taskText
             : includeTaskText && typeof initial.taskTextRaw === "string"
               ? initial.taskTextRaw
@@ -6994,31 +8552,43 @@ export default {
             ? initial.defer
             : initial.deferText || initial.rawDefer || "",
         project: typeof initial.project === "string" ? initial.project : "",
-        waitingFor: typeof initial.waitingFor === "string" ? initial.waitingFor : "",
-        context: Array.isArray(initial.context) ? initial.context.join(", ") : typeof initial.context === "string" ? initial.context : "",
+        waitingFor:
+          typeof initial.waitingFor === "string" ? initial.waitingFor : "",
+        context: Array.isArray(initial.context)
+          ? initial.context.join(", ")
+          : typeof initial.context === "string"
+            ? initial.context
+            : "",
         priority: typeof initial.priority === "string" ? initial.priority : "",
         energy: typeof initial.energy === "string" ? initial.energy : "",
         gtd: typeof initial.gtd === "string" ? initial.gtd : "",
       };
       const initialDueDate = snapshot.due ? parseRoamDate(snapshot.due) : null;
       const initialDueIso =
-        initialDueDate instanceof Date && !Number.isNaN(initialDueDate.getTime())
+        initialDueDate instanceof Date &&
+        !Number.isNaN(initialDueDate.getTime())
           ? formatIsoDate(initialDueDate, setSnapshot)
           : /^\d{4}-\d{2}-\d{2}$/.test(snapshot.due || "")
             ? snapshot.due
             : "";
       snapshot.dueIso = initialDueIso;
-      const initialStartDate = snapshot.start ? parseRoamDate(snapshot.start) : null;
+      const initialStartDate = snapshot.start
+        ? parseRoamDate(snapshot.start)
+        : null;
       const initialStartIso =
-        initialStartDate instanceof Date && !Number.isNaN(initialStartDate.getTime())
+        initialStartDate instanceof Date &&
+        !Number.isNaN(initialStartDate.getTime())
           ? formatIsoDate(initialStartDate, setSnapshot)
           : /^\d{4}-\d{2}-\d{2}$/.test(snapshot.start || "")
             ? snapshot.start
             : "";
       snapshot.startIso = initialStartIso;
-      const initialDeferDate = snapshot.defer ? parseRoamDate(snapshot.defer) : null;
+      const initialDeferDate = snapshot.defer
+        ? parseRoamDate(snapshot.defer)
+        : null;
       const initialDeferIso =
-        initialDeferDate instanceof Date && !Number.isNaN(initialDeferDate.getTime())
+        initialDeferDate instanceof Date &&
+        !Number.isNaN(initialDeferDate.getTime())
           ? formatIsoDate(initialDeferDate, setSnapshot)
           : /^\d{4}-\d{2}-\d{2}$/.test(snapshot.defer || "")
             ? snapshot.defer
@@ -7032,9 +8602,14 @@ export default {
       const projectDatalistOptions = projectOptions
         .map((opt) => `<option value="${escapeHtml(opt)}"></option>`)
         .join("");
-      const projectPickerLabel = t(["projectPicker", "button"], getLanguageSetting()) || "Select";
-      const waitingPickerLabel = t(["waitingPicker", "button"], getLanguageSetting()) || projectPickerLabel;
-      const contextPickerLabel = t(["contextPicker", "button"], getLanguageSetting()) || projectPickerLabel;
+      const projectPickerLabel =
+        t(["projectPicker", "button"], getLanguageSetting()) || "Select";
+      const waitingPickerLabel =
+        t(["waitingPicker", "button"], getLanguageSetting()) ||
+        projectPickerLabel;
+      const contextPickerLabel =
+        t(["contextPicker", "button"], getLanguageSetting()) ||
+        projectPickerLabel;
       return new Promise((resolve) => {
         let settled = false;
         const finish = (value) => {
@@ -7046,7 +8621,8 @@ export default {
         const formStrings = t("prompts.form", lang) || {};
         const metaStrings = t("metadata", lang) || {};
         const filterValues = t("dashboard.filterValues", lang) || {};
-        const labelOr = (key, fallback) => formStrings[key] || metaStrings[key] || fallback;
+        const labelOr = (key, fallback) =>
+          formStrings[key] || metaStrings[key] || fallback;
         const placeholderOr = (key, fallback) => formStrings[key] || fallback;
         const optionLabel = (group, val, fallback) => {
           const grp = formStrings[group] || {};
@@ -7055,100 +8631,116 @@ export default {
           return fallback;
         };
         const taskInputHtml = `<label class="rt-input-wrap">${escapeHtml(
-          formStrings.taskLabel || "Task *"
+          formStrings.taskLabel || "Task *",
         )}<br/><input data-rt-field="task" type="text" placeholder="${escapeHtml(
-          formStrings.taskPlaceholder || "Task text"
+          formStrings.taskPlaceholder || "Task text",
         )}" value="${escapeHtml(snapshot.task || "")}" /></label>`;
         const repeatInputHtml = `<label class="rt-input-wrap">${escapeHtml(
-          formStrings.repeatLabel || "Repeat"
+          formStrings.repeatLabel || "Repeat",
         )}<br/><input data-rt-field="repeat" type="text" placeholder="${escapeHtml(
-          formStrings.repeatPlaceholder || "Repeat rule (optional)"
+          formStrings.repeatPlaceholder || "Repeat rule (optional)",
         )}" value="${escapeHtml(snapshot.repeat || "")}" /></label>`;
         const dateInputClass = `rt-date-input-${Date.now()}`;
         const startInputHtml = `<label class="rt-input-wrap">${escapeHtml(
-          formStrings.startLabel || "Start"
+          formStrings.startLabel || "Start",
         )}<br/><input data-rt-field="start" type="date" value="${escapeHtml(snapshot.startIso || "")}" /></label>`;
         const deferInputHtml = `<label class="rt-input-wrap">${escapeHtml(
-          formStrings.deferLabel || "Defer"
+          formStrings.deferLabel || "Defer",
         )}<br/><input data-rt-field="defer" type="date" value="${escapeHtml(snapshot.deferIso || "")}" /></label>`;
         const dueInputHtml = `<label class="rt-input-wrap">${escapeHtml(
-          formStrings.dueLabel || "Due"
+          formStrings.dueLabel || "Due",
         )}<br/><input data-rt-field="due" type="date" class="${dateInputClass}" value="${escapeHtml(
-          snapshot.dueIso || ""
+          snapshot.dueIso || "",
         )}" /></label>`;
-        const projectLabel = formStrings.projectLabel || metaStrings.project || "Project";
-        const gtdLabel = formStrings.gtdLabel || metaStrings.gtd || "GTD status";
-        const waitingLabel = formStrings.waitingLabel || metaStrings.waitingFor || "Waiting-for";
-        const priorityLabel = formStrings.priorityLabel || metaStrings.priority || "Priority";
-        const energyLabel = formStrings.energyLabel || metaStrings.energy || "Energy";
-        const contextLabel = formStrings.contextLabel || metaStrings.context || "Context(s)";
+        const projectLabel =
+          formStrings.projectLabel || metaStrings.project || "Project";
+        const gtdLabel =
+          formStrings.gtdLabel || metaStrings.gtd || "GTD status";
+        const waitingLabel =
+          formStrings.waitingLabel || metaStrings.waitingFor || "Waiting-for";
+        const priorityLabel =
+          formStrings.priorityLabel || metaStrings.priority || "Priority";
+        const energyLabel =
+          formStrings.energyLabel || metaStrings.energy || "Energy";
+        const contextLabel =
+          formStrings.contextLabel || metaStrings.context || "Context(s)";
         const metadataHtml = `
           <div class="rt-meta-section">
             <div class="rt-meta-grid">
               <label class="rt-input-wrap">${escapeHtml(projectLabel)}<br/>
                 <div class="rt-project-inline-row">
                   <input data-rt-field="project" type="text" list="${projectDatalistId}" placeholder="${escapeHtml(
-          placeholderOr("projectPlaceholder", "Project")
-        )}" value="${escapeHtml(snapshot.project || "")}" />
+                    placeholderOr("projectPlaceholder", "Project"),
+                  )}" value="${escapeHtml(snapshot.project || "")}" />
                   <button type="button" class="rt-project-inline-btn" data-rt-action="project-picker">${escapeHtml(
-          projectPickerLabel
-        )}</button>
+                    projectPickerLabel,
+                  )}</button>
                 </div>
                 <datalist id="${projectDatalistId}">${projectDatalistOptions}</datalist>
               </label>
               <label class="rt-input-wrap">${escapeHtml(gtdLabel)}<br/>
                 <select data-rt-field="gtd">
                   <option value=""></option>
-                  <option value="next action"${snapshot.gtd === "next action" ? " selected" : ""
-          }>${escapeHtml(optionLabel("gtdOptions", "next action", "Next Action"))}</option>
-                  <option value="delegated"${snapshot.gtd === "delegated" ? " selected" : ""
-          }>${escapeHtml(optionLabel("gtdOptions", "delegated", "Delegated"))}</option>
-                  <option value="deferred"${snapshot.gtd === "deferred" ? " selected" : ""
-          }>${escapeHtml(optionLabel("gtdOptions", "deferred", "Deferred"))}</option>
-                  <option value="someday"${snapshot.gtd === "someday" ? " selected" : ""
-          }>${escapeHtml(optionLabel("gtdOptions", "someday", "Someday"))}</option>
+                  <option value="next action"${
+                    snapshot.gtd === "next action" ? " selected" : ""
+                  }>${escapeHtml(optionLabel("gtdOptions", "next action", "Next Action"))}</option>
+                  <option value="delegated"${
+                    snapshot.gtd === "delegated" ? " selected" : ""
+                  }>${escapeHtml(optionLabel("gtdOptions", "delegated", "Delegated"))}</option>
+                  <option value="deferred"${
+                    snapshot.gtd === "deferred" ? " selected" : ""
+                  }>${escapeHtml(optionLabel("gtdOptions", "deferred", "Deferred"))}</option>
+                  <option value="someday"${
+                    snapshot.gtd === "someday" ? " selected" : ""
+                  }>${escapeHtml(optionLabel("gtdOptions", "someday", "Someday"))}</option>
                 </select>
               </label>
               <label class="rt-input-wrap">${escapeHtml(waitingLabel)}<br/>
                 <div class="rt-project-inline-row">
                   <input data-rt-field="waitingFor" type="text" placeholder="${escapeHtml(
-            placeholderOr("waitingPlaceholder", "Waiting-for")
-          )}" value="${escapeHtml(snapshot.waitingFor || "")}" />
+                    placeholderOr("waitingPlaceholder", "Waiting-for"),
+                  )}" value="${escapeHtml(snapshot.waitingFor || "")}" />
                   <button type="button" class="rt-project-inline-btn" data-rt-action="waiting-picker">${escapeHtml(
-            waitingPickerLabel
-          )}</button>
+                    waitingPickerLabel,
+                  )}</button>
                 </div>
               </label>
               <label class="rt-input-wrap">${escapeHtml(priorityLabel)}<br/>
                 <select data-rt-field="priority">
                   <option value=""></option>
-                  <option value="low"${snapshot.priority === "low" ? " selected" : ""
-          }>${escapeHtml(optionLabel("priorityOptions", "low", "Low"))}</option>
-                  <option value="medium"${snapshot.priority === "medium" ? " selected" : ""
-          }>${escapeHtml(optionLabel("priorityOptions", "medium", "Medium"))}</option>
-                  <option value="high"${snapshot.priority === "high" ? " selected" : ""
-          }>${escapeHtml(optionLabel("priorityOptions", "high", "High"))}</option>
+                  <option value="low"${
+                    snapshot.priority === "low" ? " selected" : ""
+                  }>${escapeHtml(optionLabel("priorityOptions", "low", "Low"))}</option>
+                  <option value="medium"${
+                    snapshot.priority === "medium" ? " selected" : ""
+                  }>${escapeHtml(optionLabel("priorityOptions", "medium", "Medium"))}</option>
+                  <option value="high"${
+                    snapshot.priority === "high" ? " selected" : ""
+                  }>${escapeHtml(optionLabel("priorityOptions", "high", "High"))}</option>
                 </select>
               </label>
               <label class="rt-input-wrap">${escapeHtml(contextLabel)}<br/>
                 <div class="rt-project-inline-row">
                   <input data-rt-field="context" type="text" placeholder="${escapeHtml(
-            placeholderOr("contextPlaceholder", "@home, @work")
-          )}" value="${escapeHtml(snapshot.context || "")}" />
+                    placeholderOr("contextPlaceholder", "@home, @work"),
+                  )}" value="${escapeHtml(snapshot.context || "")}" />
                   <button type="button" class="rt-project-inline-btn" data-rt-action="context-picker">${escapeHtml(
-            contextPickerLabel
-          )}</button>
+                    contextPickerLabel,
+                  )}</button>
                 </div>
               </label>
               <label class="rt-input-wrap">${escapeHtml(energyLabel)}<br/>
                 <select data-rt-field="energy">
                   <option value=""></option>
-                  <option value="low"${snapshot.energy === "low" ? " selected" : ""
-          }>${escapeHtml(optionLabel("energyOptions", "low", "Low"))}</option>
-                  <option value="medium"${snapshot.energy === "medium" ? " selected" : ""
-          }>${escapeHtml(optionLabel("energyOptions", "medium", "Medium"))}</option>
-                  <option value="high"${snapshot.energy === "high" ? " selected" : ""
-          }>${escapeHtml(optionLabel("energyOptions", "high", "High"))}</option>
+                  <option value="low"${
+                    snapshot.energy === "low" ? " selected" : ""
+                  }>${escapeHtml(optionLabel("energyOptions", "low", "Low"))}</option>
+                  <option value="medium"${
+                    snapshot.energy === "medium" ? " selected" : ""
+                  }>${escapeHtml(optionLabel("energyOptions", "medium", "Medium"))}</option>
+                  <option value="high"${
+                    snapshot.energy === "high" ? " selected" : ""
+                  }>${escapeHtml(optionLabel("energyOptions", "high", "High"))}</option>
                 </select>
               </label>
             </div>
@@ -7168,8 +8760,10 @@ export default {
           gtd: '[data-rt-field="gtd"]',
         };
         const promptMessage = includeTaskText
-          ? formStrings.messageWithTask || "Enter the task text, optional repeat rule, dates, and metadata."
-          : formStrings.messageWithoutTask || "Enter an optional repeat rule, dates, and metadata.";
+          ? formStrings.messageWithTask ||
+            "Enter the task text, optional repeat rule, dates, and metadata."
+          : formStrings.messageWithoutTask ||
+            "Enter an optional repeat rule, dates, and metadata.";
         const messageHtml = promptMessage;
         const inputs = [];
         if (includeTaskText) {
@@ -7283,7 +8877,9 @@ export default {
                       return "";
                   }
                 };
-                const taskValueRaw = includeTaskText ? getFieldValue("task") : "";
+                const taskValueRaw = includeTaskText
+                  ? getFieldValue("task")
+                  : "";
                 if (includeTaskText) snapshot.task = taskValueRaw;
                 const taskValue = taskValueRaw.trim();
                 if (includeTaskText && !taskValue) {
@@ -7295,19 +8891,25 @@ export default {
                 const dueIso = getFieldValue("due");
                 const startIso = getFieldValue("start");
                 const deferIso = getFieldValue("defer");
-                const projectVal = normalizeProjectValue(getFieldValue("project"));
+                const projectVal = normalizeProjectValue(
+                  getFieldValue("project"),
+                );
                 const waitingVal = getFieldValue("waitingFor");
                 const contextVal = getFieldValue("context");
                 const priorityVal = getFieldValue("priority");
                 const energyVal = getFieldValue("energy");
                 const gtdVal = getFieldValue("gtd");
-                const normalizedRepeat =
-                  repeatValue ? normalizeRepeatRuleText(repeatValue) || repeatValue : "";
+                const normalizedRepeat = repeatValue
+                  ? normalizeRepeatRuleText(repeatValue) || repeatValue
+                  : "";
                 let dueText = null;
                 let dueDate = null;
                 if (dueIso) {
                   dueDate = parseRoamDate(dueIso);
-                  if (!(dueDate instanceof Date) || Number.isNaN(dueDate.getTime())) {
+                  if (
+                    !(dueDate instanceof Date) ||
+                    Number.isNaN(dueDate.getTime())
+                  ) {
                     toast("Couldn't parse that date.");
                     toastEl?.querySelector(fieldSelectors.due)?.focus?.();
                     return;
@@ -7318,7 +8920,10 @@ export default {
                 let startDate = null;
                 if (startIso) {
                   startDate = parseRoamDate(startIso);
-                  if (!(startDate instanceof Date) || Number.isNaN(startDate.getTime())) {
+                  if (
+                    !(startDate instanceof Date) ||
+                    Number.isNaN(startDate.getTime())
+                  ) {
                     toast("Couldn't parse that date.");
                     toastEl?.querySelector(fieldSelectors.start)?.focus?.();
                     return;
@@ -7329,7 +8934,10 @@ export default {
                 let deferDate = null;
                 if (deferIso) {
                   deferDate = parseRoamDate(deferIso);
-                  if (!(deferDate instanceof Date) || Number.isNaN(deferDate.getTime())) {
+                  if (
+                    !(deferDate instanceof Date) ||
+                    Number.isNaN(deferDate.getTime())
+                  ) {
                     toast("Couldn't parse that date.");
                     toastEl?.querySelector(fieldSelectors.defer)?.focus?.();
                     return;
@@ -7388,75 +8996,113 @@ export default {
             };
             assignIfPresent(fieldSelectors.gtd, snapshot.gtd || "");
             assignIfPresent(fieldSelectors.project, snapshot.project || "");
-            assignIfPresent(fieldSelectors.waitingFor, snapshot.waitingFor || "");
+            assignIfPresent(
+              fieldSelectors.waitingFor,
+              snapshot.waitingFor || "",
+            );
             assignIfPresent(fieldSelectors.context, snapshot.context || "");
             assignIfPresent(fieldSelectors.priority, snapshot.priority || "");
             assignIfPresent(fieldSelectors.energy, snapshot.energy || "");
 
-            const projectButton = toastEl.querySelector('[data-rt-action="project-picker"]');
+            const projectButton = toastEl.querySelector(
+              '[data-rt-action="project-picker"]',
+            );
             if (projectButton) {
               projectButton.addEventListener("click", async (event) => {
                 event.preventDefault();
                 await refreshProjectOptions();
                 const currentVal =
-                  toastEl.querySelector(fieldSelectors.project)?.value || snapshot.project || "";
-                const selection = await promptForProject({ initialValue: currentVal });
+                  toastEl.querySelector(fieldSelectors.project)?.value ||
+                  snapshot.project ||
+                  "";
+                const selection = await promptForProject({
+                  initialValue: currentVal,
+                });
                 if (selection != null) {
                   const normalized = normalizeProjectValue(selection);
                   snapshot.project = normalized;
-                  const projectInput = toastEl.querySelector(fieldSelectors.project);
+                  const projectInput = toastEl.querySelector(
+                    fieldSelectors.project,
+                  );
                   if (projectInput) projectInput.value = normalized;
                   addProjectOption(normalized);
                 }
               });
             }
-            const waitingButton = toastEl.querySelector('[data-rt-action="waiting-picker"]');
+            const waitingButton = toastEl.querySelector(
+              '[data-rt-action="waiting-picker"]',
+            );
             if (waitingButton) {
               waitingButton.addEventListener("click", async (event) => {
                 event.preventDefault();
                 await refreshWaitingOptions();
                 const currentVal =
-                  toastEl.querySelector(fieldSelectors.waitingFor)?.value || snapshot.waitingFor || "";
-                const selection = await promptForWaiting({ initialValue: currentVal });
+                  toastEl.querySelector(fieldSelectors.waitingFor)?.value ||
+                  snapshot.waitingFor ||
+                  "";
+                const selection = await promptForWaiting({
+                  initialValue: currentVal,
+                });
                 if (selection != null) {
                   snapshot.waitingFor = selection;
-                  const input = toastEl.querySelector(fieldSelectors.waitingFor);
+                  const input = toastEl.querySelector(
+                    fieldSelectors.waitingFor,
+                  );
                   if (input) input.value = selection;
                   addWaitingOption(selection);
                 }
               });
             }
 
-            const contextButton = toastEl.querySelector('[data-rt-action="context-picker"]');
+            const contextButton = toastEl.querySelector(
+              '[data-rt-action="context-picker"]',
+            );
             if (contextButton) {
               contextButton.addEventListener("click", async (event) => {
                 event.preventDefault();
                 await refreshContextOptions();
                 const currentVal =
-                  toastEl.querySelector(fieldSelectors.context)?.value || snapshot.context || "";
+                  toastEl.querySelector(fieldSelectors.context)?.value ||
+                  snapshot.context ||
+                  "";
                 const initialContexts = currentVal
-                  ? currentVal.split(",").map((v) => v.trim()).filter(Boolean)
+                  ? currentVal
+                      .split(",")
+                      .map((v) => v.trim())
+                      .filter(Boolean)
                   : [];
-                const selection = await promptForContext({ initialValue: initialContexts });
+                const selection = await promptForContext({
+                  initialValue: initialContexts,
+                });
                 if (selection != null) {
-                  const val = Array.isArray(selection) ? selection.join(", ") : selection || "";
+                  const val = Array.isArray(selection)
+                    ? selection.join(", ")
+                    : selection || "";
                   snapshot.context = val;
                   const input = toastEl.querySelector(fieldSelectors.context);
                   if (input) input.value = val;
-                  (Array.isArray(selection) ? selection : [val]).forEach((ctx) => addContextOption(ctx));
+                  (Array.isArray(selection) ? selection : [val]).forEach(
+                    (ctx) => addContextOption(ctx),
+                  );
                 }
               });
             }
 
             const focusPrimaryInput = () => {
               const selectors = includeTaskText
-                ? ["input[data-rt-field=\"task\"]", "input[data-rt-field=\"repeat\"]"]
-                : ["input[data-rt-field=\"repeat\"]"];
+                ? [
+                    'input[data-rt-field="task"]',
+                    'input[data-rt-field="repeat"]',
+                  ]
+                : ['input[data-rt-field="repeat"]'];
               for (const selector of selectors) {
                 const field = toastEl.querySelector(selector);
                 if (field) {
                   field.focus();
-                  if (field.setSelectionRange && typeof field.value === "string") {
+                  if (
+                    field.setSelectionRange &&
+                    typeof field.value === "string"
+                  ) {
                     const len = field.value.length;
                     field.setSelectionRange(len, len);
                   }
@@ -7482,17 +9128,19 @@ export default {
                 try {
                   input.showPicker();
                   return;
-                } catch (_) { }
+                } catch (_) {}
               }
               try {
                 input.focus();
                 input.click();
-              } catch (_) { }
+              } catch (_) {}
             };
             for (const key of ["start", "defer", "due"]) {
-              toastEl.querySelectorAll(fieldSelectors[key])?.forEach((input) => {
-                input.addEventListener("keydown", handleArrowToPicker);
-              });
+              toastEl
+                .querySelectorAll(fieldSelectors[key])
+                ?.forEach((input) => {
+                  input.addEventListener("keydown", handleArrowToPicker);
+                });
             }
           },
           onClosed: () => finish(null),
@@ -7518,7 +9166,9 @@ export default {
         if (activeDashboardController) {
           await activeDashboardController.notifyBlockChange?.(uid);
           if (activeDashboardController.isOpen?.()) {
-            await activeDashboardController.refresh?.({ reason: "advance-cancel" });
+            await activeDashboardController.refresh?.({
+              reason: "advance-cancel",
+            });
           }
         }
         return null;
@@ -7534,7 +9184,11 @@ export default {
       const completionSet = { ...set, advanceFrom: "completion" };
       const previewLimit = determineAdvancePreviewLimit(rule);
       const duePreview = previewOccurrences(meta, dueSet, previewLimit);
-      const completionPreview = previewOccurrences(meta, completionSet, previewLimit);
+      const completionPreview = previewOccurrences(
+        meta,
+        completionSet,
+        previewLimit,
+      );
       const message = `
         <div class="rt-advance-choice">
           <p>Select how this series should schedule future occurrences.</p>
@@ -7564,7 +9218,10 @@ export default {
           icon: "icon-check",
           iconText: "✓",
           iconColor: "#1f7a34",
-          title: translateString("Choose scheduling mode", getLanguageSetting()),
+          title: translateString(
+            "Choose scheduling mode",
+            getLanguageSetting(),
+          ),
           message,
           buttons: [
             [
@@ -7600,7 +9257,11 @@ export default {
 
     function determineAdvancePreviewLimit(rule) {
       if (!rule) return 1;
-      if (rule.kind === "WEEKLY" && Array.isArray(rule.byDay) && rule.byDay.length > 1) {
+      if (
+        rule.kind === "WEEKLY" &&
+        Array.isArray(rule.byDay) &&
+        rule.byDay.length > 1
+      ) {
         return Math.min(rule.byDay.length, 3);
       }
       return 1;
@@ -7657,7 +9318,9 @@ export default {
     }
 
     function clearAllPills(removeStyle = true) {
-      document.querySelectorAll?.(".rt-pill-wrap")?.forEach((el) => el.remove());
+      document
+        .querySelectorAll?.(".rt-pill-wrap")
+        ?.forEach((el) => el.remove());
       if (removeStyle) {
         const style = document.getElementById("rt-pill-style");
         if (style?.parentNode) style.parentNode.removeChild(style);
@@ -7815,7 +9478,12 @@ export default {
         const cleaned = val.trim();
         if (!cleaned) return null;
         const lower = cleaned.toLowerCase();
-        if (lower === "zh-hant" || lower === "zh_hant" || lower === "zh-tw" || lower === "zh-hk") {
+        if (
+          lower === "zh-hant" ||
+          lower === "zh_hant" ||
+          lower === "zh-tw" ||
+          lower === "zh-hk"
+        ) {
           return "zhHant";
         }
         if (lower === "zh-hans" || lower === "zh_hans" || lower === "zh-cn") {
@@ -7823,7 +9491,11 @@ export default {
         }
         return cleaned;
       };
-      const candidates = [override, extensionAPI?.settings?.get?.(LANGUAGE_SETTING), currentLanguage];
+      const candidates = [
+        override,
+        extensionAPI?.settings?.get?.(LANGUAGE_SETTING),
+        currentLanguage,
+      ];
       for (const raw of candidates) {
         const normalized = normalizeLanguageValue(raw);
         if (normalized && SUPPORTED_LANGUAGES.includes(normalized)) {
@@ -7838,7 +9510,13 @@ export default {
     function t(path, lang = "en") {
       const parts = Array.isArray(path) ? path : String(path || "").split(".");
       const resolve = (obj) =>
-        parts.reduce((acc, key) => (acc && Object.prototype.hasOwnProperty.call(acc, key) ? acc[key] : undefined), obj);
+        parts.reduce(
+          (acc, key) =>
+            acc && Object.prototype.hasOwnProperty.call(acc, key)
+              ? acc[key]
+              : undefined,
+          obj,
+        );
       const primary = resolve(I18N_MAP?.[lang]);
       if (primary !== undefined) return primary;
       if (lang !== "en") {
@@ -7867,14 +9545,17 @@ export default {
         null;
       if (val) return val;
       if (type === "gtd") return formatGtdStatusDisplay(value);
-      if (type === "priority" || type === "energy") return formatPriorityEnergyDisplay(value);
+      if (type === "priority" || type === "energy")
+        return formatPriorityEnergyDisplay(value);
       return value;
     }
 
     function normalizeTodayWidgetEnabled(raw) {
       if (raw === undefined || raw === null) return false; // default off (first install)
-      if (raw === true || raw === "true" || raw === 1 || raw === "1") return true;
-      if (raw === false || raw === "false" || raw === 0 || raw === "0") return false;
+      if (raw === true || raw === "true" || raw === 1 || raw === "1")
+        return true;
+      if (raw === false || raw === "false" || raw === 0 || raw === "0")
+        return false;
       const norm = typeof raw === "string" ? raw.trim().toLowerCase() : raw;
       if (norm === "off" || norm === "no") return false;
       return !!raw;
@@ -7901,7 +9582,9 @@ export default {
     function setTodayEnabledOverride(value) {
       todayEnabledOverride = value;
       const clearIfPersisted = () => {
-        const stored = normalizeTodayWidgetEnabled(extensionAPI.settings.get(TODAY_WIDGET_ENABLE_SETTING));
+        const stored = normalizeTodayWidgetEnabled(
+          extensionAPI.settings.get(TODAY_WIDGET_ENABLE_SETTING),
+        );
         if (stored === normalizeTodayWidgetEnabled(value)) {
           todayEnabledOverride = null;
         }
@@ -7910,23 +9593,35 @@ export default {
       setTimeout(clearIfPersisted, 12000);
     }
 
-    async function handleTodaySettingChange(settingId = null, value = undefined) {
+    async function handleTodaySettingChange(
+      settingId = null,
+      value = undefined,
+    ) {
       const prevAnchorText =
         settingId === TODAY_WIDGET_TITLE_SETTING ? getTodayAnchorText() : null;
-      const prevAnchorNormalized = prevAnchorText ? normalizeMatchText(prevAnchorText) : "";
+      const prevAnchorNormalized = prevAnchorText
+        ? normalizeMatchText(prevAnchorText)
+        : "";
       const normalizedValue = normalizeTodaySettingValue(value);
       if (settingId) {
         try {
           extensionAPI.settings.set(settingId, normalizedValue);
         } catch (err) {
-          console.warn("[BetterTasks] failed to persist Today setting", settingId, err);
+          console.warn(
+            "[BetterTasks] failed to persist Today setting",
+            settingId,
+            err,
+          );
         }
       }
       // Force next render to bypass caches/snapshots when settings change.
       dashboardTaskCache?.clear?.();
       lastTodayWidgetSignature = null;
       lastTodayInlineSignature = null;
-      if (settingId === TODAY_WIDGET_ENABLE_SETTING && !normalizeTodayWidgetEnabled(normalizedValue)) {
+      if (
+        settingId === TODAY_WIDGET_ENABLE_SETTING &&
+        !normalizeTodayWidgetEnabled(normalizedValue)
+      ) {
         setTodayEnabledOverride(normalizedValue);
         rebuildSettingsPanel(false);
         await disableTodayWidgetUI();
@@ -7934,7 +9629,11 @@ export default {
       }
       if (settingId === TODAY_WIDGET_ENABLE_SETTING) {
         setTodayEnabledOverride(normalizedValue);
-        rebuildSettingsPanel(normalizeTodayWidgetEnabled(normalizedValue), currentLanguage, getTodayBadgeEnabled());
+        rebuildSettingsPanel(
+          normalizeTodayWidgetEnabled(normalizedValue),
+          currentLanguage,
+          getTodayBadgeEnabled(),
+        );
       }
       if (todayWidgetRenderTimer) {
         clearTimeout(todayWidgetRenderTimer);
@@ -7949,7 +9648,10 @@ export default {
         todayTitleChangeDebounceTimer = setTimeout(() => {
           todayTitleChangeDebounceTimer = null;
           const nextAnchorNormalized = normalizeMatchText(getTodayAnchorText());
-          if (prevAnchorNormalized && prevAnchorNormalized !== nextAnchorNormalized) {
+          if (
+            prevAnchorNormalized &&
+            prevAnchorNormalized !== nextAnchorNormalized
+          ) {
             todayAnchorTextHistory.delete(prevAnchorNormalized);
             void removeAllTodayAnchorsByQuery({
               includeHeading: false,
@@ -7966,17 +9668,28 @@ export default {
       scheduleTodayBadgeRefresh(80, true);
     }
 
-    async function handleTodayBadgeSettingChange(settingId = null, value = undefined) {
+    async function handleTodayBadgeSettingChange(
+      settingId = null,
+      value = undefined,
+    ) {
       const normalizedValue = normalizeTodaySettingValue(value);
       if (settingId) {
         try {
           extensionAPI.settings.set(settingId, normalizedValue);
         } catch (err) {
-          console.warn("[BetterTasks] failed to persist Today badge setting", settingId, err);
+          console.warn(
+            "[BetterTasks] failed to persist Today badge setting",
+            settingId,
+            err,
+          );
         }
       }
       if (settingId === TODAY_BADGE_ENABLE_SETTING) {
-        rebuildSettingsPanel(getTodayWidgetEnabled(), currentLanguage, !!normalizedValue);
+        rebuildSettingsPanel(
+          getTodayWidgetEnabled(),
+          currentLanguage,
+          !!normalizedValue,
+        );
         if (!normalizedValue) {
           removeTodayBadge();
           return;
@@ -7988,13 +9701,20 @@ export default {
         settingId === TODAY_BADGE_LABEL_SETTING;
       if (isVisualChange) {
         lastTodayBadgeSignature = null; // force DOM update for visual changes
-        const currentCount = todayBadgeCountNode ? parseInt(todayBadgeCountNode.textContent || "0", 10) || 0 : 0;
+        const currentCount = todayBadgeCountNode
+          ? parseInt(todayBadgeCountNode.textContent || "0", 10) || 0
+          : 0;
         const existingColors = getTodayBadgeColors();
         const sanitizeColor = (val) => {
           if (typeof val !== "string") return null;
           const trimmed = val.trim();
           if (!trimmed) return null; // empty means fall back to default
-          if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(trimmed)) return trimmed;
+          if (
+            /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(
+              trimmed,
+            )
+          )
+            return trimmed;
           if (/^rgba?\(/i.test(trimmed)) return trimmed;
           if (/^hsla?\(/i.test(trimmed)) return trimmed;
           if (/^[a-zA-Z]+$/.test(trimmed)) return trimmed; // allow named colors
@@ -8009,7 +9729,8 @@ export default {
             ? sanitizeColor(normalizedValue)
             : existingColors.fg;
         const nextLabel =
-          settingId === TODAY_BADGE_LABEL_SETTING && typeof normalizedValue === "string"
+          settingId === TODAY_BADGE_LABEL_SETTING &&
+          typeof normalizedValue === "string"
             ? normalizedValue
             : null;
         if (settingId === TODAY_BADGE_BG_SETTING) {
@@ -8018,7 +9739,10 @@ export default {
         if (settingId === TODAY_BADGE_FG_SETTING) {
           todayBadgeOverrides.fg = nextFg;
         }
-        if (settingId === TODAY_BADGE_LABEL_SETTING && typeof normalizedValue === "string") {
+        if (
+          settingId === TODAY_BADGE_LABEL_SETTING &&
+          typeof normalizedValue === "string"
+        ) {
           todayBadgeOverrides.label = normalizedValue;
         }
         ensureTodayBadgeDom(currentCount, {
@@ -8037,20 +9761,24 @@ export default {
     }
 
     function handleLanguageChange(nextValue = null) {
-      const raw =
-        nextValue?.value ??
-        nextValue?.target?.value ??
-        nextValue;
+      const raw = nextValue?.value ?? nextValue?.target?.value ?? nextValue;
       if (typeof raw === "string" && SUPPORTED_LANGUAGES.includes(raw)) {
         currentLanguage = raw;
       } else {
         currentLanguage = getLanguageSetting();
       }
-      rebuildSettingsPanel(getTodayWidgetEnabled(), currentLanguage, getTodayBadgeEnabled());
+      rebuildSettingsPanel(
+        getTodayWidgetEnabled(),
+        currentLanguage,
+        getTodayBadgeEnabled(),
+      );
       try {
         activeDashboardController?.refreshLanguage?.();
       } catch (err) {
-        console.warn("[BetterTasks] failed to refresh dashboard for language change", err);
+        console.warn(
+          "[BetterTasks] failed to refresh dashboard for language change",
+          err,
+        );
       }
       scheduleTodayWidgetRender(100, true);
       scheduleSurfaceSync(lastAttrSurface || "Child");
@@ -8060,9 +9788,13 @@ export default {
       const raw = getTodaySetting(TODAY_WIDGET_LAYOUT_SETTING);
       if (raw === "Panel") return "panel";
       if (raw === "Roam-style inline") return "roamInline";
-      const norm = typeof raw === "string" ? raw.trim().toLowerCase() : String(raw ?? "").toLowerCase();
+      const norm =
+        typeof raw === "string"
+          ? raw.trim().toLowerCase()
+          : String(raw ?? "").toLowerCase();
       if (norm === "panel") return "panel";
-      if (norm === "roam-style inline" || norm === "inline") return "roamInline";
+      if (norm === "roam-style inline" || norm === "inline")
+        return "roamInline";
       if (raw === 1 || raw === "1") return "roamInline";
       if (raw === 0 || raw === "0") return "panel";
       return "roamInline";
@@ -8072,7 +9804,10 @@ export default {
       const raw = getTodaySetting(TODAY_WIDGET_OVERDUE_SETTING);
       if (raw === undefined || raw === null) return false; // default off (first install)
       if (raw === false) return false;
-      const norm = typeof raw === "string" ? raw.trim().toLowerCase() : String(raw ?? "").toLowerCase();
+      const norm =
+        typeof raw === "string"
+          ? raw.trim().toLowerCase()
+          : String(raw ?? "").toLowerCase();
       if (["false", "0", "off", "no"].includes(norm)) return false;
       return true;
     }
@@ -8093,19 +9828,25 @@ export default {
     function getTodayBadgeLabel() {
       if (todayBadgeOverrides.label) return todayBadgeOverrides.label;
       const raw = extensionAPI.settings.get(TODAY_BADGE_LABEL_SETTING);
-      const configured = typeof raw === "string" && raw.trim() ? raw.trim() : null;
+      const configured =
+        typeof raw === "string" && raw.trim() ? raw.trim() : null;
       return configured || getTodayAnchorText();
     }
 
     function getTodayBadgeIncludeOverdue() {
       const raw = extensionAPI.settings.get(TODAY_BADGE_OVERDUE_SETTING);
-      if (raw === false || raw === "false" || raw === 0 || raw === "0") return false;
+      if (raw === false || raw === "false" || raw === 0 || raw === "0")
+        return false;
       return true;
     }
 
     function getTodayBadgeColors() {
-      const bg = todayBadgeOverrides.bg || extensionAPI.settings.get(TODAY_BADGE_BG_SETTING);
-      const fg = todayBadgeOverrides.fg || extensionAPI.settings.get(TODAY_BADGE_FG_SETTING);
+      const bg =
+        todayBadgeOverrides.bg ||
+        extensionAPI.settings.get(TODAY_BADGE_BG_SETTING);
+      const fg =
+        todayBadgeOverrides.fg ||
+        extensionAPI.settings.get(TODAY_BADGE_FG_SETTING);
       return {
         bg: (typeof bg === "string" && bg.trim()) || null,
         fg: (typeof fg === "string" && fg.trim()) || null,
@@ -8141,7 +9882,15 @@ export default {
         `h${heading}`,
         `t:${anchorText}`,
       ].join("|");
-      return { layout, includeOverdue, showCompleted, placement, heading, anchorText, signature };
+      return {
+        layout,
+        includeOverdue,
+        showCompleted,
+        placement,
+        heading,
+        anchorText,
+        signature,
+      };
     }
 
     function getPillCheckboxThreshold() {
@@ -8164,19 +9913,25 @@ export default {
       // If circuit breaker is tripped, ignore schedules until cooldown ends.
       if (todayWidgetCbTrippedUntil && now < todayWidgetCbTrippedUntil) {
         // Optional: once per cooldown, log a warning (avoid spamming console)
-        if (!scheduleTodayWidgetRender._cbWarnedAt || now - scheduleTodayWidgetRender._cbWarnedAt > 1000) {
+        if (
+          !scheduleTodayWidgetRender._cbWarnedAt ||
+          now - scheduleTodayWidgetRender._cbWarnedAt > 1000
+        ) {
           scheduleTodayWidgetRender._cbWarnedAt = now;
           console.warn(
             `[BetterTasks] Today widget circuit breaker active; skipping render scheduling for ${Math.ceil(
-              (todayWidgetCbTrippedUntil - now) / 1000
-            )}s`
+              (todayWidgetCbTrippedUntil - now) / 1000,
+            )}s`,
           );
         }
         return;
       }
 
       // Reset breaker window if needed
-      if (!todayWidgetCbWindowStart || now - todayWidgetCbWindowStart > TODAY_WIDGET_CB_WINDOW_MS) {
+      if (
+        !todayWidgetCbWindowStart ||
+        now - todayWidgetCbWindowStart > TODAY_WIDGET_CB_WINDOW_MS
+      ) {
         todayWidgetCbWindowStart = now;
         todayWidgetCbCount = 0;
       }
@@ -8195,7 +9950,7 @@ export default {
 
         console.error(
           `[BetterTasks] Today widget circuit breaker TRIPPED (>${TODAY_WIDGET_CB_MAX} schedules in ${TODAY_WIDGET_CB_WINDOW_MS}ms). ` +
-          `Pausing renders for ${Math.ceil(TODAY_WIDGET_CB_COOLDOWN_MS / 1000)}s.`
+            `Pausing renders for ${Math.ceil(TODAY_WIDGET_CB_COOLDOWN_MS / 1000)}s.`,
         );
 
         /*
@@ -8215,13 +9970,16 @@ export default {
       if (todayWidgetRenderTimer) clearTimeout(todayWidgetRenderTimer);
       todayWidgetRenderTimer = setTimeout(() => {
         todayWidgetRenderTimer = null;
-        const idle = typeof requestIdleCallback === "function" ? requestIdleCallback : null;
+        const idle =
+          typeof requestIdleCallback === "function"
+            ? requestIdleCallback
+            : null;
         if (idle) {
           idle(
             () => {
               void renderTodayWidget(force);
             },
-            { timeout: 1200 }
+            { timeout: 1200 },
           );
         } else {
           void renderTodayWidget(force);
@@ -8241,8 +9999,12 @@ export default {
       if (typeof window === "undefined") return;
       todayNavListener = () => scheduleTodayWidgetRender(80, true);
       try {
-        window.addEventListener("hashchange", todayNavListener, { passive: true });
-        window.addEventListener("popstate", todayNavListener, { passive: true });
+        window.addEventListener("hashchange", todayNavListener, {
+          passive: true,
+        });
+        window.addEventListener("popstate", todayNavListener, {
+          passive: true,
+        });
         todayNavListenerAttached = true;
       } catch (_) {
         // ignore
@@ -8287,7 +10049,7 @@ export default {
       todayHeadingRetryCount = 0;
       try {
         await teardownTodayPanel();
-      } catch (_) { }
+      } catch (_) {}
       const anchorUid = lastTodayAnchorUid || (await findTodayAnchorUid());
       lastTodayAnchorUid = anchorUid || null;
       if (anchorUid) {
@@ -8313,7 +10075,7 @@ export default {
       for (let i = 0; i < attempts; i++) {
         try {
           await clearTodayInlineChildren(uid);
-        } catch (_) { }
+        } catch (_) {}
         if (anchorIsHeading) {
           lastTodayAnchorUid = uid;
           return;
@@ -8322,20 +10084,27 @@ export default {
           await deleteBlockAndDescendants(uid);
           lastTodayAnchorUid = null;
           return;
-        } catch (_) { }
+        } catch (_) {}
         // Fallback: try to blank the block so it disappears even if delete fails.
         try {
           await window.roamAlphaAPI.updateBlock({ block: { uid, string: "" } });
           lastTodayAnchorUid = null;
           return;
-        } catch (_) { }
+        } catch (_) {}
         await delay(120);
         uid = (await findTodayAnchorUid()) || uid;
       }
       lastTodayAnchorUid = null;
     }
 
-    async function collectAnchorsUnder(uid, anchorTexts, ignoredUid = null, cache = null, depth = 0, maxDepth = 3) {
+    async function collectAnchorsUnder(
+      uid,
+      anchorTexts,
+      ignoredUid = null,
+      cache = null,
+      depth = 0,
+      maxDepth = 3,
+    ) {
       if (!uid || depth > maxDepth) return [];
       if (ignoredUid && uid === ignoredUid) return [];
       const block = await getBlockCached(uid, cache);
@@ -8348,26 +10117,50 @@ export default {
       for (const child of children) {
         const childUid = child?.uid;
         if (childUid) {
-          matches.push(...(await collectAnchorsUnder(childUid, anchorTexts, ignoredUid, cache, depth + 1, maxDepth)));
+          matches.push(
+            ...(await collectAnchorsUnder(
+              childUid,
+              anchorTexts,
+              ignoredUid,
+              cache,
+              depth + 1,
+              maxDepth,
+            )),
+          );
         }
       }
       return matches;
     }
 
-    async function removeAllTodayAnchorsByQuery({ includeHeading = false, textsOverride = null } = {}) {
+    async function removeAllTodayAnchorsByQuery({
+      includeHeading = false,
+      textsOverride = null,
+    } = {}) {
       try {
         const cache = createTodayRenderCache();
-        const dnpUid = await getOrCreatePageUidCached(toDnpTitle(todayLocal()), cache);
+        const dnpUid = await getOrCreatePageUidCached(
+          toDnpTitle(todayLocal()),
+          cache,
+        );
         const { headingUid } = await getTodayParentInfo(cache);
         const baseTexts = Array.isArray(textsOverride)
           ? textsOverride
           : [getTodayAnchorText(), ...TODAY_WIDGET_ANCHOR_TEXT_LEGACY];
-        const texts = new Set(baseTexts.map((s) => normalizeMatchText(s || "")));
+        const texts = new Set(
+          baseTexts.map((s) => normalizeMatchText(s || "")),
+        );
         if (!textsOverride) {
           for (const t of todayAnchorTextHistory) texts.add(t);
         }
         const ignoreUid = includeHeading ? null : headingUid || null;
-        const uids = await collectAnchorsUnder(dnpUid, texts, ignoreUid, cache, 0, 4);
+        const uids = await collectAnchorsUnder(
+          dnpUid,
+          texts,
+          ignoreUid,
+          cache,
+          0,
+          4,
+        );
         for (const u of uids) {
           await deleteBlockAndDescendants(u);
         }
@@ -8382,19 +10175,21 @@ export default {
       try {
         const safeUid = escapeDatalogString(uid);
         const children = await window.roamAlphaAPI.q(
-          `[:find ?c :where [?c :block/parents ?p] [?p :block/uid "${safeUid}"]]`
+          `[:find ?c :where [?c :block/parents ?p] [?p :block/uid "${safeUid}"]]`,
         );
-        const childUids = Array.isArray(children) ? children.map((r) => r?.[0]).filter(Boolean) : [];
+        const childUids = Array.isArray(children)
+          ? children.map((r) => r?.[0]).filter(Boolean)
+          : [];
         for (const child of childUids) {
           await deleteBlockAndDescendants(child, depth + 1, maxDepth);
         }
-      } catch (_) { }
+      } catch (_) {}
       try {
         await deleteBlock(uid);
       } catch (_) {
         try {
           await window.roamAlphaAPI.updateBlock({ block: { uid, string: "" } });
-        } catch (_) { }
+        } catch (_) {}
       }
     }
 
@@ -8424,11 +10219,19 @@ export default {
     async function getOpenPageTitleSafe(cache = null) {
       try {
         const main = window.roamAlphaAPI?.ui?.mainWindow;
-        const info = typeof main?.getOpenPageOrBlock === "function" ? main.getOpenPageOrBlock() : null;
-        const pageUid = info?.["page-uid"] || info?.pageUid || info?.page?.uid || null;
-        const blockUid = info?.["block-uid"] || info?.blockUid || info?.block?.uid || null;
+        const info =
+          typeof main?.getOpenPageOrBlock === "function"
+            ? main.getOpenPageOrBlock()
+            : null;
+        const pageUid =
+          info?.["page-uid"] || info?.pageUid || info?.page?.uid || null;
+        const blockUid =
+          info?.["block-uid"] || info?.blockUid || info?.block?.uid || null;
         if (pageUid) {
-          const page = await window.roamAlphaAPI.pull?.("[:node/title]", [":block/uid", pageUid]);
+          const page = await window.roamAlphaAPI.pull?.("[:node/title]", [
+            ":block/uid",
+            pageUid,
+          ]);
           const title = page?.[":node/title"] || page?.title;
           if (title) return title;
         }
@@ -8461,7 +10264,10 @@ export default {
     async function shouldRenderTodayWidgetNowCached(cache = null) {
       const now = Date.now();
       if (todayWidgetPageGuard.inFlight) return todayWidgetPageGuard.inFlight;
-      if (todayWidgetPageGuard.at && now - todayWidgetPageGuard.at < TODAY_WIDGET_PAGE_GUARD_TTL_MS) {
+      if (
+        todayWidgetPageGuard.at &&
+        now - todayWidgetPageGuard.at < TODAY_WIDGET_PAGE_GUARD_TTL_MS
+      ) {
         return todayWidgetPageGuard.value;
       }
       todayWidgetPageGuard.inFlight = (async () => {
@@ -8495,12 +10301,15 @@ export default {
       if (!TODAY_WIDGET_ENABLED || !getTodayWidgetEnabled()) return;
       if (force) todayWidgetRefreshForcePending = true;
       if (todayWidgetRefreshTimer) return;
-      todayWidgetRefreshTimer = setTimeout(() => {
-        todayWidgetRefreshTimer = null;
-        const shouldForce = todayWidgetRefreshForcePending;
-        todayWidgetRefreshForcePending = false;
-        scheduleTodayWidgetRenderIfOnDnp(0, shouldForce);
-      }, Math.max(0, delayMs));
+      todayWidgetRefreshTimer = setTimeout(
+        () => {
+          todayWidgetRefreshTimer = null;
+          const shouldForce = todayWidgetRefreshForcePending;
+          todayWidgetRefreshForcePending = false;
+          scheduleTodayWidgetRenderIfOnDnp(0, shouldForce);
+        },
+        Math.max(0, delayMs),
+      );
     }
 
     function renderPillDateSpan(span, { icon, date, set, label, tooltip }) {
@@ -8528,9 +10337,14 @@ export default {
       const diffMs = date.getTime() - today.getTime();
       const diffDays = Math.round(diffMs / (24 * 60 * 60 * 1000));
       if (diffDays >= 0 && diffDays <= 7) {
-        return new Intl.DateTimeFormat(set.locale || undefined, { weekday: "short" }).format(date);
+        return new Intl.DateTimeFormat(set.locale || undefined, {
+          weekday: "short",
+        }).format(date);
       }
-      return new Intl.DateTimeFormat(set.locale || undefined, { month: "short", day: "numeric" }).format(date);
+      return new Intl.DateTimeFormat(set.locale || undefined, {
+        month: "short",
+        day: "numeric",
+      }).format(date);
     }
 
     function schedulePillRefreshAll(delayMs = 120) {
@@ -8580,7 +10394,9 @@ export default {
 
     function getInlineMetaCache() {
       if (typeof window === "undefined") return null;
-      return window.__btInlineMetaCache || (window.__btInlineMetaCache = new Map());
+      return (
+        window.__btInlineMetaCache || (window.__btInlineMetaCache = new Map())
+      );
     }
 
     function readInlineMetaCache(uid) {
@@ -8588,7 +10404,11 @@ export default {
       if (!metaCache || !uid) return null;
       const entry = metaCache.get(uid);
       if (!entry) return null;
-      if (entry && typeof entry === "object" && Object.prototype.hasOwnProperty.call(entry, "metadata")) {
+      if (
+        entry &&
+        typeof entry === "object" &&
+        Object.prototype.hasOwnProperty.call(entry, "metadata")
+      ) {
         const at = entry.at || 0;
         if (at && Date.now() - at > INLINE_META_CACHE_TTL_MS) {
           metaCache.delete(uid);
@@ -8623,10 +10443,17 @@ export default {
       if (pillDelegationAttached || typeof document === "undefined") return;
       // Ensure only one delegated handler is attached globally (Roam can load/reload extensions without clean unload).
       try {
-        const prev = typeof window !== "undefined" ? window[PILL_DELEGATION_GLOBAL_KEY] : null;
+        const prev =
+          typeof window !== "undefined"
+            ? window[PILL_DELEGATION_GLOBAL_KEY]
+            : null;
         if (prev?.attached && prev?.doc === document) {
           if (typeof prev.pointerHandler === "function") {
-            document.removeEventListener("pointerdown", prev.pointerHandler, true);
+            document.removeEventListener(
+              "pointerdown",
+              prev.pointerHandler,
+              true,
+            );
           }
           if (typeof prev.clickHandler === "function") {
             document.removeEventListener("click", prev.clickHandler, true);
@@ -8667,10 +10494,17 @@ export default {
           const clickKey = `${uid}|${action || "menu"}`;
           const now = Date.now();
           const globalGate = getGlobalPillClickGate();
-          if (globalGate && clickKey === globalGate.lastKey && now - globalGate.lastAt < 350) {
+          if (
+            globalGate &&
+            clickKey === globalGate.lastKey &&
+            now - globalGate.lastAt < 350
+          ) {
             return;
           }
-          if (clickKey === pillDelegationLastClickKey && now - pillDelegationLastClickAt < 350) {
+          if (
+            clickKey === pillDelegationLastClickKey &&
+            now - pillDelegationLastClickAt < 350
+          ) {
             return;
           }
           pillDelegationLastClickKey = clickKey;
@@ -8701,7 +10535,12 @@ export default {
           };
 
           if (!action || action === "menu") {
-            showPillMenu({ uid, set, isRecurring, metadata: metadataInfo || undefined });
+            showPillMenu({
+              uid,
+              set,
+              isRecurring,
+              metadata: metadataInfo || undefined,
+            });
             return;
           }
 
@@ -8710,15 +10549,30 @@ export default {
             return;
           }
           if (action === "start") {
-            await handleStartClick(event, { uid, set, span: actionEl, allowCreate: true });
+            await handleStartClick(event, {
+              uid,
+              set,
+              span: actionEl,
+              allowCreate: true,
+            });
             return;
           }
           if (action === "defer") {
-            await handleDeferClick(event, { uid, set, span: actionEl, allowCreate: true });
+            await handleDeferClick(event, {
+              uid,
+              set,
+              span: actionEl,
+              allowCreate: true,
+            });
             return;
           }
           if (action === "due") {
-            await handleDueClick(event, { uid, set, span: actionEl, allowCreate: true });
+            await handleDueClick(event, {
+              uid,
+              set,
+              span: actionEl,
+              allowCreate: true,
+            });
             return;
           }
 
@@ -8736,16 +10590,34 @@ export default {
           };
 
           if (action === "meta-project" && metadataInfo?.project) {
-            handleMetadataClick(uid, "project", { value: metadataInfo.project }, event, activeDashboardController);
+            handleMetadataClick(
+              uid,
+              "project",
+              { value: metadataInfo.project },
+              event,
+              activeDashboardController,
+            );
             return;
           }
           if (action === "meta-waitingFor" && metadataInfo?.waitingFor) {
-            handleMetadataClick(uid, "waitingFor", { value: metadataInfo.waitingFor }, event, activeDashboardController);
+            handleMetadataClick(
+              uid,
+              "waitingFor",
+              { value: metadataInfo.waitingFor },
+              event,
+              activeDashboardController,
+            );
             return;
           }
           if (action === "meta-context" && metadataInfo?.context?.length) {
             const first = metadataInfo.context[0];
-            handleMetadataClick(uid, "context", { value: first, list: metadataInfo.context }, event, activeDashboardController);
+            handleMetadataClick(
+              uid,
+              "context",
+              { value: first, list: metadataInfo.context },
+              event,
+              activeDashboardController,
+            );
             return;
           }
 
@@ -8760,7 +10632,10 @@ export default {
             }
             await notifyDashboardIfOpen({ bypassFilters: true });
             if (next) {
-              const display = formatGtdStatusDisplay(next, getLanguageSetting());
+              const display = formatGtdStatusDisplay(
+                next,
+                getLanguageSetting(),
+              );
               actionEl.dataset.metaValue = next || "";
               actionEl.textContent = `➡ ${display}`;
               const metaLabels = t(["metadata"], getLanguageSetting()) || {};
@@ -8774,7 +10649,9 @@ export default {
           if (action === "cycle-priority" || action === "cycle-energy") {
             const type = action === "cycle-priority" ? "priority" : "energy";
             const order = [null, "low", "medium", "high"];
-            const current = actionEl?.dataset?.metaValue ? actionEl.dataset.metaValue.toLowerCase() : null;
+            const current = actionEl?.dataset?.metaValue
+              ? actionEl.dataset.metaValue.toLowerCase()
+              : null;
             const idx = order.indexOf(current);
             const next = order[(idx + 1) % order.length];
             await setRichAttribute(uid, type, next, attrNames);
@@ -8782,15 +10659,25 @@ export default {
             setTimeout(() => pillSkipDecorate.delete(uid), 800);
             await notifyDashboardIfOpen({ bypassFilters: true });
             if (next) {
-              const display = formatPriorityEnergyDisplay(next, getLanguageSetting());
+              const display = formatPriorityEnergyDisplay(
+                next,
+                getLanguageSetting(),
+              );
               actionEl.dataset.metaValue = next || "";
               actionEl.textContent = `${type === "priority" ? "!" : "🔋"} ${display}`;
               const metaLabels = t(["metadata"], getLanguageSetting()) || {};
-              const labelKey = type === "priority" ? (metaLabels.priorityLabel || metaLabels.priority || "Priority") : (metaLabels.energyLabel || metaLabels.energy || "Energy");
+              const labelKey =
+                type === "priority"
+                  ? metaLabels.priorityLabel ||
+                    metaLabels.priority ||
+                    "Priority"
+                  : metaLabels.energyLabel || metaLabels.energy || "Energy";
               const cycleHint =
                 type === "priority"
-                  ? (t(["pillMenu", "cyclePriority"], getLanguageSetting()) || "Click to cycle")
-                  : (t(["pillMenu", "cycleEnergy"], getLanguageSetting()) || "Click to cycle");
+                  ? t(["pillMenu", "cyclePriority"], getLanguageSetting()) ||
+                    "Click to cycle"
+                  : t(["pillMenu", "cycleEnergy"], getLanguageSetting()) ||
+                    "Click to cycle";
               actionEl.title = `${labelKey}: ${display} (${cycleHint})`;
             } else {
               removeSpanAndSeparator(actionEl);
@@ -8802,7 +10689,11 @@ export default {
         }
       };
 
-      document.addEventListener("pointerdown", pillDelegationPointerHandler, true);
+      document.addEventListener(
+        "pointerdown",
+        pillDelegationPointerHandler,
+        true,
+      );
       document.addEventListener("click", pillDelegationClickHandler, true);
       pillDelegationAttached = true;
       try {
@@ -8822,7 +10713,11 @@ export default {
     function detachPillEventDelegation() {
       if (!pillDelegationAttached || typeof document === "undefined") return;
       try {
-        document.removeEventListener("pointerdown", pillDelegationPointerHandler, true);
+        document.removeEventListener(
+          "pointerdown",
+          pillDelegationPointerHandler,
+          true,
+        );
         document.removeEventListener("click", pillDelegationClickHandler, true);
       } catch (_) {
         // ignore
@@ -8854,8 +10749,12 @@ export default {
         attachPillEventDelegation();
         const once = () => Promise.resolve(decorateBlockPills(root));
         await once();
-        await new Promise((resolve) => requestAnimationFrame(() => once().then(resolve, resolve)));
-        await new Promise((resolve) => setTimeout(() => once().then(resolve, resolve), 50));
+        await new Promise((resolve) =>
+          requestAnimationFrame(() => once().then(resolve, resolve)),
+        );
+        await new Promise((resolve) =>
+          setTimeout(() => once().then(resolve, resolve), 50),
+        );
       } catch (err) {
         console.warn("[RecurringTasks] pill decoration failed", err);
       }
@@ -8867,7 +10766,8 @@ export default {
       if (now - lastPillDecorateRun < 500) return;
       lastPillDecorateRun = now;
       const sliceNow =
-        typeof performance !== "undefined" && typeof performance.now === "function"
+        typeof performance !== "undefined" &&
+        typeof performance.now === "function"
           ? () => performance.now()
           : () => Date.now();
       const yieldToBrowser = () =>
@@ -8883,14 +10783,22 @@ export default {
       let pillSigCache = (() => {
         if (typeof window === "undefined") return new Map();
         const existing = window.__btPillSignatureCache;
-        if (existing && typeof existing.get === "function" && typeof existing.set === "function") {
+        if (
+          existing &&
+          typeof existing.get === "function" &&
+          typeof existing.set === "function"
+        ) {
           return existing;
         }
         const fresh = new Map();
         window.__btPillSignatureCache = fresh;
         return fresh;
       })();
-      if (!pillSigCache || typeof pillSigCache.get !== "function" || typeof pillSigCache.set !== "function") {
+      if (
+        !pillSigCache ||
+        typeof pillSigCache.get !== "function" ||
+        typeof pillSigCache.set !== "function"
+      ) {
         pillSigCache = new Map();
         if (typeof window !== "undefined") {
           window.__btPillSignatureCache = pillSigCache;
@@ -8912,7 +10820,10 @@ export default {
         })();
         try {
           // Roam scrolls inside nested containers; use capture so we receive non-bubbling scroll events.
-          document.addEventListener("scroll", pillScrollHandler, { passive: true, capture: true });
+          document.addEventListener("scroll", pillScrollHandler, {
+            passive: true,
+            capture: true,
+          });
           pillScrollHandlerAttached = true;
         } catch (_) {
           // ignore attach errors
@@ -8926,20 +10837,30 @@ export default {
       const hasFreshCounts =
         canUseGlobalCounts &&
         pillDomCountsCache.at &&
-        (nowCounts - pillDomCountsCache.at < PILL_DOM_COUNT_TTL_MS);
-      let globalBlockCount = hasFreshCounts ? pillDomCountsCache.blockCount : null;
-      let globalCheckboxCount = hasFreshCounts ? pillDomCountsCache.checkboxCount : null;
+        nowCounts - pillDomCountsCache.at < PILL_DOM_COUNT_TTL_MS;
+      let globalBlockCount = hasFreshCounts
+        ? pillDomCountsCache.blockCount
+        : null;
+      let globalCheckboxCount = hasFreshCounts
+        ? pillDomCountsCache.checkboxCount
+        : null;
       let restrictToVisible = false;
 
       try {
         const blockCount =
           typeof globalBlockCount === "number"
             ? globalBlockCount
-            : (document.querySelectorAll?.(".rm-block-main, .roam-block-container, .roam-block")?.length || 0);
+            : document.querySelectorAll?.(
+                ".rm-block-main, .roam-block-container, .roam-block",
+              )?.length || 0;
         globalBlockCount = blockCount;
         if (blockCount > MAX_BLOCKS_FOR_PILLS) {
           if (canUseGlobalCounts && !hasFreshCounts) {
-            pillDomCountsCache = { at: nowCounts, blockCount, checkboxCount: globalCheckboxCount };
+            pillDomCountsCache = {
+              at: nowCounts,
+              blockCount,
+              checkboxCount: globalCheckboxCount,
+            };
           }
           restrictToVisible = true;
         }
@@ -8951,11 +10872,17 @@ export default {
         try {
           const checkboxRoot =
             rootEl === document || rootEl === document.body ? document : rootEl;
-          const canUseGlobalCheckboxCount = checkboxRoot === document && typeof document.querySelectorAll === "function";
-          const hasFreshCheckboxCount = !!(canUseGlobalCheckboxCount && hasFreshCounts);
+          const canUseGlobalCheckboxCount =
+            checkboxRoot === document &&
+            typeof document.querySelectorAll === "function";
+          const hasFreshCheckboxCount = !!(
+            canUseGlobalCheckboxCount && hasFreshCounts
+          );
           const checkboxCount = hasFreshCheckboxCount
-            ? (typeof globalCheckboxCount === "number" ? globalCheckboxCount : 0)
-            : (checkboxRoot.querySelectorAll?.(".rm-checkbox")?.length || 0);
+            ? typeof globalCheckboxCount === "number"
+              ? globalCheckboxCount
+              : 0
+            : checkboxRoot.querySelectorAll?.(".rm-checkbox")?.length || 0;
           globalCheckboxCount = checkboxCount;
           if (checkboxCount > checkboxThreshold) {
             /*
@@ -8964,15 +10891,26 @@ export default {
             );
             */
             if (canUseGlobalCheckboxCount && !hasFreshCheckboxCount) {
-              pillDomCountsCache = { at: nowCounts, blockCount: globalBlockCount, checkboxCount };
+              pillDomCountsCache = {
+                at: nowCounts,
+                blockCount: globalBlockCount,
+                checkboxCount,
+              };
             }
             return;
           }
-          if ((canUseGlobalCounts || canUseGlobalCheckboxCount) && !hasFreshCounts) {
+          if (
+            (canUseGlobalCounts || canUseGlobalCheckboxCount) &&
+            !hasFreshCounts
+          ) {
             pillDomCountsCache = {
               at: nowCounts,
-              blockCount: canUseGlobalCounts ? globalBlockCount : pillDomCountsCache.blockCount,
-              checkboxCount: canUseGlobalCheckboxCount ? globalCheckboxCount : pillDomCountsCache.checkboxCount,
+              blockCount: canUseGlobalCounts
+                ? globalBlockCount
+                : pillDomCountsCache.blockCount,
+              checkboxCount: canUseGlobalCheckboxCount
+                ? globalCheckboxCount
+                : pillDomCountsCache.checkboxCount,
             };
           }
         } catch (_) {
@@ -8988,8 +10926,13 @@ export default {
         : Array.from(rootEl.querySelectorAll?.(selector) || []);
       const viewport = (() => {
         try {
-          const rect = (document.documentElement || document.body)?.getBoundingClientRect?.();
-          const height = typeof window !== "undefined" ? window.innerHeight || rect?.height || 0 : 0;
+          const rect = (
+            document.documentElement || document.body
+          )?.getBoundingClientRect?.();
+          const height =
+            typeof window !== "undefined"
+              ? window.innerHeight || rect?.height || 0
+              : 0;
           return { height };
         } catch (_) {
           return null;
@@ -9007,15 +10950,22 @@ export default {
           sliceStart = sliceNow();
         }
         try {
-          if (MAX_DECORATIONS_PER_PASS && decoratedThisPass >= MAX_DECORATIONS_PER_PASS) {
+          if (
+            MAX_DECORATIONS_PER_PASS &&
+            decoratedThisPass >= MAX_DECORATIONS_PER_PASS
+          ) {
             schedulePillRefresh(rootEl, null, 80);
             break;
           }
-          const mainCandidate =
-            node.classList?.contains("rm-block-main")
-              ? node
-              : node.closest?.(".rm-block-main") || node.querySelector?.(".rm-block-main");
-          const main = mainCandidate || document.querySelector(`.rm-block-main[data-uid="${normalizeUid(node.getAttribute?.("data-uid") || node.dataset?.uid)}"]`);
+          const mainCandidate = node.classList?.contains("rm-block-main")
+            ? node
+            : node.closest?.(".rm-block-main") ||
+              node.querySelector?.(".rm-block-main");
+          const main =
+            mainCandidate ||
+            document.querySelector(
+              `.rm-block-main[data-uid="${normalizeUid(node.getAttribute?.("data-uid") || node.dataset?.uid)}"]`,
+            );
           if (!main) continue;
           if (main.closest?.(".rm-code-block")) continue;
           if (viewport) {
@@ -9047,7 +10997,9 @@ export default {
           }
           seen.add(uid);
 
-          const isFocused = !!main.querySelector?.(".rm-block__input--active, .rm-block__input--focused");
+          const isFocused = !!main.querySelector?.(
+            ".rm-block__input--active, .rm-block__input--focused",
+          );
           if (isFocused) {
             schedulePillRefresh(main, uid, 120);
           }
@@ -9059,7 +11011,9 @@ export default {
           const originalString = block.string;
           const isAttrLine = ATTR_RE.test((originalString || "").trim());
           if (isAttrLine) {
-            main.querySelectorAll(".rt-pill-wrap")?.forEach((el) => el.remove());
+            main
+              .querySelectorAll(".rt-pill-wrap")
+              ?.forEach((el) => el.remove());
             continue;
           }
           const meta = await readRecurringMeta(block, set);
@@ -9067,19 +11021,22 @@ export default {
           const isRecurring = !!meta.repeat;
           const isBetterTask = isBetterTasksTask(meta);
           if (isBetterTask) enqueueDashboardNotifyBlockChange(uid);
-          const metadataInfo = meta.metadata || parseRichMetadata(meta.childAttrMap || {}, attrNames);
+          const metadataInfo =
+            meta.metadata ||
+            parseRichMetadata(meta.childAttrMap || {}, attrNames);
           writeInlineMetaCache(uid, metadataInfo, now);
-          const hasMetadataSignal =
-            !!(
-              metadataInfo?.project ||
-              metadataInfo?.waitingFor ||
-              (metadataInfo?.context || []).length ||
-              metadataInfo?.priority ||
-              metadataInfo?.energy ||
-              metadataInfo?.gtd
-            );
+          const hasMetadataSignal = !!(
+            metadataInfo?.project ||
+            metadataInfo?.waitingFor ||
+            (metadataInfo?.context || []).length ||
+            metadataInfo?.priority ||
+            metadataInfo?.energy ||
+            metadataInfo?.gtd
+          );
           if (!isBetterTask && !hasMetadataSignal) {
-            main.querySelectorAll(".rt-pill-wrap")?.forEach((el) => el.remove());
+            main
+              .querySelectorAll(".rt-pill-wrap")
+              ?.forEach((el) => el.remove());
             if (typeof window !== "undefined") {
               window.__btInlineMetaCache?.delete?.(uid);
             }
@@ -9087,27 +11044,48 @@ export default {
             continue;
           }
           if (!isRecurring && !hasTiming && !hasMetadataSignal) {
-            main.querySelectorAll(".rt-pill-wrap")?.forEach((el) => el.remove());
+            main
+              .querySelectorAll(".rt-pill-wrap")
+              ?.forEach((el) => el.remove());
             continue;
           }
           if (isBlockCompleted(block)) {
-            main.querySelectorAll(".rt-pill-wrap")?.forEach((el) => el.remove());
+            main
+              .querySelectorAll(".rt-pill-wrap")
+              ?.forEach((el) => el.remove());
             continue;
           }
           const inlineAttrs = parseAttrsFromBlockText(block.string || "");
-          const inlineRepeatVal = pickInlineAttr(inlineAttrs, attrNames.repeatAliases);
-          const inlineDueVal = pickInlineAttr(inlineAttrs, attrNames.dueAliases);
-          const inlineStartVal = pickInlineAttr(inlineAttrs, attrNames.startAliases);
-          const inlineDeferVal = pickInlineAttr(inlineAttrs, attrNames.deferAliases);
+          const inlineRepeatVal = pickInlineAttr(
+            inlineAttrs,
+            attrNames.repeatAliases,
+          );
+          const inlineDueVal = pickInlineAttr(
+            inlineAttrs,
+            attrNames.dueAliases,
+          );
+          const inlineStartVal = pickInlineAttr(
+            inlineAttrs,
+            attrNames.startAliases,
+          );
+          const inlineDeferVal = pickInlineAttr(
+            inlineAttrs,
+            attrNames.deferAliases,
+          );
 
           const caret = main.querySelector?.(".rm-caret");
           const caretClosed = caret?.classList?.contains("rm-caret-right");
           const caretOpen = caret?.classList?.contains("rm-caret-down");
-          const inlineCaretOpen = caret?.getAttribute?.("aria-expanded") === "true";
-          const inlineCaretClosed = caret?.getAttribute?.("aria-expanded") === "false";
-          const blockContainer = main.closest?.(".roam-block-container, .roam-block") || null;
+          const inlineCaretOpen =
+            caret?.getAttribute?.("aria-expanded") === "true";
+          const inlineCaretClosed =
+            caret?.getAttribute?.("aria-expanded") === "false";
+          const blockContainer =
+            main.closest?.(".roam-block-container, .roam-block") || null;
           const childrenContainer =
-            blockContainer?.querySelector?.(":scope > .rm-block__children, :scope > .rm-block-children") || null;
+            blockContainer?.querySelector?.(
+              ":scope > .rm-block__children, :scope > .rm-block-children",
+            ) || null;
           const childrenVisible = isChildrenVisible(childrenContainer);
           // Use DOM state for this specific instance; ignore persisted block.open to avoid cross-pane bleed.
           const isOpen =
@@ -9125,20 +11103,36 @@ export default {
           }
 
           const humanRepeat = meta.repeat || inlineRepeatVal || "";
-          const startDate = meta.start || (inlineStartVal ? parseRoamDate(inlineStartVal) : null);
-          const deferDate = meta.defer || (inlineDeferVal ? parseRoamDate(inlineDeferVal) : null);
+          const startDate =
+            meta.start ||
+            (inlineStartVal ? parseRoamDate(inlineStartVal) : null);
+          const deferDate =
+            meta.defer ||
+            (inlineDeferVal ? parseRoamDate(inlineDeferVal) : null);
           const dueDate =
-            meta.due ||
-            (inlineDueVal ? parseRoamDate(inlineDueVal) : null);
-          const startDisplay = startDate ? formatFriendlyDate(startDate, set) : null;
-          const deferDisplay = deferDate ? formatFriendlyDate(deferDate, set) : null;
+            meta.due || (inlineDueVal ? parseRoamDate(inlineDueVal) : null);
+          const startDisplay = startDate
+            ? formatFriendlyDate(startDate, set)
+            : null;
+          const deferDisplay = deferDate
+            ? formatFriendlyDate(deferDate, set)
+            : null;
           const dueDisplay = dueDate ? formatFriendlyDate(dueDate, set) : null;
           const lang = getLanguageSetting();
           const metaLabels = t(["metadata"], lang) || {};
           const tooltipParts = [];
-          if (startDate) tooltipParts.push(`${metaLabels.start || "Start"}: ${formatIsoDate(startDate, set)}`);
-          if (deferDate) tooltipParts.push(`${metaLabels.defer || "Defer"}: ${formatIsoDate(deferDate, set)}`);
-          if (dueDate) tooltipParts.push(`${metaLabels.next || metaLabels.due || "Next"}: ${formatIsoDate(dueDate, set)}`);
+          if (startDate)
+            tooltipParts.push(
+              `${metaLabels.start || "Start"}: ${formatIsoDate(startDate, set)}`,
+            );
+          if (deferDate)
+            tooltipParts.push(
+              `${metaLabels.defer || "Defer"}: ${formatIsoDate(deferDate, set)}`,
+            );
+          if (dueDate)
+            tooltipParts.push(
+              `${metaLabels.next || metaLabels.due || "Next"}: ${formatIsoDate(dueDate, set)}`,
+            );
           const tooltip = tooltipParts.length
             ? tooltipParts.join(" • ")
             : isRecurring
@@ -9163,7 +11157,10 @@ export default {
           const signature = signatureParts.join("|");
           const existingPill = main.querySelector(".rt-pill-wrap");
           const prevEntry = pillSigCache.get(uid);
-          const prevSig = prevEntry && typeof prevEntry === "object" ? prevEntry.sig : prevEntry;
+          const prevSig =
+            prevEntry && typeof prevEntry === "object"
+              ? prevEntry.sig
+              : prevEntry;
           if (prevSig === signature && existingPill) {
             continue;
           }
@@ -9266,7 +11263,7 @@ export default {
             const span = appendMetaSpan(
               "📁",
               metadataInfo.project,
-              `${metaLabels.projectLabel || metaLabels.project || "Project"}: ${metadataInfo.project}`
+              `${metaLabels.projectLabel || metaLabels.project || "Project"}: ${metadataInfo.project}`,
             );
             if (span) span.dataset.btPillAction = "meta-project";
           }
@@ -9274,7 +11271,7 @@ export default {
             const span = appendMetaSpan(
               "⌛",
               metadataInfo.waitingFor,
-              `${metaLabels.waitingLabel || metaLabels.waitingFor || "Waiting for"}: ${metadataInfo.waitingFor}`
+              `${metaLabels.waitingLabel || metaLabels.waitingFor || "Waiting for"}: ${metadataInfo.waitingFor}`,
             );
             if (span) span.dataset.btPillAction = "meta-waitingFor";
           }
@@ -9288,18 +11285,17 @@ export default {
             const span = appendMetaSpan(
               "@",
               display,
-              `${metaLabels.contextLabel || metaLabels.context || "Context"}: ${metadataInfo.context.join(", ")}`
+              `${metaLabels.contextLabel || metaLabels.context || "Context"}: ${metadataInfo.context.join(", ")}`,
             );
             if (span) span.dataset.btPillAction = "meta-context";
           }
           if (metadataInfo?.gtd) {
-            const display = formatGtdStatusDisplay(metadataInfo.gtd, getLanguageSetting());
-            const tooltip = `${metaLabels.gtdLabel || metaLabels.gtd || "GTD"}: ${display}`;
-            const span = appendMetaSpan(
-              "➡",
-              display,
-              tooltip
+            const display = formatGtdStatusDisplay(
+              metadataInfo.gtd,
+              getLanguageSetting(),
             );
+            const tooltip = `${metaLabels.gtdLabel || metaLabels.gtd || "GTD"}: ${display}`;
+            const span = appendMetaSpan("➡", display, tooltip);
             if (span) {
               span.dataset.metaValue = metadataInfo.gtd || "";
               span.dataset.btPillAction = "cycle-gtd";
@@ -9308,11 +11304,14 @@ export default {
           if (metadataInfo?.priority) {
             const span = appendMetaSpan(
               "!",
-              formatPriorityEnergyDisplay(metadataInfo.priority, getLanguageSetting()),
+              formatPriorityEnergyDisplay(
+                metadataInfo.priority,
+                getLanguageSetting(),
+              ),
               `${metaLabels.priorityLabel || metaLabels.priority || "Priority"}: ${formatPriorityEnergyDisplay(
                 metadataInfo.priority,
-                getLanguageSetting()
-              )} (${t(["pillMenu", "cyclePriority"], getLanguageSetting()) || "Click to cycle"})`
+                getLanguageSetting(),
+              )} (${t(["pillMenu", "cyclePriority"], getLanguageSetting()) || "Click to cycle"})`,
             );
             if (span) {
               span.dataset.metaValue = metadataInfo.priority || "";
@@ -9322,11 +11321,14 @@ export default {
           if (metadataInfo?.energy) {
             const span = appendMetaSpan(
               "🔋",
-              formatPriorityEnergyDisplay(metadataInfo.energy, getLanguageSetting()),
+              formatPriorityEnergyDisplay(
+                metadataInfo.energy,
+                getLanguageSetting(),
+              ),
               `${metaLabels.energyLabel || metaLabels.energy || "Energy"}: ${formatPriorityEnergyDisplay(
                 metadataInfo.energy,
-                getLanguageSetting()
-              )} (${t(["pillMenu", "cycleEnergy"], getLanguageSetting()) || "Click to cycle"})`
+                getLanguageSetting(),
+              )} (${t(["pillMenu", "cycleEnergy"], getLanguageSetting()) || "Click to cycle"})`,
             );
             if (span) {
               span.dataset.metaValue = metadataInfo.energy || "";
@@ -9347,7 +11349,9 @@ export default {
           pillSigCache.set(uid, { sig: signature, lastSeen: now });
           decoratedThisPass += 1;
 
-          const check = main.querySelector?.(".check-container, .rm-checkbox") || main.firstElementChild;
+          const check =
+            main.querySelector?.(".check-container, .rm-checkbox") ||
+            main.firstElementChild;
           insertPillWrap(main, check, pillWrap);
         } catch (err) {
           console.warn("[RecurringTasks] decorate pill failed", err);
@@ -9407,12 +11411,32 @@ export default {
         updates.due = formatDate(dueDateToPersist, set);
       }
       await updateBlockProps(uid, updates);
-      const repeatRes = await ensureChildAttrForType(uid, "repeat", normalized, attrNames);
+      const repeatRes = await ensureChildAttrForType(
+        uid,
+        "repeat",
+        normalized,
+        attrNames,
+      );
       meta.childAttrMap = meta.childAttrMap || {};
-      setMetaChildAttr(meta, "repeat", { uid: repeatRes.uid, value: normalized }, attrNames);
+      setMetaChildAttr(
+        meta,
+        "repeat",
+        { uid: repeatRes.uid, value: normalized },
+        attrNames,
+      );
       if (dueDateToPersist) {
-        const dueRes = await ensureChildAttrForType(uid, "due", updates.due, attrNames);
-        setMetaChildAttr(meta, "due", { uid: dueRes.uid, value: updates.due }, attrNames);
+        const dueRes = await ensureChildAttrForType(
+          uid,
+          "due",
+          updates.due,
+          attrNames,
+        );
+        setMetaChildAttr(
+          meta,
+          "due",
+          { uid: dueRes.uid, value: updates.due },
+          attrNames,
+        );
       } else {
         await removeChildAttrsForType(uid, "due", attrNames);
         clearMetaChildAttr(meta, "due", attrNames);
@@ -9423,7 +11447,10 @@ export default {
       }
       meta.repeat = normalized;
       meta.due = dueDateToPersist || null;
-      mergeRepeatOverride(uid, { repeat: normalized, due: dueDateToPersist || null });
+      mergeRepeatOverride(uid, {
+        repeat: normalized,
+        due: dueDateToPersist || null,
+      });
       const currentLocation = captureBlockLocation(block);
       const relocation = {
         moved: false,
@@ -9447,24 +11474,38 @@ export default {
             });
             pill.title = tooltip;
           } else {
-            const repeatLabel = t(["metadata", "repeatRule"], getLanguageSetting()) || "Repeat rule";
+            const repeatLabel =
+              t(["metadata", "repeatRule"], getLanguageSetting()) ||
+              "Repeat rule";
             pill.title = `${repeatLabel}: ${normalized}`;
           }
         }
       }
-      const repeatMsgTemplate = t(["toasts", "repeatUpdated"], getLanguageSetting());
+      const repeatMsgTemplate = t(
+        ["toasts", "repeatUpdated"],
+        getLanguageSetting(),
+      );
       const repeatMsg = repeatMsgTemplate
         ? repeatMsgTemplate.replace("{{value}}", normalized)
         : `Repeat \u2192 ${normalized}`;
       toast(repeatMsg);
       const dueChanged =
-        (priorDue ? priorDue.getTime() : null) !== (dueDateToPersist ? dueDateToPersist.getTime() : null);
+        (priorDue ? priorDue.getTime() : null) !==
+        (dueDateToPersist ? dueDateToPersist.getTime() : null);
       if (dueChanged || relocation.moved) {
-        const nextTemplate = t(["toasts", "nextOccurrenceTo"], getLanguageSetting());
-        const cleared = translateString("Next occurrence cleared", getLanguageSetting()) || "Next occurrence cleared";
+        const nextTemplate = t(
+          ["toasts", "nextOccurrenceTo"],
+          getLanguageSetting(),
+        );
+        const cleared =
+          translateString("Next occurrence cleared", getLanguageSetting()) ||
+          "Next occurrence cleared";
         const message = dueDateToPersist
           ? nextTemplate
-            ? nextTemplate.replace("{{date}}", formatRoamDateTitle(dueDateToPersist))
+            ? nextTemplate.replace(
+                "{{date}}",
+                formatRoamDateTitle(dueDateToPersist),
+              )
             : `Next occurrence \u2192 [[${formatRoamDateTitle(dueDateToPersist)}]]`
           : cleared;
         registerDueUndoAction({
@@ -9481,11 +11522,16 @@ export default {
           previousChildDueUid: contextSnapshot.previousChildDueUid || null,
           hadChildDue: contextSnapshot.hadChildDue,
           previousChildRepeat: contextSnapshot.previousChildRepeat,
-          previousChildRepeatUid: contextSnapshot.previousChildRepeatUid || null,
+          previousChildRepeatUid:
+            contextSnapshot.previousChildRepeatUid || null,
           previousParentUid: contextSnapshot.previousParentUid,
           previousOrder: contextSnapshot.previousOrder,
-          newDue: dueDateToPersist ? new Date(dueDateToPersist.getTime()) : null,
-          newDueStr: dueDateToPersist ? formatDate(dueDateToPersist, set) : null,
+          newDue: dueDateToPersist
+            ? new Date(dueDateToPersist.getTime())
+            : null,
+          newDueStr: dueDateToPersist
+            ? formatDate(dueDateToPersist, set)
+            : null,
           newParentUid: relocation.targetUid,
           wasMoved: relocation.moved,
           snapshot: contextSnapshot.snapshot,
@@ -9504,14 +11550,22 @@ export default {
     }
 
     async function handleFlexibleDateAttrClick(event, context) {
-      const { type, uid, set, span, forcePrompt = false, allowCreate = false } = context;
+      const {
+        type,
+        uid,
+        set,
+        span,
+        forcePrompt = false,
+        allowCreate = false,
+      } = context;
       if (!type || !uid || !set) return;
       const block = await getBlock(uid);
       if (!block) return;
       const meta = await readRecurringMeta(block, set);
       const attrNames = set.attrNames;
       const currentDate = type === "start" ? meta.start : meta.defer;
-      const hasDate = currentDate instanceof Date && !Number.isNaN(currentDate.getTime());
+      const hasDate =
+        currentDate instanceof Date && !Number.isNaN(currentDate.getTime());
       if (!hasDate && !allowCreate) return;
 
       const label = type === "start" ? "Start" : "Defer";
@@ -9519,34 +11573,60 @@ export default {
         await openDatePage(currentDate, { inSidebar: true });
         return;
       }
-      const shouldPrompt = forcePrompt || !hasDate || event.altKey || event.metaKey || event.ctrlKey;
+      const shouldPrompt =
+        forcePrompt ||
+        !hasDate ||
+        event.altKey ||
+        event.metaKey ||
+        event.ctrlKey;
       if (shouldPrompt) {
         const existing = hasDate ? formatIsoDate(currentDate, set) : "";
         const promptKey = `datePrompt:${uid}:${type}`;
         const nextIso = await runDatePromptOnce(promptKey, () =>
           promptForDate({
             title: translateString(`Edit ${label} Date`, getLanguageSetting()),
-            message: translateString(`Select the ${label.toLowerCase()} date`, getLanguageSetting()),
+            message: translateString(
+              `Select the ${label.toLowerCase()} date`,
+              getLanguageSetting(),
+            ),
             initial: existing,
-          })
+          }),
         );
         if (!nextIso) return;
         const parsed = parseRoamDate(nextIso);
         if (!(parsed instanceof Date) || Number.isNaN(parsed.getTime())) {
-          toast(t(["toasts", "cannotParseDate"], getLanguageSetting()) || "Couldn't parse that date.");
+          toast(
+            t(["toasts", "cannotParseDate"], getLanguageSetting()) ||
+              "Couldn't parse that date.",
+          );
           return;
         }
         const nextStr = formatDate(parsed, set);
         await updateBlockProps(uid, { [type]: nextStr });
-        const childInfo = await ensureChildAttrForType(uid, type, nextStr, attrNames);
+        const childInfo = await ensureChildAttrForType(
+          uid,
+          type,
+          nextStr,
+          attrNames,
+        );
         await ensureInlineAttrForType(block, type, nextStr, attrNames);
         meta.childAttrMap = meta.childAttrMap || {};
-        const existingEntry = getMetaChildAttr(meta, type, attrNames, { allowFallback: false });
+        const existingEntry = getMetaChildAttr(meta, type, attrNames, {
+          allowFallback: false,
+        });
         const storedUid = childInfo?.uid || existingEntry?.uid || null;
-        setMetaChildAttr(meta, type, { value: nextStr, uid: storedUid }, attrNames);
+        setMetaChildAttr(
+          meta,
+          type,
+          { value: nextStr, uid: storedUid },
+          attrNames,
+        );
         meta[type] = parsed;
         if (span) {
-          const labelStr = type === "start" ? (t(["metadata", "start"], getLanguageSetting()) || "Start") : (t(["metadata", "defer"], getLanguageSetting()) || "Defer");
+          const labelStr =
+            type === "start"
+              ? t(["metadata", "start"], getLanguageSetting()) || "Start"
+              : t(["metadata", "defer"], getLanguageSetting()) || "Defer";
           renderPillDateSpan(span, {
             icon: type === "start" ? START_ICON : DEFER_ICON,
             date: parsed,
@@ -9559,7 +11639,7 @@ export default {
           await relocateBlockForPlacement(block, meta, set);
         }
         toast(
-          `${(type === "start" ? t(["metadata", "start"], getLanguageSetting()) || "Start" : t(["metadata", "defer"], getLanguageSetting()) || "Defer")} \u2192 [[${formatRoamDateTitle(parsed)}]]`
+          `${type === "start" ? t(["metadata", "start"], getLanguageSetting()) || "Start" : t(["metadata", "defer"], getLanguageSetting()) || "Defer"} \u2192 [[${formatRoamDateTitle(parsed)}]]`,
         );
         void syncPillsForSurface(lastAttrSurface);
         return parsed;
@@ -9571,7 +11651,13 @@ export default {
     }
 
     async function handleDueClick(event, context) {
-      const { uid, set, span, forcePrompt = false, allowCreate = false } = context;
+      const {
+        uid,
+        set,
+        span,
+        forcePrompt = false,
+        allowCreate = false,
+      } = context;
       const block = await getBlock(uid);
       if (!block) return;
       const meta = await readRecurringMeta(block, set);
@@ -9588,7 +11674,12 @@ export default {
         await openDatePage(due, { inSidebar: true });
         return;
       }
-      const shouldPrompt = forcePrompt || !hasDue || event.altKey || event.metaKey || event.ctrlKey;
+      const shouldPrompt =
+        forcePrompt ||
+        !hasDue ||
+        event.altKey ||
+        event.metaKey ||
+        event.ctrlKey;
       if (shouldPrompt) {
         const existing = hasDue ? formatIsoDate(due, set) : "";
         const promptKey = `datePrompt:${uid}:due`;
@@ -9597,7 +11688,7 @@ export default {
             title: "Edit Due Date",
             message: "Select the next due date",
             initial: existing,
-          })
+          }),
         );
         if (!nextIso) return;
         const parsed = parseRoamDate(nextIso);
@@ -9607,13 +11698,25 @@ export default {
         }
         const nextStr = formatDate(parsed, set);
         await updateBlockProps(uid, { due: nextStr });
-        const dueChildInfo = await ensureChildAttrForType(uid, "due", nextStr, attrNames);
+        const dueChildInfo = await ensureChildAttrForType(
+          uid,
+          "due",
+          nextStr,
+          attrNames,
+        );
         await ensureInlineAttrForType(block, "due", nextStr, attrNames);
         meta.due = parsed;
         meta.childAttrMap = meta.childAttrMap || {};
-        const existingEntry = getMetaChildAttr(meta, "due", attrNames, { allowFallback: false });
+        const existingEntry = getMetaChildAttr(meta, "due", attrNames, {
+          allowFallback: false,
+        });
         const storedUid = dueChildInfo?.uid || existingEntry?.uid || null;
-        setMetaChildAttr(meta, "due", { value: nextStr, uid: storedUid }, attrNames);
+        setMetaChildAttr(
+          meta,
+          "due",
+          { value: nextStr, uid: storedUid },
+          attrNames,
+        );
         mergeRepeatOverride(uid, { due: parsed });
         if (span) {
           renderPillDateSpan(span, {
@@ -9627,15 +11730,18 @@ export default {
           if (pill) pill.title = span.title;
         }
         const dueChanged =
-          (contextSnapshot.previousDueDate ? contextSnapshot.previousDueDate.getTime() : null) !== parsed.getTime();
+          (contextSnapshot.previousDueDate
+            ? contextSnapshot.previousDueDate.getTime()
+            : null) !== parsed.getTime();
         if (dueChanged) {
           registerDueUndoAction({
             blockUid: uid,
             message:
-              translateString("Due date changed to {{date}}", getLanguageSetting())?.replace(
-                "{{date}}",
-                formatRoamDateTitle(parsed)
-              ) || `Due date changed to ${formatRoamDateTitle(parsed)}`,
+              translateString(
+                "Due date changed to {{date}}",
+                getLanguageSetting(),
+              )?.replace("{{date}}", formatRoamDateTitle(parsed)) ||
+              `Due date changed to ${formatRoamDateTitle(parsed)}`,
             setSnapshot: { ...set },
             previousDueDate: contextSnapshot.previousDueDate
               ? new Date(contextSnapshot.previousDueDate.getTime())
@@ -9649,7 +11755,8 @@ export default {
             previousChildDueUid: contextSnapshot.previousChildDueUid || null,
             hadChildDue: contextSnapshot.hadChildDue,
             previousChildRepeat: contextSnapshot.previousChildRepeat,
-            previousChildRepeatUid: contextSnapshot.previousChildRepeatUid || null,
+            previousChildRepeatUid:
+              contextSnapshot.previousChildRepeatUid || null,
             previousParentUid: contextSnapshot.previousParentUid,
             previousOrder: contextSnapshot.previousOrder,
             newDue: new Date(parsed.getTime()),
@@ -9740,13 +11847,15 @@ export default {
           if (last.key === k && now - last.at < 350) return;
           window.__btLastPillMenuOpen = { at: now, key: k };
         }
-        document.querySelectorAll?.(".bt-pill-menu-toast")?.forEach((toastEl) => {
-          try {
-            iziToast.hide?.({}, toastEl);
-          } catch (_) {
-            // ignore
-          }
-        });
+        document
+          .querySelectorAll?.(".bt-pill-menu-toast")
+          ?.forEach((toastEl) => {
+            try {
+              iziToast.hide?.({}, toastEl);
+            } catch (_) {
+              // ignore
+            }
+          });
       } catch (_) {
         // ignore
       }
@@ -9761,7 +11870,9 @@ export default {
         activeDashboardController?.getTaskMetadata?.(uid) ||
         null;
       metadataInfo = metadataInfo || {};
-      const contexts = Array.isArray(metadataInfo.context) ? metadataInfo.context : [];
+      const contexts = Array.isArray(metadataInfo.context)
+        ? metadataInfo.context
+        : [];
       const hasProject = !!metadataInfo.project;
       const hasWaiting = !!metadataInfo.waitingFor;
       const hasContext = contexts.length > 0;
@@ -9773,30 +11884,56 @@ export default {
           return;
         }
         if ("project" in patch) {
-          await setRichAttribute(uid, "project", patch.project ?? null, attrNamesForMenu);
+          await setRichAttribute(
+            uid,
+            "project",
+            patch.project ?? null,
+            attrNamesForMenu,
+          );
           if (patch.project) addProjectOption(patch.project);
         }
         if ("waitingFor" in patch) {
-          await setRichAttribute(uid, "waitingFor", patch.waitingFor ?? null, attrNamesForMenu);
+          await setRichAttribute(
+            uid,
+            "waitingFor",
+            patch.waitingFor ?? null,
+            attrNamesForMenu,
+          );
         }
         if ("context" in patch) {
           const ctx = Array.isArray(patch.context) ? patch.context : [];
           await setRichAttribute(uid, "context", ctx, attrNamesForMenu);
         }
         if ("priority" in patch) {
-          await setRichAttribute(uid, "priority", patch.priority ?? null, attrNamesForMenu);
+          await setRichAttribute(
+            uid,
+            "priority",
+            patch.priority ?? null,
+            attrNamesForMenu,
+          );
         }
         if ("energy" in patch) {
-          await setRichAttribute(uid, "energy", patch.energy ?? null, attrNamesForMenu);
+          await setRichAttribute(
+            uid,
+            "energy",
+            patch.energy ?? null,
+            attrNamesForMenu,
+          );
         }
         if ("gtd" in patch) {
-          await setRichAttribute(uid, "gtd", patch.gtd ?? null, attrNamesForMenu);
+          await setRichAttribute(
+            uid,
+            "gtd",
+            patch.gtd ?? null,
+            attrNamesForMenu,
+          );
         }
         if (typeof window !== "undefined") {
           window.__btInlineMetaCache?.delete(uid);
         }
         try {
-          const notifier = activeDashboardController?.notifyBlockChange || notifyBlockChange;
+          const notifier =
+            activeDashboardController?.notifyBlockChange || notifyBlockChange;
           if (typeof notifier === "function") {
             await notifier(uid, { bypassFilters: true });
           }
@@ -9810,17 +11947,20 @@ export default {
       const metaSection = `
         <small>${escapeHtml(metaHeading)}</small>
         <button data-action="meta-gtd-cycle">${labelOr("cycleGtd", "Cycle GTD")}</button>
-        ${hasProject
-          ? `<button data-action="meta-project-remove" data-danger="1">${labelOr("removeProject", "Remove project")}</button>`
-          : `<button data-action="meta-project-add">${labelOr("addProject", "Add project")}</button>`
+        ${
+          hasProject
+            ? `<button data-action="meta-project-remove" data-danger="1">${labelOr("removeProject", "Remove project")}</button>`
+            : `<button data-action="meta-project-add">${labelOr("addProject", "Add project")}</button>`
         }
-        ${hasContext
-          ? `<button data-action="meta-context-remove" data-danger="1">${labelOr("removeContext", "Remove context")}</button>`
-          : `<button data-action="meta-context-add">${labelOr("addContext", "Add context")}</button>`
+        ${
+          hasContext
+            ? `<button data-action="meta-context-remove" data-danger="1">${labelOr("removeContext", "Remove context")}</button>`
+            : `<button data-action="meta-context-add">${labelOr("addContext", "Add context")}</button>`
         }
-        ${hasWaiting
-          ? `<button data-action="meta-waiting-remove" data-danger="1">${labelOr("removeWaiting", "Remove waiting-for")}</button>`
-          : `<button data-action="meta-waiting-add">${labelOr("addWaiting", "Add waiting-for")}</button>`
+        ${
+          hasWaiting
+            ? `<button data-action="meta-waiting-remove" data-danger="1">${labelOr("removeWaiting", "Remove waiting-for")}</button>`
+            : `<button data-action="meta-waiting-add">${labelOr("addWaiting", "Add waiting-for")}</button>`
         }
         <button data-action="meta-priority-cycle">${labelOr("cyclePriority", "Cycle priority")}</button>
         <button data-action="meta-energy-cycle">${labelOr("cycleEnergy", "Cycle energy")}</button>
@@ -9870,10 +12010,18 @@ export default {
               await handler();
             });
           };
-          attach('[data-action="snooze-1"]', () => snoozeDeferByDays(uid, set, 1));
-          attach('[data-action="snooze-3"]', () => snoozeDeferByDays(uid, set, 3));
-          attach('[data-action="snooze-next-mon"]', () => snoozeDeferToNextMonday(uid, set));
-          attach('[data-action="snooze-pick"]', () => snoozePickDeferDate(uid, set));
+          attach('[data-action="snooze-1"]', () =>
+            snoozeDeferByDays(uid, set, 1),
+          );
+          attach('[data-action="snooze-3"]', () =>
+            snoozeDeferByDays(uid, set, 3),
+          );
+          attach('[data-action="snooze-next-mon"]', () =>
+            snoozeDeferToNextMonday(uid, set),
+          );
+          attach('[data-action="snooze-pick"]', () =>
+            snoozePickDeferDate(uid, set),
+          );
           attach('[data-action="skip"]', () => skipOccurrence(uid, set));
           attach('[data-action="generate"]', () => generateNextNow(uid, set));
           attach('[data-action="end"]', () => endRecurrence(uid, set));
@@ -9889,7 +12037,9 @@ export default {
             if (!val || !val.trim()) return;
             await applyMetadataPatch({ project: val.trim() });
           });
-          attach('[data-action="meta-project-remove"]', () => applyMetadataPatch({ project: null }));
+          attach('[data-action="meta-project-remove"]', () =>
+            applyMetadataPatch({ project: null }),
+          );
           attach('[data-action="meta-context-add"]', async () => {
             await refreshContextOptions();
             const selection = await promptForContext({
@@ -9898,7 +12048,9 @@ export default {
             if (!selection || !selection.length) return;
             await applyMetadataPatch({ context: selection });
           });
-          attach('[data-action="meta-context-remove"]', () => applyMetadataPatch({ context: [] }));
+          attach('[data-action="meta-context-remove"]', () =>
+            applyMetadataPatch({ context: [] }),
+          );
           attach('[data-action="meta-waiting-add"]', async () => {
             await refreshWaitingOptions();
             const val = await promptForWaiting({
@@ -9907,10 +12059,13 @@ export default {
             if (!val || !val.trim()) return;
             await applyMetadataPatch({ waitingFor: val.trim() });
           });
-          attach('[data-action="meta-waiting-remove"]', () => applyMetadataPatch({ waitingFor: null }));
+          attach('[data-action="meta-waiting-remove"]', () =>
+            applyMetadataPatch({ waitingFor: null }),
+          );
           attach('[data-action="meta-priority-cycle"]', async () => {
             const order = [null, "low", "medium", "high"];
-            const current = (metadataInfo?.priority || "").toLowerCase() || null;
+            const current =
+              (metadataInfo?.priority || "").toLowerCase() || null;
             const idx = order.indexOf(current);
             const next = order[(idx + 1) % order.length];
             await applyMetadataPatch({ priority: next });
@@ -9927,18 +12082,31 @@ export default {
     }
 
     async function updateStartDate(uid, set, targetDate, options = {}) {
-      if (!(targetDate instanceof Date) || Number.isNaN(targetDate.getTime())) return;
+      if (!(targetDate instanceof Date) || Number.isNaN(targetDate.getTime()))
+        return;
       const block = options.block || (await getBlock(uid));
       if (!block) return;
       const meta = options.meta || (await readRecurringMeta(block, set));
       const attrNames = set.attrNames;
       const nextStr = formatDate(targetDate, set);
       await updateBlockProps(uid, { start: nextStr });
-      const startChildInfo = await ensureChildAttrForType(uid, "start", nextStr, attrNames);
+      const startChildInfo = await ensureChildAttrForType(
+        uid,
+        "start",
+        nextStr,
+        attrNames,
+      );
       meta.childAttrMap = meta.childAttrMap || {};
-      const existingEntry = getMetaChildAttr(meta, "start", attrNames, { allowFallback: false });
+      const existingEntry = getMetaChildAttr(meta, "start", attrNames, {
+        allowFallback: false,
+      });
       const storedUid = startChildInfo?.uid || existingEntry?.uid || null;
-      setMetaChildAttr(meta, "start", { value: nextStr, uid: storedUid }, attrNames);
+      setMetaChildAttr(
+        meta,
+        "start",
+        { value: nextStr, uid: storedUid },
+        attrNames,
+      );
       await ensureInlineAttrForType(block, "start", nextStr, attrNames);
       meta.start = targetDate;
       await relocateBlockForPlacement(block, meta, set);
@@ -9946,25 +12114,41 @@ export default {
     }
 
     async function updateDeferDate(uid, set, targetDate, options = {}) {
-      if (!(targetDate instanceof Date) || Number.isNaN(targetDate.getTime())) return;
+      if (!(targetDate instanceof Date) || Number.isNaN(targetDate.getTime()))
+        return;
       const block = options.block || (await getBlock(uid));
       if (!block) return;
       const meta = options.meta || (await readRecurringMeta(block, set));
       const attrNames = set.attrNames;
       const nextStr = formatDate(targetDate, set);
       await updateBlockProps(uid, { defer: nextStr });
-      const deferChildInfo = await ensureChildAttrForType(uid, "defer", nextStr, attrNames);
+      const deferChildInfo = await ensureChildAttrForType(
+        uid,
+        "defer",
+        nextStr,
+        attrNames,
+      );
       meta.childAttrMap = meta.childAttrMap || {};
-      const existingEntry = getMetaChildAttr(meta, "defer", attrNames, { allowFallback: false });
+      const existingEntry = getMetaChildAttr(meta, "defer", attrNames, {
+        allowFallback: false,
+      });
       const storedUid = deferChildInfo?.uid || existingEntry?.uid || null;
-      setMetaChildAttr(meta, "defer", { value: nextStr, uid: storedUid }, attrNames);
+      setMetaChildAttr(
+        meta,
+        "defer",
+        { value: nextStr, uid: storedUid },
+        attrNames,
+      );
       await ensureInlineAttrForType(block, "defer", nextStr, attrNames);
       meta.defer = targetDate;
       if (!isValidDateValue(meta.start)) {
         await relocateBlockForPlacement(block, meta, set);
       }
       if (!bulkOperationInProgress) {
-        toast(options.toastMessage || `Snoozed to [[${formatRoamDateTitle(targetDate)}]]`);
+        toast(
+          options.toastMessage ||
+            `Snoozed to [[${formatRoamDateTitle(targetDate)}]]`,
+        );
       }
       void syncPillsForSurface(lastAttrSurface);
     }
@@ -9981,30 +12165,45 @@ export default {
       const block = options.block || (await getBlock(uid));
       if (!block) return;
       const meta = options.meta || (await readRecurringMeta(block, set));
-      const hasDue = meta.due instanceof Date && !Number.isNaN(meta.due.getTime());
+      const hasDue =
+        meta.due instanceof Date && !Number.isNaN(meta.due.getTime());
       const minTarget = addDaysLocal(todayLocal(), days);
       if (!hasDue) {
         await updateDueDate(uid, set, minTarget, { block, meta });
         return;
       }
       const shifted = addDaysLocal(meta.due, days);
-      const next = shifted.getTime() < minTarget.getTime() ? minTarget : shifted;
+      const next =
+        shifted.getTime() < minTarget.getTime() ? minTarget : shifted;
       await updateDueDate(uid, set, next, { block, meta });
     }
 
     async function updateDueDate(uid, set, targetDate, options = {}) {
-      if (!(targetDate instanceof Date) || Number.isNaN(targetDate.getTime())) return;
+      if (!(targetDate instanceof Date) || Number.isNaN(targetDate.getTime()))
+        return;
       const block = options.block || (await getBlock(uid));
       if (!block) return;
       const meta = options.meta || (await readRecurringMeta(block, set));
       const attrNames = set.attrNames;
       const nextStr = formatDate(targetDate, set);
       await updateBlockProps(uid, { due: nextStr });
-      const dueChildInfo = await ensureChildAttrForType(uid, "due", nextStr, attrNames);
+      const dueChildInfo = await ensureChildAttrForType(
+        uid,
+        "due",
+        nextStr,
+        attrNames,
+      );
       meta.childAttrMap = meta.childAttrMap || {};
-      const existingEntry = getMetaChildAttr(meta, "due", attrNames, { allowFallback: false });
+      const existingEntry = getMetaChildAttr(meta, "due", attrNames, {
+        allowFallback: false,
+      });
       const storedUid = dueChildInfo?.uid || existingEntry?.uid || null;
-      setMetaChildAttr(meta, "due", { value: nextStr, uid: storedUid }, attrNames);
+      setMetaChildAttr(
+        meta,
+        "due",
+        { value: nextStr, uid: storedUid },
+        attrNames,
+      );
       await ensureInlineAttrForType(block, "due", nextStr, attrNames);
       meta.due = targetDate;
       void syncPillsForSurface(lastAttrSurface);
@@ -10022,7 +12221,11 @@ export default {
       if (!block) return;
       const meta = await readRecurringMeta(block, set);
       const anchor =
-        pickPlacementDate({ start: meta.start, defer: meta.defer, due: meta.due }) ||
+        pickPlacementDate({
+          start: meta.start,
+          defer: meta.defer,
+          due: meta.due,
+        }) ||
         meta.due ||
         meta.defer ||
         meta.start ||
@@ -10053,7 +12256,11 @@ export default {
         return;
       }
       const anchor =
-        pickPlacementDate({ start: meta.start, defer: meta.defer, due: meta.due }) ||
+        pickPlacementDate({
+          start: meta.start,
+          defer: meta.defer,
+          due: meta.due,
+        }) ||
         meta.due ||
         meta.defer ||
         meta.start ||
@@ -10081,60 +12288,117 @@ export default {
         return;
       }
       const startOffsetMs =
-        meta.start instanceof Date && meta.due instanceof Date ? meta.start.getTime() - meta.due.getTime() : null;
+        meta.start instanceof Date && meta.due instanceof Date
+          ? meta.start.getTime() - meta.due.getTime()
+          : null;
       const deferOffsetMs =
-        meta.defer instanceof Date && meta.due instanceof Date ? meta.defer.getTime() - meta.due.getTime() : null;
-      const nextStartDate = startOffsetMs != null ? applyOffsetToDate(nextDue, startOffsetMs) : null;
-      const nextDeferDate = deferOffsetMs != null ? applyOffsetToDate(nextDue, deferOffsetMs) : null;
+        meta.defer instanceof Date && meta.due instanceof Date
+          ? meta.defer.getTime() - meta.due.getTime()
+          : null;
+      const nextStartDate =
+        startOffsetMs != null
+          ? applyOffsetToDate(nextDue, startOffsetMs)
+          : null;
+      const nextDeferDate =
+        deferOffsetMs != null
+          ? applyOffsetToDate(nextDue, deferOffsetMs)
+          : null;
       const nextStr = formatDate(nextDue, set);
-      const nextStartStr = nextStartDate ? formatDate(nextStartDate, set) : null;
-      const nextDeferStr = nextDeferDate ? formatDate(nextDeferDate, set) : null;
+      const nextStartStr = nextStartDate
+        ? formatDate(nextStartDate, set)
+        : null;
+      const nextDeferStr = nextDeferDate
+        ? formatDate(nextDeferDate, set)
+        : null;
       await updateBlockProps(uid, {
         due: nextStr,
         start: nextStartStr || undefined,
         defer: nextDeferStr || undefined,
       });
       const attrNames = set.attrNames;
-      const dueChildInfo = await ensureChildAttrForType(uid, "due", nextStr, attrNames);
+      const dueChildInfo = await ensureChildAttrForType(
+        uid,
+        "due",
+        nextStr,
+        attrNames,
+      );
       meta.childAttrMap = meta.childAttrMap || {};
-      const existingEntry = getMetaChildAttr(meta, "due", attrNames, { allowFallback: false });
+      const existingEntry = getMetaChildAttr(meta, "due", attrNames, {
+        allowFallback: false,
+      });
       const storedUid = dueChildInfo?.uid || existingEntry?.uid || null;
-      setMetaChildAttr(meta, "due", { value: nextStr, uid: storedUid }, attrNames);
+      setMetaChildAttr(
+        meta,
+        "due",
+        { value: nextStr, uid: storedUid },
+        attrNames,
+      );
       if (nextStartStr) {
-        const startChildInfo = await ensureChildAttrForType(uid, "start", nextStartStr, attrNames);
-        setMetaChildAttr(meta, "start", { value: nextStartStr, uid: startChildInfo.uid }, attrNames);
+        const startChildInfo = await ensureChildAttrForType(
+          uid,
+          "start",
+          nextStartStr,
+          attrNames,
+        );
+        setMetaChildAttr(
+          meta,
+          "start",
+          { value: nextStartStr, uid: startChildInfo.uid },
+          attrNames,
+        );
       } else {
         await removeChildAttrsForType(uid, "start", attrNames);
         clearMetaChildAttr(meta, "start", attrNames);
       }
       if (nextDeferStr) {
-        const deferChildInfo = await ensureChildAttrForType(uid, "defer", nextDeferStr, attrNames);
-        setMetaChildAttr(meta, "defer", { value: nextDeferStr, uid: deferChildInfo.uid }, attrNames);
+        const deferChildInfo = await ensureChildAttrForType(
+          uid,
+          "defer",
+          nextDeferStr,
+          attrNames,
+        );
+        setMetaChildAttr(
+          meta,
+          "defer",
+          { value: nextDeferStr, uid: deferChildInfo.uid },
+          attrNames,
+        );
       } else {
         await removeChildAttrsForType(uid, "defer", attrNames);
         clearMetaChildAttr(meta, "defer", attrNames);
       }
       await ensureInlineAttrForType(block, "due", nextStr, attrNames);
-      if (nextStartStr) await ensureInlineAttrForType(block, "start", nextStartStr, attrNames);
-      if (nextDeferStr) await ensureInlineAttrForType(block, "defer", nextDeferStr, attrNames);
+      if (nextStartStr)
+        await ensureInlineAttrForType(block, "start", nextStartStr, attrNames);
+      if (nextDeferStr)
+        await ensureInlineAttrForType(block, "defer", nextDeferStr, attrNames);
       meta.due = nextDue;
       meta.start = nextStartDate;
       meta.defer = nextDeferDate;
       mergeRepeatOverride(uid, { due: nextDue });
-      const skipAnchor = pickPlacementDate({ start: nextStartDate, defer: nextDeferDate, due: nextDue }) || nextDue;
+      const skipAnchor =
+        pickPlacementDate({
+          start: nextStartDate,
+          defer: nextDeferDate,
+          due: nextDue,
+        }) || nextDue;
       const relocation = await relocateBlockForPlacement(
         block,
         { start: nextStartDate, defer: nextDeferDate, due: nextDue },
-        set
+        set,
       );
       const dueChanged =
-        (contextSnapshot.previousDueDate ? contextSnapshot.previousDueDate.getTime() : null) !== nextDue.getTime();
+        (contextSnapshot.previousDueDate
+          ? contextSnapshot.previousDueDate.getTime()
+          : null) !== nextDue.getTime();
       if (dueChanged || relocation.moved) {
         registerDueUndoAction({
           blockUid: uid,
           message: `Skipped to ${formatRoamDateTitle(skipAnchor)}`,
           setSnapshot: { ...set },
-          previousDueDate: contextSnapshot.previousDueDate ? new Date(contextSnapshot.previousDueDate.getTime()) : null,
+          previousDueDate: contextSnapshot.previousDueDate
+            ? new Date(contextSnapshot.previousDueDate.getTime())
+            : null,
           previousDueStr: contextSnapshot.previousDueStr || null,
           previousInlineDue: contextSnapshot.previousInlineDue,
           hadInlineDue: contextSnapshot.hadInlineDue,
@@ -10144,7 +12408,8 @@ export default {
           previousChildDueUid: contextSnapshot.previousChildDueUid || null,
           hadChildDue: contextSnapshot.hadChildDue,
           previousChildRepeat: contextSnapshot.previousChildRepeat,
-          previousChildRepeatUid: contextSnapshot.previousChildRepeatUid || null,
+          previousChildRepeatUid:
+            contextSnapshot.previousChildRepeatUid || null,
           previousParentUid: contextSnapshot.previousParentUid,
           previousOrder: contextSnapshot.previousOrder,
           newDue: new Date(nextDue.getTime()),
@@ -10173,13 +12438,24 @@ export default {
       const newUid = await spawnNextOccurrence(block, meta, nextDue, set);
       const nextStart =
         meta.start instanceof Date && meta.due instanceof Date
-          ? applyOffsetToDate(nextDue, meta.start.getTime() - meta.due.getTime())
+          ? applyOffsetToDate(
+              nextDue,
+              meta.start.getTime() - meta.due.getTime(),
+            )
           : null;
       const nextDefer =
         meta.defer instanceof Date && meta.due instanceof Date
-          ? applyOffsetToDate(nextDue, meta.defer.getTime() - meta.due.getTime())
+          ? applyOffsetToDate(
+              nextDue,
+              meta.defer.getTime() - meta.due.getTime(),
+            )
           : null;
-      const anchor = pickPlacementDate({ start: nextStart, defer: nextDefer, due: nextDue }) || nextDue;
+      const anchor =
+        pickPlacementDate({
+          start: nextStart,
+          defer: nextDefer,
+          due: nextDue,
+        }) || nextDue;
       if (!bulkOperationInProgress) {
         toast(`Next occurrence created (${formatRoamDateTitle(anchor)})`);
       }
@@ -10204,7 +12480,11 @@ export default {
       }
       await setBlockProps(uid, props);
       const childMap = parseAttrsFromChildBlocks(block.children || []);
-      const removalKeys = [set.attrNames.repeatKey, set.attrNames.dueKey, "rt-processed"];
+      const removalKeys = [
+        set.attrNames.repeatKey,
+        set.attrNames.dueKey,
+        "rt-processed",
+      ];
       for (const key of removalKeys) {
         const info = childMap[key];
         if (info?.uid) {
@@ -10220,7 +12500,10 @@ export default {
         }
       }
       const cleaned = removeInlineAttributes(block.string || "", [
-        ...new Set([...set.attrNames.repeatRemovalKeys, ...set.attrNames.dueRemovalKeys]),
+        ...new Set([
+          ...set.attrNames.repeatRemovalKeys,
+          ...set.attrNames.dueRemovalKeys,
+        ]),
       ]);
       if (cleaned !== block.string) {
         await updateBlockString(uid, cleaned);
@@ -10325,7 +12608,7 @@ export default {
         return fmt.format(date);
       } catch {
         return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
-          date.getDate()
+          date.getDate(),
         ).padStart(2, "0")}`;
       }
     }
@@ -10346,7 +12629,7 @@ export default {
         }
       }
       return `${tzDate.getFullYear()}-${String(tzDate.getMonth() + 1).padStart(2, "0")}-${String(
-        tzDate.getDate()
+        tzDate.getDate(),
       ).padStart(2, "0")}`;
     }
 
@@ -10357,11 +12640,16 @@ export default {
         try {
           return util.dateToPageTitle(date);
         } catch (err) {
-          console.warn("[RecurringTasks] dateToPageTitle failed, falling back to friendly", err);
+          console.warn(
+            "[RecurringTasks] dateToPageTitle failed, falling back to friendly",
+            err,
+          );
         }
       }
       const year = date.getFullYear();
-      const month = new Intl.DateTimeFormat("en-US", { month: "long" }).format(date);
+      const month = new Intl.DateTimeFormat("en-US", { month: "long" }).format(
+        date,
+      );
       return `${month} ${ordinalSuffix(date.getDate())}, ${year}`;
     }
 
@@ -10377,7 +12665,11 @@ export default {
     function isTaskInCodeBlock(block) {
       const text = (block?.string || "").trim();
       if (!text) return false;
-      if (text.startsWith("```") || text.startsWith("{{[[code]]}}") || text.startsWith("<code")) {
+      if (
+        text.startsWith("```") ||
+        text.startsWith("{{[[code]]}}") ||
+        text.startsWith("<code")
+      ) {
         return true;
       }
       return false;
@@ -10389,7 +12681,9 @@ export default {
         inputContainer && inputContainer.tagName !== "TEXTAREA"
           ? inputContainer.firstElementChild
           : null;
-      const autocompleteWrapper = main.querySelector?.(".rm-autocomplete__wrapper");
+      const autocompleteWrapper = main.querySelector?.(
+        ".rm-autocomplete__wrapper",
+      );
       const blockSelf = main.querySelector?.(".rm-block__self");
       const blockText = main.querySelector?.(".rm-block-text");
       if (inlineText && inlineText.nodeType === 1) {
@@ -10397,7 +12691,11 @@ export default {
         pillWrap.classList.add("rt-pill-inline");
         return;
       }
-      if (inputContainer && inputContainer.tagName !== "TEXTAREA" && !pillWrap.isConnected) {
+      if (
+        inputContainer &&
+        inputContainer.tagName !== "TEXTAREA" &&
+        !pillWrap.isConnected
+      ) {
         inputContainer.appendChild(pillWrap);
         pillWrap.classList.add("rt-pill-inline");
         return;
@@ -10412,7 +12710,10 @@ export default {
         return;
       }
       if (autocompleteWrapper?.parentNode && !pillWrap.isConnected) {
-        autocompleteWrapper.parentNode.insertBefore(pillWrap, autocompleteWrapper.nextSibling);
+        autocompleteWrapper.parentNode.insertBefore(
+          pillWrap,
+          autocompleteWrapper.nextSibling,
+        );
         return;
       }
       if (check?.parentNode && !pillWrap.isConnected) {
@@ -10449,12 +12750,22 @@ export default {
       if (!parentUid) return;
 
       // Debounce per parent to avoid thrashing while typing, remember source event
-      if (childEditDebounce.has(parentUid)) clearTimeout(childEditDebounce.get(parentUid));
+      if (childEditDebounce.has(parentUid))
+        clearTimeout(childEditDebounce.get(parentUid));
       const srcType = evt.type;
-      childEditDebounce.set(parentUid, setTimeout(() => {
-        childEditDebounce.delete(parentUid);
-        void syncChildAttrToParent(parentUid, attrType, { sourceEvent: srcType, suppressToast: true });
-      }, srcType === "blur" ? 0 : 250));
+      childEditDebounce.set(
+        parentUid,
+        setTimeout(
+          () => {
+            childEditDebounce.delete(parentUid);
+            void syncChildAttrToParent(parentUid, attrType, {
+              sourceEvent: srcType,
+              suppressToast: true,
+            });
+          },
+          srcType === "blur" ? 0 : 250,
+        ),
+      );
     }
 
     async function getParentUid(childUid) {
@@ -10510,11 +12821,24 @@ export default {
           try {
             await updateBlockProps(parentUid, { repeat: normalized });
           } catch (err) {
-            console.warn("[RecurringTasks] syncChildAttrToParent repeat update failed", err);
+            console.warn(
+              "[RecurringTasks] syncChildAttrToParent repeat update failed",
+              err,
+            );
             return;
           }
-          await ensureChildAttrForType(parentUid, "repeat", normalized, attrNames);
-          await ensureInlineAttrForType(parent, "repeat", normalized, attrNames);
+          await ensureChildAttrForType(
+            parentUid,
+            "repeat",
+            normalized,
+            attrNames,
+          );
+          await ensureInlineAttrForType(
+            parent,
+            "repeat",
+            normalized,
+            attrNames,
+          );
           if (!suppressToast) {
             toast(`Repeat → ${normalized}`);
           }
@@ -10525,7 +12849,10 @@ export default {
           try {
             await updateBlockProps(parentUid, { due: rawValue });
           } catch (err) {
-            console.warn("[RecurringTasks] syncChildAttrToParent due update failed", err);
+            console.warn(
+              "[RecurringTasks] syncChildAttrToParent due update failed",
+              err,
+            );
             return;
           }
           await ensureChildAttrForType(parentUid, "due", rawValue, attrNames);
@@ -10547,9 +12874,19 @@ export default {
         clearTimeout(childEditDebounce.get(parentUid));
         childEditDebounce.delete(parentUid);
       }
-      const baseOpts = { sourceEvent: "flush", skipRefresh: true, suppressToast: true };
-      await syncChildAttrToParent(parentUid, "repeat", { ...baseOpts, ...options });
-      await syncChildAttrToParent(parentUid, "due", { ...baseOpts, ...options });
+      const baseOpts = {
+        sourceEvent: "flush",
+        skipRefresh: true,
+        suppressToast: true,
+      };
+      await syncChildAttrToParent(parentUid, "repeat", {
+        ...baseOpts,
+        ...options,
+      });
+      await syncChildAttrToParent(parentUid, "due", {
+        ...baseOpts,
+        ...options,
+      });
     }
 
     async function undoTaskCompletion(uid) {
@@ -10577,10 +12914,22 @@ export default {
     function createDashboardController(extensionAPI) {
       const DASHBOARD_FULLPAGE_KEY_BASE = "betterTasks.dashboard.fullPage";
       const reviewStepSettingMap = [
-        { viewId: "bt_preset_next_actions", settingId: REVIEW_STEP_NEXT_ACTIONS_SETTING },
-        { viewId: "bt_preset_waiting_for", settingId: REVIEW_STEP_WAITING_FOR_SETTING },
-        { viewId: "bt_preset_completed_7d", settingId: REVIEW_STEP_COMPLETED_7D_SETTING },
-        { viewId: "bt_preset_upcoming_7d", settingId: REVIEW_STEP_UPCOMING_7D_SETTING },
+        {
+          viewId: "bt_preset_next_actions",
+          settingId: REVIEW_STEP_NEXT_ACTIONS_SETTING,
+        },
+        {
+          viewId: "bt_preset_waiting_for",
+          settingId: REVIEW_STEP_WAITING_FOR_SETTING,
+        },
+        {
+          viewId: "bt_preset_completed_7d",
+          settingId: REVIEW_STEP_COMPLETED_7D_SETTING,
+        },
+        {
+          viewId: "bt_preset_upcoming_7d",
+          settingId: REVIEW_STEP_UPCOMING_7D_SETTING,
+        },
         { viewId: "bt_preset_overdue", settingId: REVIEW_STEP_OVERDUE_SETTING },
         { viewId: "bt_preset_someday", settingId: REVIEW_STEP_SOMEDAY_SETTING },
       ];
@@ -10601,7 +12950,9 @@ export default {
           let raw = window.localStorage?.getItem(key);
           // Migrate from legacy global key (if present) to per-graph key.
           if (raw == null) {
-            const legacy = window.localStorage?.getItem(DASHBOARD_FULLPAGE_KEY_BASE);
+            const legacy = window.localStorage?.getItem(
+              DASHBOARD_FULLPAGE_KEY_BASE,
+            );
             if (legacy != null) {
               raw = legacy;
               window.localStorage?.setItem(key, legacy);
@@ -10616,7 +12967,10 @@ export default {
       const writeDashboardFullPageSetting = (enabled) => {
         if (typeof window === "undefined") return;
         try {
-          window.localStorage?.setItem(getDashboardFullPageKey(), enabled ? "true" : "false");
+          window.localStorage?.setItem(
+            getDashboardFullPageKey(),
+            enabled ? "true" : "false",
+          );
         } catch (_) {
           // ignore
         }
@@ -10630,7 +12984,8 @@ export default {
         return out;
       };
 
-      let isFullPage = typeof window !== "undefined" ? readDashboardFullPageSetting() : false;
+      let isFullPage =
+        typeof window !== "undefined" ? readDashboardFullPageSetting() : false;
       const initialState = {
         tasks: [],
         status: "idle",
@@ -10730,9 +13085,15 @@ export default {
         dispose,
       };
       // Ensure prompt helpers are always present for dashboard consumers.
-      if (!controller.promptProject) controller.promptProject = (opts = {}) => promptForAttribute("project", { ...opts, allowMulti: false });
-      if (!controller.promptWaiting) controller.promptWaiting = (opts = {}) => promptForAttribute("waitingFor", { ...opts, allowMulti: false });
-      if (!controller.promptContext) controller.promptContext = (opts = {}) => promptForAttribute("context", { ...opts, allowMulti: true });
+      if (!controller.promptProject)
+        controller.promptProject = (opts = {}) =>
+          promptForAttribute("project", { ...opts, allowMulti: false });
+      if (!controller.promptWaiting)
+        controller.promptWaiting = (opts = {}) =>
+          promptForAttribute("waitingFor", { ...opts, allowMulti: false });
+      if (!controller.promptContext)
+        controller.promptContext = (opts = {}) =>
+          promptForAttribute("context", { ...opts, allowMulti: true });
 
       function emit() {
         const snapshot = {
@@ -10751,13 +13112,17 @@ export default {
       function subscribe(listener) {
         if (typeof listener === "function") {
           subscribers.add(listener);
-          listener({ ...state, tasks: state.tasks.map((task) => ({ ...task })) });
+          listener({
+            ...state,
+            tasks: state.tasks.map((task) => ({ ...task })),
+          });
         }
         return () => subscribers.delete(listener);
       }
 
       function subscribeDashViewRequests(listener) {
-        if (typeof listener === "function") dashViewRequestSubscribers.add(listener);
+        if (typeof listener === "function")
+          dashViewRequestSubscribers.add(listener);
         return () => dashViewRequestSubscribers.delete(listener);
       }
 
@@ -10766,13 +13131,17 @@ export default {
           try {
             listener(nextState || null);
           } catch (err) {
-            console.warn("[BetterTasks] dashboard view request subscriber failed", err);
+            console.warn(
+              "[BetterTasks] dashboard view request subscriber failed",
+              err,
+            );
           }
         });
       }
 
       function subscribeDashViewsStore(listener) {
-        if (typeof listener === "function") dashViewsStoreSubscribers.add(listener);
+        if (typeof listener === "function")
+          dashViewsStoreSubscribers.add(listener);
         return () => dashViewsStoreSubscribers.delete(listener);
       }
 
@@ -10781,7 +13150,10 @@ export default {
           try {
             listener(nextStore);
           } catch (err) {
-            console.warn("[BetterTasks] dashboard views store subscriber failed", err);
+            console.warn(
+              "[BetterTasks] dashboard views store subscriber failed",
+              err,
+            );
           }
         });
       }
@@ -10803,14 +13175,18 @@ export default {
             try {
               listener({ type: "start" });
             } catch (err) {
-              console.warn("[BetterTasks] dashboard review request subscriber failed", err);
+              console.warn(
+                "[BetterTasks] dashboard review request subscriber failed",
+                err,
+              );
             }
           }
         }
         return () => dashReviewRequestSubscribers.delete(listener);
       }
       function subscribeReviewStepSettings(listener) {
-        if (typeof listener === "function") reviewStepSettingsSubscribers.add(listener);
+        if (typeof listener === "function")
+          reviewStepSettingsSubscribers.add(listener);
         return () => reviewStepSettingsSubscribers.delete(listener);
       }
       function notifyReviewStepSettingsChanged() {
@@ -10818,7 +13194,10 @@ export default {
           try {
             listener();
           } catch (err) {
-            console.warn("[BetterTasks] review step settings subscriber failed", err);
+            console.warn(
+              "[BetterTasks] review step settings subscriber failed",
+              err,
+            );
           }
         });
       }
@@ -10829,7 +13208,10 @@ export default {
           try {
             listener({ type: "start" });
           } catch (err) {
-            console.warn("[BetterTasks] dashboard review request subscriber failed", err);
+            console.warn(
+              "[BetterTasks] dashboard review request subscriber failed",
+              err,
+            );
           }
         });
       }
@@ -10857,7 +13239,11 @@ export default {
         const attachWatches = controller.isOpen();
         const cacheKey = "dash:withDone";
         const bypassCache = reason === "force";
-        refreshPromise = collectDashboardTasks({ attachWatches, cacheKey, bypassCache })
+        refreshPromise = collectDashboardTasks({
+          attachWatches,
+          cacheKey,
+          bypassCache,
+        })
           .then((tasks) => {
             state = {
               ...state,
@@ -10895,7 +13281,10 @@ export default {
         const aiEnabled = isAiEnabled(aiSettings);
         let parsedTask = null;
         if (aiEnabled) {
-          const aiAbort = typeof AbortController !== "undefined" ? new AbortController() : null;
+          const aiAbort =
+            typeof AbortController !== "undefined"
+              ? new AbortController()
+              : null;
           let suppressAiAbort = false;
           const pending = showPersistentToast("Parsing task with AI\u2026", {
             onClosed: () => {
@@ -10905,7 +13294,9 @@ export default {
           });
           let aiResult = null;
           try {
-            aiResult = await parseTaskWithOpenAI(trimmed, aiSettings, { signal: aiAbort?.signal });
+            aiResult = await parseTaskWithOpenAI(trimmed, aiSettings, {
+              signal: aiAbort?.signal,
+            });
           } catch (err) {
             console.warn("[BetterTasks] AI parsing threw in quickAdd", err);
             aiResult = { ok: false, error: err };
@@ -10919,7 +13310,10 @@ export default {
           if (aiResult?.ok) {
             parsedTask = aiResult.task;
           } else {
-            console.warn("[BetterTasks] AI parsing unavailable in quickAdd", aiResult?.error || aiResult?.reason);
+            console.warn(
+              "[BetterTasks] AI parsing unavailable in quickAdd",
+              aiResult?.error || aiResult?.reason,
+            );
             toast("AI parsing unavailable, falling back to manual entry.");
           }
         }
@@ -10978,7 +13372,9 @@ export default {
           fullPageObserver = null;
         }
         if (!host || typeof ResizeObserver === "undefined") return;
-        fullPageObserver = new ResizeObserver(() => scheduleApplyFullPageRect());
+        fullPageObserver = new ResizeObserver(() =>
+          scheduleApplyFullPageRect(),
+        );
         try {
           fullPageObserver.observe(host);
         } catch (_) {
@@ -10987,7 +13383,8 @@ export default {
       }
 
       function applyFullPageRect() {
-        if (!isFullPage || !container || typeof document === "undefined") return;
+        if (!isFullPage || !container || typeof document === "undefined")
+          return;
         const host = document.querySelector(".roam-body-main");
         if (!host) return;
         if (host !== fullPageHostEl) {
@@ -11106,7 +13503,10 @@ export default {
 
       function isLeftSidebarOpen() {
         if (typeof document === "undefined") return false;
-        if (document.querySelector(".bp3-button.bp3-minimal.bp3-icon-menu-closed")) return true;
+        if (
+          document.querySelector(".bp3-button.bp3-minimal.bp3-icon-menu-closed")
+        )
+          return true;
         try {
           const sidebar =
             document.querySelector(".roam-sidebar-content") ||
@@ -11142,7 +13542,8 @@ export default {
       }
 
       function attachLeftSidebarMqlWatcher() {
-        if (leftSidebarMqlListenerAttached || typeof window === "undefined") return;
+        if (leftSidebarMqlListenerAttached || typeof window === "undefined")
+          return;
         if (typeof window.matchMedia !== "function") return;
         leftSidebarMql = window.matchMedia("(max-width: 639px)");
         leftSidebarMqlHandler = () => {
@@ -11185,7 +13586,7 @@ export default {
             onRequestClose={close}
             onHeaderReady={registerDragHandle}
             language={getLanguageSetting()}
-          />
+          />,
         );
         ensureInitialLoad();
         setTopbarActive(true);
@@ -11205,7 +13606,7 @@ export default {
             onRequestClose={close}
             onHeaderReady={registerDragHandle}
             language={getLanguageSetting()}
-          />
+          />,
         );
       }
 
@@ -11273,7 +13674,12 @@ export default {
             if (patch.project) addProjectOption(patch.project);
           }
           if ("waitingFor" in patch) {
-            await setRichAttribute(uid, "waitingFor", patch.waitingFor, attrNames);
+            await setRichAttribute(
+              uid,
+              "waitingFor",
+              patch.waitingFor,
+              attrNames,
+            );
             if (patch.waitingFor) {
               addWaitingOption(patch.waitingFor);
             } else {
@@ -11307,12 +13713,16 @@ export default {
           window.__btInlineMetaCache?.delete(uid);
         }
         try {
-          const notifier = activeDashboardController?.notifyBlockChange || notifyBlockChange;
+          const notifier =
+            activeDashboardController?.notifyBlockChange || notifyBlockChange;
           if (typeof notifier === "function") {
             await notifier(uid, { bypassFilters: true });
           }
         } catch (err) {
-          console.warn("[BetterTasks] notifyBlockChange (inline meta) failed", err);
+          console.warn(
+            "[BetterTasks] notifyBlockChange (inline meta) failed",
+            err,
+          );
         }
         void syncPillsForSurface(lastAttrSurface);
       }
@@ -11348,15 +13758,21 @@ export default {
         const childAttrMap = parseAttrsFromChildBlocks(children);
         const attrNames = set.attrNames;
         // Read start date (capture both value and original key for case preservation)
-        const startChild = pickChildAttr(childAttrMap, attrNames.startAliases, { allowFallback: false });
+        const startChild = pickChildAttr(childAttrMap, attrNames.startAliases, {
+          allowFallback: false,
+        });
         const startText = startChild?.value || null;
         const startOriginalKey = startChild?.originalKey || null;
         // Read defer date (capture both value and original key for case preservation)
-        const deferChild = pickChildAttr(childAttrMap, attrNames.deferAliases, { allowFallback: false });
+        const deferChild = pickChildAttr(childAttrMap, attrNames.deferAliases, {
+          allowFallback: false,
+        });
         const deferText = deferChild?.value || null;
         const deferOriginalKey = deferChild?.originalKey || null;
         // Read due date (capture both value and original key for case preservation)
-        const dueChild = pickChildAttr(childAttrMap, attrNames.dueAliases, { allowFallback: false });
+        const dueChild = pickChildAttr(childAttrMap, attrNames.dueAliases, {
+          allowFallback: false,
+        });
         const dueText = dueChild?.value || null;
         const dueOriginalKey = dueChild?.originalKey || null;
         // Read rich metadata
@@ -11415,13 +13831,14 @@ export default {
           const successCount = uids.length - errors.length;
           const lang = getLanguageSetting();
           const bulkStrings = t(["dashboard", "bulk"], lang) || {};
-          const msg = action === "complete"
-            ? (typeof bulkStrings.completedCount === "function"
+          const msg =
+            action === "complete"
+              ? typeof bulkStrings.completedCount === "function"
                 ? bulkStrings.completedCount(successCount)
-                : `Completed ${successCount} task${successCount === 1 ? "" : "s"}`)
-            : (typeof bulkStrings.reopenedCount === "function"
+                : `Completed ${successCount} task${successCount === 1 ? "" : "s"}`
+              : typeof bulkStrings.reopenedCount === "function"
                 ? bulkStrings.reopenedCount(successCount)
-                : `Reopened ${successCount} task${successCount === 1 ? "" : "s"}`);
+                : `Reopened ${successCount} task${successCount === 1 ? "" : "s"}`;
           showBulkUndoToast({
             message: msg,
             undo: async () => {
@@ -11441,14 +13858,19 @@ export default {
                       await undoTaskCompletion(uid);
                     }
                   } catch (err) {
-                    console.warn("[BetterTasks] bulk undo item failed", uid, err);
+                    console.warn(
+                      "[BetterTasks] bulk undo item failed",
+                      uid,
+                      err,
+                    );
                   }
                 }
                 await refresh({ reason: "force" });
                 requestTodayWidgetRenderOnDnp(120, true);
               } finally {
                 // Keep suppression active briefly to catch async pull watch callbacks
-                if (bulkOperationCooldownTimer) clearTimeout(bulkOperationCooldownTimer);
+                if (bulkOperationCooldownTimer)
+                  clearTimeout(bulkOperationCooldownTimer);
                 bulkOperationCooldownTimer = setTimeout(() => {
                   bulkOperationInProgress = false;
                   bulkOperationCooldownTimer = null;
@@ -11460,7 +13882,8 @@ export default {
           requestTodayWidgetRenderOnDnp(120, true);
         } finally {
           // Keep toast suppression active briefly to catch async completion handlers
-          if (bulkOperationCooldownTimer) clearTimeout(bulkOperationCooldownTimer);
+          if (bulkOperationCooldownTimer)
+            clearTimeout(bulkOperationCooldownTimer);
           bulkOperationCooldownTimer = setTimeout(() => {
             bulkOperationInProgress = false;
             bulkOperationCooldownTimer = null;
@@ -11520,9 +13943,10 @@ export default {
           const successCount = uids.length - errors.length;
           const lang = getLanguageSetting();
           const bulkStrings = t(["dashboard", "bulk"], lang) || {};
-          const msg = typeof bulkStrings.snoozedCount === "function"
-            ? bulkStrings.snoozedCount(successCount, days)
-            : `Snoozed ${successCount} task${successCount === 1 ? "" : "s"} by ${days} day${days === 1 ? "" : "s"}`;
+          const msg =
+            typeof bulkStrings.snoozedCount === "function"
+              ? bulkStrings.snoozedCount(successCount, days)
+              : `Snoozed ${successCount} task${successCount === 1 ? "" : "s"} by ${days} day${days === 1 ? "" : "s"}`;
           showBulkUndoToast({
             message: msg,
             undo: async () => {
@@ -11533,7 +13957,15 @@ export default {
               }
               bulkOperationInProgress = true;
               try {
-                for (const { uid, previousStart, startKey, previousDefer, deferKey, previousDue, dueKey } of previousStates) {
+                for (const {
+                  uid,
+                  previousStart,
+                  startKey,
+                  previousDefer,
+                  deferKey,
+                  previousDue,
+                  dueKey,
+                } of previousStates) {
                   try {
                     // Restore start date using original key to preserve case
                     if (previousStart) {
@@ -11554,14 +13986,19 @@ export default {
                     }
                     // Note: we don't remove due if it was null before, since snooze only shifts existing due dates
                   } catch (err) {
-                    console.warn("[BetterTasks] bulk snooze undo item failed", uid, err);
+                    console.warn(
+                      "[BetterTasks] bulk snooze undo item failed",
+                      uid,
+                      err,
+                    );
                   }
                 }
                 await refresh({ reason: "force" });
                 requestTodayWidgetRenderOnDnp(120, true);
               } finally {
                 // Keep suppression active briefly to catch async pull watch callbacks
-                if (bulkOperationCooldownTimer) clearTimeout(bulkOperationCooldownTimer);
+                if (bulkOperationCooldownTimer)
+                  clearTimeout(bulkOperationCooldownTimer);
                 bulkOperationCooldownTimer = setTimeout(() => {
                   bulkOperationInProgress = false;
                   bulkOperationCooldownTimer = null;
@@ -11573,7 +14010,8 @@ export default {
           requestTodayWidgetRenderOnDnp(120, true);
         } finally {
           // Keep toast suppression active briefly to catch async handlers
-          if (bulkOperationCooldownTimer) clearTimeout(bulkOperationCooldownTimer);
+          if (bulkOperationCooldownTimer)
+            clearTimeout(bulkOperationCooldownTimer);
           bulkOperationCooldownTimer = setTimeout(() => {
             bulkOperationInProgress = false;
             bulkOperationCooldownTimer = null;
@@ -11599,7 +14037,10 @@ export default {
           for (const uid of uids) {
             try {
               const meta = await readTaskMetadataFromBlock(uid, set);
-              previousStates.push({ uid, previousValue: meta?.[field] || null });
+              previousStates.push({
+                uid,
+                previousValue: meta?.[field] || null,
+              });
             } catch (err) {
               previousStates.push({ uid, previousValue: null });
             }
@@ -11609,14 +14050,31 @@ export default {
           for (const uid of uids) {
             try {
               if (field === "project") {
-                await setRichAttribute(uid, "project", patch.project, attrNames);
+                await setRichAttribute(
+                  uid,
+                  "project",
+                  patch.project,
+                  attrNames,
+                );
               } else if (field === "waitingFor") {
-                await setRichAttribute(uid, "waitingFor", patch.waitingFor, attrNames);
+                await setRichAttribute(
+                  uid,
+                  "waitingFor",
+                  patch.waitingFor,
+                  attrNames,
+                );
               } else if (field === "context") {
-                const ctxArr = Array.isArray(patch.context) ? patch.context : [];
+                const ctxArr = Array.isArray(patch.context)
+                  ? patch.context
+                  : [];
                 await setRichAttribute(uid, "context", ctxArr, attrNames);
               } else if (field === "priority") {
-                await setRichAttribute(uid, "priority", patch.priority, attrNames);
+                await setRichAttribute(
+                  uid,
+                  "priority",
+                  patch.priority,
+                  attrNames,
+                );
               } else if (field === "energy") {
                 await setRichAttribute(uid, "energy", patch.energy, attrNames);
               } else if (field === "gtd") {
@@ -11631,9 +14089,10 @@ export default {
           const lang = getLanguageSetting();
           const bulkStrings = t(["dashboard", "bulk"], lang) || {};
           const fieldLabel = bulkStrings.fieldLabels?.[field] || field;
-          const msg = typeof bulkStrings.updatedCount === "function"
-            ? bulkStrings.updatedCount(fieldLabel, successCount)
-            : `Updated ${fieldLabel} on ${successCount} task${successCount === 1 ? "" : "s"}`;
+          const msg =
+            typeof bulkStrings.updatedCount === "function"
+              ? bulkStrings.updatedCount(fieldLabel, successCount)
+              : `Updated ${fieldLabel} on ${successCount} task${successCount === 1 ? "" : "s"}`;
           showBulkUndoToast({
             message: msg,
             undo: async () => {
@@ -11647,28 +14106,60 @@ export default {
                 for (const { uid, previousValue } of previousStates) {
                   try {
                     if (field === "project") {
-                      await setRichAttribute(uid, "project", previousValue, attrNames);
+                      await setRichAttribute(
+                        uid,
+                        "project",
+                        previousValue,
+                        attrNames,
+                      );
                     } else if (field === "waitingFor") {
-                      await setRichAttribute(uid, "waitingFor", previousValue, attrNames);
+                      await setRichAttribute(
+                        uid,
+                        "waitingFor",
+                        previousValue,
+                        attrNames,
+                      );
                     } else if (field === "context") {
-                      const ctxArr = Array.isArray(previousValue) ? previousValue : [];
+                      const ctxArr = Array.isArray(previousValue)
+                        ? previousValue
+                        : [];
                       await setRichAttribute(uid, "context", ctxArr, attrNames);
                     } else if (field === "priority") {
-                      await setRichAttribute(uid, "priority", previousValue, attrNames);
+                      await setRichAttribute(
+                        uid,
+                        "priority",
+                        previousValue,
+                        attrNames,
+                      );
                     } else if (field === "energy") {
-                      await setRichAttribute(uid, "energy", previousValue, attrNames);
+                      await setRichAttribute(
+                        uid,
+                        "energy",
+                        previousValue,
+                        attrNames,
+                      );
                     } else if (field === "gtd") {
-                      await setRichAttribute(uid, "gtd", previousValue, attrNames);
+                      await setRichAttribute(
+                        uid,
+                        "gtd",
+                        previousValue,
+                        attrNames,
+                      );
                     }
                   } catch (err) {
-                    console.warn("[BetterTasks] bulk metadata undo item failed", uid, err);
+                    console.warn(
+                      "[BetterTasks] bulk metadata undo item failed",
+                      uid,
+                      err,
+                    );
                   }
                 }
                 await refresh({ reason: "force" });
                 requestTodayWidgetRenderOnDnp(120, true);
               } finally {
                 // Keep suppression active briefly to catch async pull watch callbacks
-                if (bulkOperationCooldownTimer) clearTimeout(bulkOperationCooldownTimer);
+                if (bulkOperationCooldownTimer)
+                  clearTimeout(bulkOperationCooldownTimer);
                 bulkOperationCooldownTimer = setTimeout(() => {
                   bulkOperationInProgress = false;
                   bulkOperationCooldownTimer = null;
@@ -11680,7 +14171,8 @@ export default {
           requestTodayWidgetRenderOnDnp(120, true);
         } finally {
           // Keep toast suppression active briefly to catch async handlers
-          if (bulkOperationCooldownTimer) clearTimeout(bulkOperationCooldownTimer);
+          if (bulkOperationCooldownTimer)
+            clearTimeout(bulkOperationCooldownTimer);
           bulkOperationCooldownTimer = setTimeout(() => {
             bulkOperationInProgress = false;
             bulkOperationCooldownTimer = null;
@@ -11777,10 +14269,16 @@ export default {
         try {
           if (inSidebar) {
             window.roamAlphaAPI?.ui?.rightSidebar?.addWindow?.({
-              window: { type: "outline", "page-uid": pageUid, "block-uid": pageUid },
+              window: {
+                type: "outline",
+                "page-uid": pageUid,
+                "block-uid": pageUid,
+              },
             });
           } else {
-            window.roamAlphaAPI?.ui?.mainWindow?.openPage?.({ page: { uid: pageUid } });
+            window.roamAlphaAPI?.ui?.mainWindow?.openPage?.({
+              page: { uid: pageUid },
+            });
           }
         } catch (err) {
           console.warn("[BetterTasks] openPage failed", err);
@@ -11792,7 +14290,9 @@ export default {
           if (extensionAPI?.settings?.open) {
             extensionAPI.settings.open();
           } else {
-            toast("Open the Roam Depot settings for Better Tasks to adjust options.");
+            toast(
+              "Open the Roam Depot settings for Better Tasks to adjust options.",
+            );
           }
         } catch (err) {
           console.warn("[BetterTasks] openSettings failed", err);
@@ -11876,7 +14376,9 @@ export default {
         if (isFullPage) return;
         if (!container || !dragHandle) return;
         if (event.button !== undefined && event.button !== 0) return;
-        const blocker = event.target?.closest?.("button, a, input, textarea, select");
+        const blocker = event.target?.closest?.(
+          "button, a, input, textarea, select",
+        );
         if (blocker) return;
         isDraggingDashboard = true;
         dragPointerId = event.pointerId;
@@ -11968,7 +14470,10 @@ export default {
       function persistDashboardPosition(pos) {
         if (typeof window === "undefined" || !pos) return;
         try {
-          window.localStorage?.setItem(DASHBOARD_POSITION_KEY, JSON.stringify(pos));
+          window.localStorage?.setItem(
+            DASHBOARD_POSITION_KEY,
+            JSON.stringify(pos),
+          );
         } catch (err) {
           console.warn("[BetterTasks] failed to store dashboard position", err);
         }
@@ -11986,7 +14491,8 @@ export default {
         const margin = 12;
         const rect = container.getBoundingClientRect();
         const width = rect.width || 600;
-        const height = rect.height || Math.min(window.innerHeight - margin * 2, 700);
+        const height =
+          rect.height || Math.min(window.innerHeight - margin * 2, 700);
         const maxLeft = Math.max(margin, window.innerWidth - width - margin);
         const maxTop = Math.max(margin, window.innerHeight - height - margin);
         const left = clampNumber(pos.left, margin, maxLeft);
@@ -12030,12 +14536,25 @@ export default {
     async function editRepeat(uid, event, options = {}) {
       if (!uid) return;
       const set = S();
-      const result = await handleRepeatEdit(event || new MouseEvent("click"), { uid, set, span: null });
+      const result = await handleRepeatEdit(event || new MouseEvent("click"), {
+        uid,
+        set,
+        span: null,
+      });
       if (typeof result === "string" && result) {
-        await waitForRepeatState(uid, set, { expectedValue: result }, 6, getBlock, readRecurringMeta);
+        await waitForRepeatState(
+          uid,
+          set,
+          { expectedValue: result },
+          6,
+          getBlock,
+          readRecurringMeta,
+        );
       }
       await delay(250);
-      await activeDashboardController?.notifyBlockChange?.(uid, { bypassFilters: true });
+      await activeDashboardController?.notifyBlockChange?.(uid, {
+        bypassFilters: true,
+      });
       await delay(120);
       await activeDashboardController?.refresh?.({ reason: "pill-repeat" });
     }
@@ -12067,39 +14586,79 @@ export default {
         allowCreate,
       });
       if (resultDate instanceof Date) {
-        await waitForAttrDate(uid, type, resultDate, set, 6, getBlock, readRecurringMeta);
+        await waitForAttrDate(
+          uid,
+          type,
+          resultDate,
+          set,
+          6,
+          getBlock,
+          readRecurringMeta,
+        );
       }
       await delay(120);
-      await activeDashboardController?.notifyBlockChange?.(uid, { bypassFilters: true });
+      await activeDashboardController?.notifyBlockChange?.(uid, {
+        bypassFilters: true,
+      });
       await activeDashboardController?.refresh?.({ reason: `pill-${type}` });
     }
 
     function parseMetadataFromPrompt(promptResult) {
       if (!promptResult) return {};
-      const projectRaw = typeof promptResult.project === "string" ? promptResult.project.trim() : "";
+      const projectRaw =
+        typeof promptResult.project === "string"
+          ? promptResult.project.trim()
+          : "";
       const project = normalizeProjectValue(projectRaw);
-      const waitingFor = typeof promptResult.waitingFor === "string" ? promptResult.waitingFor.trim() : "";
-      const contextRaw = typeof promptResult.context === "string" ? promptResult.context : "";
-      const priority = typeof promptResult.priority === "string" ? promptResult.priority.trim().toLowerCase() : "";
-      const energy = typeof promptResult.energy === "string" ? promptResult.energy.trim().toLowerCase() : "";
-      const gtd = typeof promptResult.gtd === "string" ? promptResult.gtd.trim() : "";
+      const waitingFor =
+        typeof promptResult.waitingFor === "string"
+          ? promptResult.waitingFor.trim()
+          : "";
+      const contextRaw =
+        typeof promptResult.context === "string" ? promptResult.context : "";
+      const priority =
+        typeof promptResult.priority === "string"
+          ? promptResult.priority.trim().toLowerCase()
+          : "";
+      const energy =
+        typeof promptResult.energy === "string"
+          ? promptResult.energy.trim().toLowerCase()
+          : "";
+      const gtd =
+        typeof promptResult.gtd === "string" ? promptResult.gtd.trim() : "";
       const contexts = contextRaw ? normalizeContextList(contextRaw) : [];
       return { project, waitingFor, contexts, priority, energy, gtd };
     }
 
-    async function applyMetadataFromPrompt(uid, promptResult, attrNames, options = {}) {
+    async function applyMetadataFromPrompt(
+      uid,
+      promptResult,
+      attrNames,
+      options = {},
+    ) {
       if (!uid || !promptResult) return;
       const initial = options.initial || {};
-      const { project, waitingFor, contexts, priority, energy, gtd } = parseMetadataFromPrompt(promptResult);
+      const { project, waitingFor, contexts, priority, energy, gtd } =
+        parseMetadataFromPrompt(promptResult);
       if (project || initial.project) {
         await setRichAttribute(uid, "project", project || null, attrNames);
         if (project) addProjectOption(project);
       }
       if (waitingFor || initial.waitingFor) {
-        await setRichAttribute(uid, "waitingFor", waitingFor || null, attrNames);
+        await setRichAttribute(
+          uid,
+          "waitingFor",
+          waitingFor || null,
+          attrNames,
+        );
       }
       if ((contexts && contexts.length) || (initial.context || []).length) {
-        await setRichAttribute(uid, "context", contexts && contexts.length ? contexts : [], attrNames);
+        await setRichAttribute(
+          uid,
+          "context",
+          contexts && contexts.length ? contexts : [],
+          attrNames,
+        );
       }
       if (priority || initial.priority) {
         await setRichAttribute(uid, "priority", priority || null, attrNames);
@@ -12122,7 +14681,9 @@ export default {
         const block = await getBlock(uid);
         if (block) {
           const meta = await readRecurringMeta(block, set);
-          metadata = meta?.metadata || parseRichMetadata(meta?.childAttrMap || {}, set.attrNames);
+          metadata =
+            meta?.metadata ||
+            parseRichMetadata(meta?.childAttrMap || {}, set.attrNames);
           isRecurring = !!meta?.repeat;
           if (typeof window !== "undefined") {
             writeInlineMetaCache(uid, metadata || {});
@@ -12140,12 +14701,23 @@ export default {
         const set = S();
         const cleared = await clearAttrForType(uid, type, { set });
         if (cleared) {
-          await waitForAttrClear(uid, type, set, 6, getBlock, readRecurringMeta);
+          await waitForAttrClear(
+            uid,
+            type,
+            set,
+            6,
+            getBlock,
+            readRecurringMeta,
+          );
           void syncPillsForSurface(lastAttrSurface || "Child");
         }
         await delay(120);
-        await activeDashboardController?.notifyBlockChange?.(uid, { bypassFilters: true });
-        await activeDashboardController?.refresh?.({ reason: `remove-${type}` });
+        await activeDashboardController?.notifyBlockChange?.(uid, {
+          bypassFilters: true,
+        });
+        await activeDashboardController?.refresh?.({
+          reason: `remove-${type}`,
+        });
         const labels = {
           repeat: "Repeat rule removed",
           start: "Start date removed",
@@ -12185,8 +14757,14 @@ export default {
     })();
 
     async function collectDashboardTasks(options = {}) {
-      const { includeCompleted = true, attachWatches = true, cacheKey = null, bypassCache = false } = options;
-      const memoKey = cacheKey || `tasks:${includeCompleted ? "withDone" : "noDone"}`;
+      const {
+        includeCompleted = true,
+        attachWatches = true,
+        cacheKey = null,
+        bypassCache = false,
+      } = options;
+      const memoKey =
+        cacheKey || `tasks:${includeCompleted ? "withDone" : "noDone"}`;
       if (!bypassCache) {
         const cached = dashboardTaskCache.get(memoKey);
         if (cached) return cached;
@@ -12215,7 +14793,8 @@ export default {
           const task = deriveDashboardTask(block, meta, set);
           if (task) {
             tasks.push(task);
-            if (attachWatches && !task.isCompleted) ensureDashboardWatch(task.uid);
+            if (attachWatches && !task.isCompleted)
+              ensureDashboardWatch(task.uid);
           }
         } catch (err) {
           console.warn("[BetterTasks] deriveDashboardTask failed", err);
@@ -12258,14 +14837,16 @@ export default {
           getAttrLabel("context", attrNames),
           getAttrLabel("priority", attrNames),
           getAttrLabel("energy", attrNames),
-        ].filter(Boolean)
+        ].filter(Boolean),
       );
       if (!labels.size) return [];
       const pull = `[:block/uid :block/string :block/props :block/order :block/open
         {:block/children [:block/uid :block/string]}
         {:block/page [:block/uid :node/title]}
         {:block/parents [:block/uid]}]`;
-      const safeLabels = Array.from(labels).map((label) => label.replace(/\\/g, "\\\\").replace(/"/g, '\\"'));
+      const safeLabels = Array.from(labels).map((label) =>
+        label.replace(/\\/g, "\\\\").replace(/"/g, '\\"'),
+      );
       const labelSet = safeLabels.map((l) => `"${l}"`).join(" ");
       const query = `
         [:find (pull ?b ${pull})
@@ -12286,20 +14867,34 @@ export default {
     function deriveDashboardTask(block, meta, set) {
       if (!block) return null;
       const title = formatDashboardTitle(block.string || "");
-      const attrCompleted = meta?.completed || meta?.childAttrMap?.completed?.value || null;
+      const attrCompleted =
+        meta?.completed || meta?.childAttrMap?.completed?.value || null;
       const isCompleted = isBlockCompleted(block) || !!attrCompleted;
       const completedAtRaw = meta?.childAttrMap?.completed?.value || null;
-      const completedAtParsed = completedAtRaw ? parseRoamDate(completedAtRaw) : null;
+      const completedAtParsed = completedAtRaw
+        ? parseRoamDate(completedAtRaw)
+        : null;
       const completedAt =
-        completedAtParsed instanceof Date && !Number.isNaN(completedAtParsed.getTime())
+        completedAtParsed instanceof Date &&
+        !Number.isNaN(completedAtParsed.getTime())
           ? completedAtParsed
           : null;
-      const startAt = meta?.start instanceof Date && !Number.isNaN(meta.start.getTime()) ? meta.start : null;
-      const deferUntil = meta?.defer instanceof Date && !Number.isNaN(meta.defer.getTime()) ? meta.defer : null;
-      const dueAt = meta?.due instanceof Date && !Number.isNaN(meta.due.getTime()) ? meta.due : null;
+      const startAt =
+        meta?.start instanceof Date && !Number.isNaN(meta.start.getTime())
+          ? meta.start
+          : null;
+      const deferUntil =
+        meta?.defer instanceof Date && !Number.isNaN(meta.defer.getTime())
+          ? meta.defer
+          : null;
+      const dueAt =
+        meta?.due instanceof Date && !Number.isNaN(meta.due.getTime())
+          ? meta.due
+          : null;
       const now = new Date();
       const startBucket = startAt && now < startAt ? "not-started" : "started";
-      const deferBucket = deferUntil && now < deferUntil ? "deferred" : "available";
+      const deferBucket =
+        deferUntil && now < deferUntil ? "deferred" : "available";
       const dueBucket = computeDueBucket(dueAt, now);
       const recurrenceBucket = meta?.repeat ? "recurring" : "one-off";
       const availabilityLabel = isCompleted
@@ -12309,10 +14904,21 @@ export default {
           : deferBucket === "deferred"
             ? translateString("Deferred", getLanguageSetting())
             : translateString("Available", getLanguageSetting());
-      const richMeta = meta?.metadata || parseRichMetadata(meta?.childAttrMap || {}, set?.attrNames || resolveAttributeNames());
+      const richMeta =
+        meta?.metadata ||
+        parseRichMetadata(
+          meta?.childAttrMap || {},
+          set?.attrNames || resolveAttributeNames(),
+        );
       const metaPills = buildDashboardPills(
-        { startAt, deferUntil, dueAt, repeatText: meta?.repeat, metadata: richMeta },
-        set
+        {
+          startAt,
+          deferUntil,
+          dueAt,
+          repeatText: meta?.repeat,
+          metadata: richMeta,
+        },
+        set,
       );
       return {
         uid: block.uid,
@@ -12354,7 +14960,10 @@ export default {
           label: `${label}: ${info.repeatText}`,
         });
       }
-      if (info.startAt instanceof Date && !Number.isNaN(info.startAt.getTime())) {
+      if (
+        info.startAt instanceof Date &&
+        !Number.isNaN(info.startAt.getTime())
+      ) {
         pills.push({
           type: "start",
           icon: START_ICON,
@@ -12362,7 +14971,10 @@ export default {
           label: `${metaLabels.start || "Start"}: ${formatIsoDate(info.startAt, set)}`,
         });
       }
-      if (info.deferUntil instanceof Date && !Number.isNaN(info.deferUntil.getTime())) {
+      if (
+        info.deferUntil instanceof Date &&
+        !Number.isNaN(info.deferUntil.getTime())
+      ) {
         pills.push({
           type: "defer",
           icon: DEFER_ICON,
@@ -12398,7 +15010,10 @@ export default {
       }
       if (info.metadata?.context?.length) {
         const display = info.metadata.context.slice(0, 1).join(", ");
-        const more = info.metadata.context.length > 1 ? ` (+${info.metadata.context.length - 1})` : "";
+        const more =
+          info.metadata.context.length > 1
+            ? ` (+${info.metadata.context.length - 1})`
+            : "";
         pills.push({
           type: "context",
           icon: "@",
@@ -12459,7 +15074,8 @@ export default {
     }
 
     function computeDueBucket(dueDate, now = new Date()) {
-      if (!(dueDate instanceof Date) || Number.isNaN(dueDate.getTime())) return "none";
+      if (!(dueDate instanceof Date) || Number.isNaN(dueDate.getTime()))
+        return "none";
       if (now > endOfDay(dueDate)) return "overdue";
       if (isSameDay(dueDate, now)) return "today";
       if (dueDate > endOfDay(now)) return "upcoming";
@@ -12511,7 +15127,12 @@ export default {
           sections.deferredToToday.push(task);
         } else if (isStartToday) {
           sections.startingToday.push(task);
-        } else if (includeOverdue && !task.isCompleted && due && due < startToday) {
+        } else if (
+          includeOverdue &&
+          !task.isCompleted &&
+          due &&
+          due < startToday
+        ) {
           sections.overdue.push(task);
         }
       }
@@ -12527,7 +15148,10 @@ export default {
       }
       const lang = getLanguageSetting();
       const translated = t(["today", "title"], lang);
-      const out = (typeof translated === "string" && translated.trim()) ? translated : TODAY_WIDGET_ANCHOR_TEXT_DEFAULT;
+      const out =
+        typeof translated === "string" && translated.trim()
+          ? translated
+          : TODAY_WIDGET_ANCHOR_TEXT_DEFAULT;
       noteTodayAnchorText(out);
       return out;
     }
@@ -12535,7 +15159,8 @@ export default {
     function stripMarkdownDecorations(text = "") {
       let s = String(text || "").trim();
       // Remove surrounding bold/italic/code markers, multiple times if nested.
-      const stripEdge = (str) => str.replace(/^(?:\*+|_+|`+)+|(?:\*+|_+|`+)+$/g, "").trim();
+      const stripEdge = (str) =>
+        str.replace(/^(?:\*+|_+|`+)+|(?:\*+|_+|`+)+$/g, "").trim();
       s = stripEdge(s);
       s = stripEdge(s); // run twice to catch combos like **_text_**
       // Remove wrapping Roam links [[...]]
@@ -12545,7 +15170,10 @@ export default {
     }
 
     function normalizeMatchText(text = "") {
-      return stripMarkdownDecorations(text).replace(/\s+/g, " ").trim().toLowerCase();
+      return stripMarkdownDecorations(text)
+        .replace(/\s+/g, " ")
+        .trim()
+        .toLowerCase();
     }
 
     function noteTodayAnchorText(text = "") {
@@ -12561,7 +15189,9 @@ export default {
       const trimmed = normalizeMatchText(str);
       if (trimmed === anchorText) return true;
       if (todayAnchorTextHistory.has(trimmed)) return true;
-      return TODAY_WIDGET_ANCHOR_TEXT_LEGACY.some((legacy) => trimmed === normalizeMatchText(legacy));
+      return TODAY_WIDGET_ANCHOR_TEXT_LEGACY.some(
+        (legacy) => trimmed === normalizeMatchText(legacy),
+      );
     }
 
     async function findHeadingBlockUid(dnpUid, headingText, cache = null) {
@@ -12573,7 +15203,13 @@ export default {
       const MAX_DEPTH = 6;
 
       async function dfs(uid, depth = 0) {
-        if (!uid || depth > MAX_DEPTH || visited.has(uid) || checked >= MAX_NODES) return null;
+        if (
+          !uid ||
+          depth > MAX_DEPTH ||
+          visited.has(uid) ||
+          checked >= MAX_NODES
+        )
+          return null;
         visited.add(uid);
         checked += 1;
         const block = await getBlockCached(uid, cache);
@@ -12609,13 +15245,20 @@ export default {
       if (headingUid) {
         todayHeadingRecheckPending = false;
         todayHeadingRetryCount = 0;
-      } else if (headingText && !todayHeadingRecheckPending && todayHeadingRetryCount < MAX_TODAY_HEADING_RETRIES) {
+      } else if (
+        headingText &&
+        !todayHeadingRecheckPending &&
+        todayHeadingRetryCount < MAX_TODAY_HEADING_RETRIES
+      ) {
         todayHeadingRecheckPending = true;
         todayHeadingRetryCount += 1;
-        setTimeout(() => {
-          todayHeadingRecheckPending = false;
-          scheduleTodayWidgetRender(40, true);
-        }, 600 + 400 * todayHeadingRetryCount);
+        setTimeout(
+          () => {
+            todayHeadingRecheckPending = false;
+            scheduleTodayWidgetRender(40, true);
+          },
+          600 + 400 * todayHeadingRetryCount,
+        );
       }
       const parentUid = headingUid || dnpUid;
       const parent = await getBlockCached(parentUid, cache);
@@ -12624,7 +15267,8 @@ export default {
     }
 
     async function findTodayAnchorUid(cache = null) {
-      const { dnpUid, parentUid, children, headingUid } = await getTodayParentInfo(cache);
+      const { dnpUid, parentUid, children, headingUid } =
+        await getTodayParentInfo(cache);
       if (headingUid) return headingUid; // Use user heading as anchor.
       const anchor = children.find((c) => matchesTodayAnchor(c?.string || ""));
       if (anchor?.uid) return anchor.uid;
@@ -12632,37 +15276,56 @@ export default {
       if (headingUid && parentUid === headingUid) {
         const root = await getBlockCached(dnpUid, cache);
         const rootChildren = Array.isArray(root?.children) ? root.children : [];
-        const legacy = rootChildren.find((c) => matchesTodayAnchor(c?.string || ""));
+        const legacy = rootChildren.find((c) =>
+          matchesTodayAnchor(c?.string || ""),
+        );
         return legacy?.uid || null;
       } else if (headingUid) {
         const heading = await getBlockCached(headingUid, cache);
-        const headingChildren = Array.isArray(heading?.children) ? heading.children : [];
-        const legacy = headingChildren.find((c) => matchesTodayAnchor(c?.string || ""));
+        const headingChildren = Array.isArray(heading?.children)
+          ? heading.children
+          : [];
+        const legacy = headingChildren.find((c) =>
+          matchesTodayAnchor(c?.string || ""),
+        );
         return legacy?.uid || null;
       }
       return null;
     }
 
-    async function ensureTodayWidgetAnchor(placement = "Top", heading = 0, cache = null, opts = {}) {
+    async function ensureTodayWidgetAnchor(
+      placement = "Top",
+      heading = 0,
+      cache = null,
+      opts = {},
+    ) {
       const { allowMoves = true } = opts || {};
-      const { dnpUid, parentUid, children, headingUid } = await getTodayParentInfo(cache);
+      const { dnpUid, parentUid, children, headingUid } =
+        await getTodayParentInfo(cache);
       let anchorText = stripMarkdownDecorations(getTodayAnchorText());
       if (!anchorText) anchorText = TODAY_WIDGET_ANCHOR_TEXT_DEFAULT;
-      const existingIndex = children.findIndex((c) => matchesTodayAnchor(c?.string || ""));
+      const existingIndex = children.findIndex((c) =>
+        matchesTodayAnchor(c?.string || ""),
+      );
       let existing = existingIndex >= 0 ? children[existingIndex] : null;
 
       // If an anchor exists on the alternate parent (root/heading), prefer to move it.
       if (!existing && headingUid) {
         const rootParentUid = parentUid === headingUid ? dnpUid : headingUid;
         const altParent = await getBlockCached(rootParentUid, cache);
-        const altChildren = Array.isArray(altParent?.children) ? altParent.children : [];
-        const altIndex = altChildren.findIndex((c) => matchesTodayAnchor(c?.string || ""));
+        const altChildren = Array.isArray(altParent?.children)
+          ? altParent.children
+          : [];
+        const altIndex = altChildren.findIndex((c) =>
+          matchesTodayAnchor(c?.string || ""),
+        );
         if (altIndex >= 0) {
           existing = altChildren[altIndex];
         }
       }
 
-      const desiredOrder = placement === "Bottom" ? Math.max(children.length, 0) : 0;
+      const desiredOrder =
+        placement === "Bottom" ? Math.max(children.length, 0) : 0;
       if (headingUid) {
         lastTodayAnchorIsHeading = true;
         return headingUid;
@@ -12671,31 +15334,42 @@ export default {
       if (existing?.uid) {
         if ((existing.string || "").trim() !== anchorText) {
           try {
-            await window.roamAlphaAPI.updateBlock({ block: { uid: existing.uid, string: anchorText } });
-          } catch (_) { }
+            await window.roamAlphaAPI.updateBlock({
+              block: { uid: existing.uid, string: anchorText },
+            });
+          } catch (_) {}
         }
         try {
-          await window.roamAlphaAPI.updateBlock({ block: { uid: existing.uid, heading } });
-        } catch (_) { }
+          await window.roamAlphaAPI.updateBlock({
+            block: { uid: existing.uid, heading },
+          });
+        } catch (_) {}
         if (allowMoves) {
           const currentOrder =
             typeof existing.order === "number"
               ? existing.order
               : children.findIndex((c) => c?.uid === existing.uid);
-          if (existing.parents?.[0]?.uid && existing.parents[0].uid !== parentUid) {
+          if (
+            existing.parents?.[0]?.uid &&
+            existing.parents[0].uid !== parentUid
+          ) {
             try {
               await window.roamAlphaAPI.moveBlock({
                 location: { "parent-uid": parentUid, order: desiredOrder },
                 block: { uid: existing.uid },
               });
-            } catch (_) { }
-          } else if (typeof desiredOrder === "number" && desiredOrder >= 0 && currentOrder !== desiredOrder) {
+            } catch (_) {}
+          } else if (
+            typeof desiredOrder === "number" &&
+            desiredOrder >= 0 &&
+            currentOrder !== desiredOrder
+          ) {
             try {
               await window.roamAlphaAPI.moveBlock({
                 location: { "parent-uid": parentUid, order: desiredOrder },
                 block: { uid: existing.uid },
               });
-            } catch (_) { }
+            } catch (_) {}
           }
         }
         return existing.uid;
@@ -12705,12 +15379,16 @@ export default {
       await createBlock(parentUid, order, anchorText, uid);
       try {
         await window.roamAlphaAPI.updateBlock({ block: { uid, heading } });
-      } catch (_) { }
+      } catch (_) {}
       lastTodayAnchorIsHeading = false;
       return uid;
     }
 
-    async function clearTodayInlineChildren(anchorUid, panelChildUid = null, cache = null) {
+    async function clearTodayInlineChildren(
+      anchorUid,
+      panelChildUid = null,
+      cache = null,
+    ) {
       const targets = new Set(todayInlineChildUids);
       if (anchorUid) {
         const block = await getBlockCached(anchorUid, cache);
@@ -12725,9 +15403,14 @@ export default {
           await deleteBlock(uid);
         } catch (err) {
           try {
-            await window.roamAlphaAPI.updateBlock({ block: { uid, string: "" } });
+            await window.roamAlphaAPI.updateBlock({
+              block: { uid, string: "" },
+            });
           } catch (_) {
-            console.warn("[BetterTasks] failed to clear Today widget child", err);
+            console.warn(
+              "[BetterTasks] failed to clear Today widget child",
+              err,
+            );
           }
         } finally {
           todayInlineChildUids.delete(uid);
@@ -12741,16 +15424,22 @@ export default {
         let host =
           document.querySelector(`.rm-sidebar-window [data-uid="${uid}"]`) ||
           document.querySelector(`.rm-sidebar-window [block-uid="${uid}"]`) ||
-          document.querySelector(`.rm-sidebar-window [data-block-uid="${uid}"]`) ||
+          document.querySelector(
+            `.rm-sidebar-window [data-block-uid="${uid}"]`,
+          ) ||
           document.querySelector(`.rm-sidebar-outline [data-uid="${uid}"]`) ||
           document.querySelector(`.rm-sidebar-outline [block-uid="${uid}"]`) ||
-          document.querySelector(`.rm-sidebar-outline [data-block-uid="${uid}"]`) ||
+          document.querySelector(
+            `.rm-sidebar-outline [data-block-uid="${uid}"]`,
+          ) ||
           document.querySelector(`.rm-block-main[data-uid="${uid}"]`) ||
           document.querySelector(`.roam-block[data-uid="${uid}"]`) ||
           document.querySelector(`.rm-block__self[data-uid="${uid}"]`) ||
           document.querySelector(`div[block-uid="${uid}"]`) ||
           document.querySelector(`[data-uid="${uid}"]`) ||
-          document.querySelector(`.roam-block-container[data-block-uid="${uid}"]`) ||
+          document.querySelector(
+            `.roam-block-container[data-block-uid="${uid}"]`,
+          ) ||
           document.querySelector(`.block-outline[block-uid="${uid}"]`) ||
           document.querySelector(`.block-outline[data-uid="${uid}"]`) ||
           document.querySelector(`[data-block-uid="${uid}"]`) ||
@@ -12760,7 +15449,10 @@ export default {
             document.querySelector(`div[id^="block-input-${uid}"]`) ||
             document.querySelector(`div[id$="-${uid}"]`);
           if (inputNode) {
-            host = inputNode.closest(".roam-block-container") || inputNode.closest(".rm-block-main") || inputNode.closest(".rm-block__self");
+            host =
+              inputNode.closest(".roam-block-container") ||
+              inputNode.closest(".rm-block-main") ||
+              inputNode.closest(".rm-block__self");
           }
         }
         if (host) return host;
@@ -12792,7 +15484,8 @@ export default {
         container = document.createElement("div");
         container.className = "bt-today-panel-root";
         if (mountPoint.appendChild) mountPoint.appendChild(container);
-        else if (mountPoint.insertBefore) mountPoint.insertBefore(container, mountPoint.firstChild || null);
+        else if (mountPoint.insertBefore)
+          mountPoint.insertBefore(container, mountPoint.firstChild || null);
         else {
           return null;
         }
@@ -12804,17 +15497,25 @@ export default {
       if (todayWidgetPanelRoot) {
         try {
           todayWidgetPanelRoot.unmount?.();
-        } catch (_) { }
+        } catch (_) {}
         todayWidgetPanelRoot = null;
       }
       if (todayWidgetPanelContainer?.parentNode) {
-        todayWidgetPanelContainer.parentNode.removeChild(todayWidgetPanelContainer);
+        todayWidgetPanelContainer.parentNode.removeChild(
+          todayWidgetPanelContainer,
+        );
       }
       todayWidgetPanelContainer = null;
     }
     teardownTodayPanelGlobal = teardownTodayPanel;
 
-    async function renderTodayInline(anchorUid, sections, options = {}, layoutSignature = "", cache = null) {
+    async function renderTodayInline(
+      anchorUid,
+      sections,
+      options = {},
+      layoutSignature = "",
+      cache = null,
+    ) {
       if (todayInlineRenderInFlight) {
         scheduleTodayWidgetRender(120, true);
         return;
@@ -12833,7 +15534,11 @@ export default {
 
         const signatureParts = [];
         const pushSection = (arr) =>
-          signatureParts.push(...(arr || []).map((t) => `${t.uid}:${t.isCompleted ? "done" : "todo"}`));
+          signatureParts.push(
+            ...(arr || []).map(
+              (t) => `${t.uid}:${t.isCompleted ? "done" : "todo"}`,
+            ),
+          );
         pushSection(sections.startingToday);
         pushSection(sections.deferredToToday);
         pushSection(sections.dueToday);
@@ -12851,8 +15556,8 @@ export default {
         if (isEmpty) {
           const emptyText = String(
             t(["today", "empty"], lang) ||
-            todayStrings.empty ||
-            "All clear for today. Enjoy your day!"
+              todayStrings.empty ||
+              "All clear for today. Enjoy your day!",
           ).trim();
 
           await clearTodayInlineChildren(anchorUid, null, cache);
@@ -12885,13 +15590,24 @@ export default {
           let childOrder = 0;
           for (const task of tasks) {
             const childUid = window.roamAlphaAPI.util.generateUID();
-            await createBlock(sectionUid, childOrder++, `((${task.uid}))`, childUid);
+            await createBlock(
+              sectionUid,
+              childOrder++,
+              `((${task.uid}))`,
+              childUid,
+            );
             trackUid(childUid);
           }
         };
 
-        await writeSection(todayStrings.starting || "Starting Today", sections.startingToday);
-        await writeSection(todayStrings.deferred || "Deferred Until Today", sections.deferredToToday);
+        await writeSection(
+          todayStrings.starting || "Starting Today",
+          sections.startingToday,
+        );
+        await writeSection(
+          todayStrings.deferred || "Deferred Until Today",
+          sections.deferredToToday,
+        );
         await writeSection(todayStrings.due || "Due Today", sections.dueToday);
 
         if (options.includeOverdue) {
@@ -12916,18 +15632,29 @@ export default {
         const includeOverdue = getTodayBadgeIncludeOverdue();
         const attachWatches = activeDashboardController?.isOpen?.() || false;
         const cacheKey = `badge:${includeOverdue ? "withOverdue" : "todayOnly"}`;
-        const tasks = await collectDashboardTasks({ includeCompleted: false, attachWatches, cacheKey, bypassCache: force });
-        const sections = buildTodaySections(tasks, { includeOverdue, showCompleted: false });
+        const tasks = await collectDashboardTasks({
+          includeCompleted: false,
+          attachWatches,
+          cacheKey,
+          bypassCache: force,
+        });
+        const sections = buildTodaySections(tasks, {
+          includeOverdue,
+          showCompleted: false,
+        });
         const count =
           sections.startingToday.length +
           sections.deferredToToday.length +
           sections.dueToday.length +
           sections.overdue.length;
-        const labelText = translateString(getTodayBadgeLabel(), getLanguageSetting()) || getTodayAnchorText();
+        const labelText =
+          translateString(getTodayBadgeLabel(), getLanguageSetting()) ||
+          getTodayAnchorText();
         const colors = getTodayBadgeColors();
         const signature = `${includeOverdue ? "o" : "t"}|${labelText}|${colors.bg || ""}|${colors.fg || ""}|${count}`;
         const needsDom = !todayBadgeNode || !todayBadgeNode.parentNode;
-        if (!force && !needsDom && signature === lastTodayBadgeSignature) return;
+        if (!force && !needsDom && signature === lastTodayBadgeSignature)
+          return;
         ensureTodayBadgeDom(count, { labelText, colors });
         lastTodayBadgeSignature = signature;
       } catch (err) {
@@ -12937,19 +15664,25 @@ export default {
 
     function ensureTodayBadgeDom(count = 0, opts = {}) {
       if (typeof document === "undefined") return;
-      const sidebar = document.querySelector(".roam-sidebar-content .roam-sidebar-container") ||
-        document.querySelector(".roam-sidebar-content");
-      const daily = document.querySelector(".rm-left-sidebar__daily-notes, .log-button.rm-left-sidebar__daily-notes");
+      const sidebar =
+        document.querySelector(
+          ".roam-sidebar-content .roam-sidebar-container",
+        ) || document.querySelector(".roam-sidebar-content");
+      const daily = document.querySelector(
+        ".rm-left-sidebar__daily-notes, .log-button.rm-left-sidebar__daily-notes",
+      );
       if (!sidebar || !daily) return;
       // Remove any stray copies we created earlier.
       document.querySelectorAll(".bt-today-badge").forEach((node) => {
-        if (node !== todayBadgeNode && node.parentNode) node.parentNode.removeChild(node);
+        if (node !== todayBadgeNode && node.parentNode)
+          node.parentNode.removeChild(node);
       });
       if (!todayBadgeNode) {
         const container = document.createElement("div");
         container.className = "log-button bt-today-badge";
         const icon = document.createElement("span");
-        icon.className = "bp3-icon bp3-icon-small bp3-icon-time bt-today-badge__icon";
+        icon.className =
+          "bp3-icon bp3-icon-small bp3-icon-time bt-today-badge__icon";
         const label = document.createElement("span");
         label.className = "bt-today-badge__label";
         const badge = document.createElement("span");
@@ -12962,17 +15695,26 @@ export default {
           try {
             const anchorUid =
               lastTodayAnchorUid ||
-              (await ensureTodayWidgetAnchor(getTodayWidgetPlacement(), getTodayWidgetHeadingLevel(), null, {
-                allowMoves: true,
-              }));
+              (await ensureTodayWidgetAnchor(
+                getTodayWidgetPlacement(),
+                getTodayWidgetHeadingLevel(),
+                null,
+                {
+                  allowMoves: true,
+                },
+              ));
             const widgetEnabled = getTodayWidgetEnabled();
             if (widgetEnabled && anchorUid) {
-              window.roamAlphaAPI?.ui?.mainWindow?.openBlock?.({ block: { uid: anchorUid } });
+              window.roamAlphaAPI?.ui?.mainWindow?.openBlock?.({
+                block: { uid: anchorUid },
+              });
               await renderTodayWidget(true);
             } else {
               const { dnpUid } = await getTodayParentInfo();
               if (dnpUid) {
-                window.roamAlphaAPI?.ui?.mainWindow?.openPage?.({ page: { uid: dnpUid } });
+                window.roamAlphaAPI?.ui?.mainWindow?.openPage?.({
+                  page: { uid: dnpUid },
+                });
               }
             }
           } catch (err) {
@@ -12983,7 +15725,10 @@ export default {
         todayBadgeLabelNode = label;
         todayBadgeCountNode = badge;
       }
-      const labelText = opts.labelText || translateString(getTodayBadgeLabel(), getLanguageSetting()) || getTodayAnchorText();
+      const labelText =
+        opts.labelText ||
+        translateString(getTodayBadgeLabel(), getLanguageSetting()) ||
+        getTodayAnchorText();
       todayBadgeLabelNode.textContent = labelText;
       todayBadgeCountNode.textContent = String(count);
       todayBadgeCountNode.style.display = count > 0 ? "inline-flex" : "none";
@@ -12997,7 +15742,12 @@ export default {
       }
     }
 
-    async function renderTodayPanelDom(container, sections, options = {}, layoutSignature = "") {
+    async function renderTodayPanelDom(
+      container,
+      sections,
+      options = {},
+      layoutSignature = "",
+    ) {
       if (!container || typeof container.appendChild !== "function") return;
       const perfPanel = perfMark("renderTodayPanelDom");
       ensureTodayPanelStyles();
@@ -13009,7 +15759,11 @@ export default {
         (options.includeOverdue && sections.overdue.length);
       const signatureParts = [];
       const pushSection = (arr) =>
-        signatureParts.push(...(arr || []).map((t) => `${t.uid}:${t.isCompleted ? "done" : "todo"}`));
+        signatureParts.push(
+          ...(arr || []).map(
+            (t) => `${t.uid}:${t.isCompleted ? "done" : "todo"}`,
+          ),
+        );
       pushSection(sections.startingToday);
       pushSection(sections.deferredToToday);
       pushSection(sections.dueToday);
@@ -13032,8 +15786,10 @@ export default {
         section.className = "bt-today-panel__section";
         const h = document.createElement("div");
         h.className = "bt-today-panel__section-header";
-        if (highlight === "due") h.classList.add("bt-today-panel__section-header--due");
-        if (highlight === "overdue") h.classList.add("bt-today-panel__section-header--overdue");
+        if (highlight === "due")
+          h.classList.add("bt-today-panel__section-header--due");
+        if (highlight === "overdue")
+          h.classList.add("bt-today-panel__section-header--overdue");
         h.textContent = label;
         section.appendChild(h);
         const list = document.createElement("ul");
@@ -13041,13 +15797,15 @@ export default {
         for (const task of tasks) {
           const li = document.createElement("li");
           li.className = "bt-today-panel__item";
-          if (task.isCompleted) li.classList.add("bt-today-panel__item--completed");
+          if (task.isCompleted)
+            li.classList.add("bt-today-panel__item--completed");
           const row = document.createElement("div");
           row.className = "bt-today-panel__row";
           const titleBtn = document.createElement("button");
           titleBtn.type = "button";
           titleBtn.className = "bt-today-panel__row-title";
-          titleBtn.textContent = task.title || todayStrings.untitled || "(Untitled)";
+          titleBtn.textContent =
+            task.title || todayStrings.untitled || "(Untitled)";
           titleBtn.addEventListener("click", (e) => {
             const openInSidebar = !!e?.shiftKey;
             if (openInSidebar) {
@@ -13056,14 +15814,18 @@ export default {
                   window: { type: "block", "block-uid": task.uid },
                 });
                 return;
-              } catch (_) { /* fall through to main open */ }
+              } catch (_) {
+                /* fall through to main open */
+              }
             }
             if (activeDashboardController?.openBlock) {
               activeDashboardController.openBlock(task.uid);
             } else {
               try {
-                window.roamAlphaAPI?.ui?.mainWindow?.openBlock?.({ block: { uid: task.uid } });
-              } catch (_) { }
+                window.roamAlphaAPI?.ui?.mainWindow?.openBlock?.({
+                  block: { uid: task.uid },
+                });
+              } catch (_) {}
             }
           });
           row.appendChild(titleBtn);
@@ -13082,21 +15844,21 @@ export default {
             snoozeBtn.textContent = "⏱";
             snoozeBtn.title = todayStrings.snoozeShort || "Snooze +1d";
             snoozeBtn.setAttribute("aria-label", snoozeBtn.title);
-            const snoozeWeekBtn = document.createElement("button");
-            snoozeWeekBtn.type = "button";
-            snoozeWeekBtn.className = "bt-today-panel__icon-btn";
-            snoozeWeekBtn.textContent = "⏱+7";
-            snoozeWeekBtn.title = todayStrings.snoozeWeek || "Snooze +7d";
-            snoozeWeekBtn.setAttribute("aria-label", snoozeWeekBtn.title);
+            // const snoozeWeekBtn = document.createElement("button");
+            // snoozeWeekBtn.type = "button";
+            // snoozeWeekBtn.className = "bt-today-panel__icon-btn";
+            // snoozeWeekBtn.textContent = "⏱+7";
+            // snoozeWeekBtn.title = todayStrings.snoozeWeek || "Snooze +7d";
+            // snoozeWeekBtn.setAttribute("aria-label", snoozeWeekBtn.title);
             const disableActions = () => {
               doneBtn.disabled = true;
               snoozeBtn.disabled = true;
-              snoozeWeekBtn.disabled = true;
+              // snoozeWeekBtn.disabled = true;
             };
             const reenableActions = () => {
               doneBtn.disabled = false;
               snoozeBtn.disabled = false;
-              snoozeWeekBtn.disabled = false;
+              // snoozeWeekBtn.disabled = false;
             };
             snoozeBtn.addEventListener("click", async () => {
               disableActions();
@@ -13107,19 +15869,22 @@ export default {
                 reenableActions();
               }
             });
-            snoozeWeekBtn.addEventListener("click", async () => {
-              disableActions();
-              try {
-                await activeDashboardController?.snoozeTask?.(task.uid, 7);
-              } finally {
-                scheduleTodayWidgetRender(30, true);
-                reenableActions();
-              }
-            });
+            // snoozeWeekBtn.addEventListener("click", async () => {
+            //   disableActions();
+            //   try {
+            //     await activeDashboardController?.snoozeTask?.(task.uid, 7);
+            //   } finally {
+            //     scheduleTodayWidgetRender(30, true);
+            //     reenableActions();
+            //   }
+            // });
             doneBtn.addEventListener("click", async () => {
               disableActions();
               try {
-                await activeDashboardController?.toggleTask?.(task.uid, "complete");
+                await activeDashboardController?.toggleTask?.(
+                  task.uid,
+                  "complete",
+                );
               } finally {
                 scheduleTodayWidgetRender(30, true);
                 reenableActions();
@@ -13127,7 +15892,7 @@ export default {
             });
             actions.appendChild(doneBtn);
             actions.appendChild(snoozeBtn);
-            actions.appendChild(snoozeWeekBtn);
+            // actions.appendChild(snoozeWeekBtn);
             row.appendChild(actions);
           }
           li.appendChild(row);
@@ -13137,8 +15902,14 @@ export default {
         container.appendChild(section);
       };
 
-      renderSection(todayStrings.starting || "Starting Today", sections.startingToday);
-      renderSection(todayStrings.deferred || "Deferred Until Today", sections.deferredToToday);
+      renderSection(
+        todayStrings.starting || "Starting Today",
+        sections.startingToday,
+      );
+      renderSection(
+        todayStrings.deferred || "Deferred Until Today",
+        sections.deferredToToday,
+      );
       renderSection(todayStrings.due || "Due Today", sections.dueToday, "due");
       if (options.includeOverdue) {
         const label =
@@ -13151,13 +15922,21 @@ export default {
     }
 
     async function renderTodayWidget(force = false, options = {}) {
-      const { bypassPageGuard = false, targetUid = null, source = "unknown", forceInline = false } = options || {};
+      const {
+        bypassPageGuard = false,
+        targetUid = null,
+        source = "unknown",
+        forceInline = false,
+      } = options || {};
       if (!TODAY_WIDGET_ENABLED || !getTodayWidgetEnabled()) return;
       try {
         const now = Date.now();
         const MIN_INTERVAL = 1200;
         if (!force && now - lastTodayRenderAt < MIN_INTERVAL) {
-          scheduleTodayWidgetRender(MIN_INTERVAL - (now - lastTodayRenderAt), true);
+          scheduleTodayWidgetRender(
+            MIN_INTERVAL - (now - lastTodayRenderAt),
+            true,
+          );
           return;
         }
         if (force) todayWidgetForceNext = true;
@@ -13166,11 +15945,20 @@ export default {
           lastTodayInlineSignature = null;
           dashboardTaskCache?.clear?.();
         }
-        const { layout, includeOverdue, showCompleted, placement, heading, signature: layoutSignature } = readTodayConfig();
+        const {
+          layout,
+          includeOverdue,
+          showCompleted,
+          placement,
+          heading,
+          signature: layoutSignature,
+        } = readTodayConfig();
         const perfRenderToday = perfMark(`renderTodayWidget ${layout}`);
         const perfTasks = perfMark("renderTodayWidget:collectTasks");
         const renderCache = createTodayRenderCache();
-        const shouldRender = bypassPageGuard ? true : await shouldRenderTodayWidgetNow(renderCache);
+        const shouldRender = bypassPageGuard
+          ? true
+          : await shouldRenderTodayWidgetNow(renderCache);
         if (!shouldRender && !force) {
           todayWidgetForceNext = true;
           scheduleTodayWidgetRender(320, true);
@@ -13181,19 +15969,31 @@ export default {
         const dashSnapshot = activeDashboardController?.getSnapshot?.();
         const shouldBypassCache = force || todayWidgetForceNext;
         todayWidgetForceNext = false;
-        if (!shouldBypassCache && dashSnapshot?.status === "ready" && Array.isArray(dashSnapshot.tasks)) {
+        if (
+          !shouldBypassCache &&
+          dashSnapshot?.status === "ready" &&
+          Array.isArray(dashSnapshot.tasks)
+        ) {
           tasks = dashSnapshot.tasks.slice();
         } else {
           const attachWatches = activeDashboardController?.isOpen?.() || false;
           const cacheKey = `today:${includeCompleted ? "withDone" : "noDone"}`;
-          tasks = await collectDashboardTasks({ includeCompleted, attachWatches, cacheKey, bypassCache: shouldBypassCache });
+          tasks = await collectDashboardTasks({
+            includeCompleted,
+            attachWatches,
+            cacheKey,
+            bypassCache: shouldBypassCache,
+          });
         }
         if (!includeCompleted && Array.isArray(tasks)) {
           tasks = tasks.filter((t) => !t?.isCompleted);
         }
         perfLog(perfTasks, `tasks=${Array.isArray(tasks) ? tasks.length : 0}`);
         if (!Array.isArray(tasks)) return;
-        const sections = buildTodaySections(tasks, { includeOverdue, showCompleted });
+        const sections = buildTodaySections(tasks, {
+          includeOverdue,
+          showCompleted,
+        });
         perfLog(perfMark("renderTodayWidget:sections"), "");
         scheduleTodayBadgeRefresh(10, true);
         const anchorUid =
@@ -13204,24 +16004,36 @@ export default {
         lastTodayAnchorUid = anchorUid || null;
         if (!anchorUid) return;
         try {
-          await window.roamAlphaAPI.updateBlock({ block: { uid: anchorUid, open: true } });
-        } catch (_) { }
+          await window.roamAlphaAPI.updateBlock({
+            block: { uid: anchorUid, open: true },
+          });
+        } catch (_) {}
         const isLegacyPanelLabel = (str = "") => {
           const trimmed = str.trim();
           if (trimmed === TODAY_WIDGET_PANEL_CHILD_TEXT) return true;
-          return TODAY_WIDGET_PANEL_CHILD_TEXT_LEGACY.some((legacy) => trimmed === legacy);
+          return TODAY_WIDGET_PANEL_CHILD_TEXT_LEGACY.some(
+            (legacy) => trimmed === legacy,
+          );
         };
 
         if (layout === "roamInline" || forceInline) {
           try {
             const anchorBlock = await getBlockCached(anchorUid, renderCache);
-            const panelChild = (anchorBlock?.children || []).find((c) => isLegacyPanelLabel(c?.string || ""));
+            const panelChild = (anchorBlock?.children || []).find((c) =>
+              isLegacyPanelLabel(c?.string || ""),
+            );
             if (panelChild?.uid) {
               await deleteBlock(panelChild.uid);
             }
-          } catch (_) { }
+          } catch (_) {}
           const perfInline = perfMark("renderTodayWidget:inline");
-          await renderTodayInline(anchorUid, sections, { includeOverdue }, layoutSignature, renderCache);
+          await renderTodayInline(
+            anchorUid,
+            sections,
+            { includeOverdue },
+            layoutSignature,
+            renderCache,
+          );
           perfLog(perfInline);
           perfLog(perfRenderToday);
           return;
@@ -13238,7 +16050,13 @@ export default {
           if (options?.forceInline || options?.bypassPageGuard) {
             // Fallback to inline render inside the anchor when panel mount is unavailable (e.g., sidebar focus quirks).
             const perfInline = perfMark("renderTodayWidget:inline-fallback");
-            await renderTodayInline(anchorUid, sections, { includeOverdue }, layoutSignature, renderCache);
+            await renderTodayInline(
+              anchorUid,
+              sections,
+              { includeOverdue },
+              layoutSignature,
+              renderCache,
+            );
             perfLog(perfInline);
             perfLog(perfRenderToday);
             lastTodayRenderAt = Date.now();
@@ -13249,7 +16067,12 @@ export default {
         }
         todayWidgetPanelContainer = container;
         const perfPanel = perfMark("renderTodayWidget:panel");
-        renderTodayPanelDom(container, sections, { includeOverdue }, layoutSignature);
+        renderTodayPanelDom(
+          container,
+          sections,
+          { includeOverdue },
+          layoutSignature,
+        );
         perfLog(perfPanel);
         perfLog(perfRenderToday);
         lastTodayRenderAt = Date.now();
@@ -13257,7 +16080,6 @@ export default {
         console.warn("[BetterTasks] renderTodayWidget failed", err);
       }
     }
-
 
     // ========================= Housekeeping =========================
     function sweepProcessed() {
@@ -13271,16 +16093,15 @@ export default {
 
     function sortDashboardTasksList(tasks) {
       const bucketWeight = { overdue: 0, today: 1, upcoming: 2, none: 3 };
-      return tasks
-        .slice()
-        .sort((a, b) => {
-          const bucketDiff = (bucketWeight[a.dueBucket] ?? 99) - (bucketWeight[b.dueBucket] ?? 99);
-          if (bucketDiff !== 0) return bucketDiff;
-          const dueA = a.dueAt ? a.dueAt.getTime() : Number.MAX_SAFE_INTEGER;
-          const dueB = b.dueAt ? b.dueAt.getTime() : Number.MAX_SAFE_INTEGER;
-          if (dueA !== dueB) return dueA - dueB;
-          return (a.title || "").localeCompare(b.title || "");
-        });
+      return tasks.slice().sort((a, b) => {
+        const bucketDiff =
+          (bucketWeight[a.dueBucket] ?? 99) - (bucketWeight[b.dueBucket] ?? 99);
+        if (bucketDiff !== 0) return bucketDiff;
+        const dueA = a.dueAt ? a.dueAt.getTime() : Number.MAX_SAFE_INTEGER;
+        const dueB = b.dueAt ? b.dueAt.getTime() : Number.MAX_SAFE_INTEGER;
+        if (dueA !== dueB) return dueA - dueB;
+        return (a.title || "").localeCompare(b.title || "");
+      });
     }
   },
 
@@ -13372,13 +16193,24 @@ export default {
       activeDashboardController = null;
     }
 
-    window.roamAlphaAPI.ui.blockContextMenu.removeCommand({ label: "Convert TODO to Better Task" });
-    window.roamAlphaAPI.ui.blockContextMenu.removeCommand({ label: "Create a Better Task" });
+    window.roamAlphaAPI.ui.blockContextMenu.removeCommand({
+      label: "Convert TODO to Better Task",
+    });
+    window.roamAlphaAPI.ui.blockContextMenu.removeCommand({
+      label: "Create a Better Task",
+    });
     // window.roamAlphaAPI.ui.blockContextMenu.removeCommand({label: "Convert Better Task to plain TODO",});
     disconnectThemeObserver();
-    if (pillScrollHandlerAttached && pillScrollHandler && typeof document !== "undefined") {
+    if (
+      pillScrollHandlerAttached &&
+      pillScrollHandler &&
+      typeof document !== "undefined"
+    ) {
       try {
-        document.removeEventListener("scroll", pillScrollHandler, { passive: true, capture: true });
+        document.removeEventListener("scroll", pillScrollHandler, {
+          passive: true,
+          capture: true,
+        });
       } catch (_) {
         // ignore detach errors
       } finally {
@@ -13405,7 +16237,13 @@ function dowFromAlias(token) {
 function tGlobal(path, lang = currentLanguage || "en") {
   const parts = Array.isArray(path) ? path : String(path || "").split(".");
   const resolve = (obj) =>
-    parts.reduce((acc, key) => (acc && Object.prototype.hasOwnProperty.call(acc, key) ? acc[key] : undefined), obj);
+    parts.reduce(
+      (acc, key) =>
+        acc && Object.prototype.hasOwnProperty.call(acc, key)
+          ? acc[key]
+          : undefined,
+      obj,
+    );
   const primary = resolve(I18N_MAP?.[lang]);
   if (primary !== undefined) return primary;
   if (lang !== "en") {
@@ -13435,7 +16273,9 @@ function perfLog(mark, extra = "") {
   if (!DEBUG_BT_PERF || !mark || typeof performance === "undefined") return;
   const delta = performance.now() - mark.t;
   const suffix = extra ? ` ${extra}` : "";
-  console.log(`[BetterTasks][perf] ${mark.label}: ${delta.toFixed(1)}ms${suffix}`);
+  console.log(
+    `[BetterTasks][perf] ${mark.label}: ${delta.toFixed(1)}ms${suffix}`,
+  );
 }
 
 function normalizeWeekStartCode(value) {
@@ -13450,7 +16290,10 @@ function normalizeWeekStartCode(value) {
 }
 
 function getDowOrderForWeekStart(weekStartCode) {
-  const code = weekStartCode && DOW_ORDER.includes(weekStartCode) ? weekStartCode : DEFAULT_WEEK_START_CODE;
+  const code =
+    weekStartCode && DOW_ORDER.includes(weekStartCode)
+      ? weekStartCode
+      : DEFAULT_WEEK_START_CODE;
   const idx = DOW_ORDER.indexOf(code);
   if (idx <= 0) return DOW_ORDER;
   return [...DOW_ORDER.slice(idx), ...DOW_ORDER.slice(0, idx)];
@@ -13478,7 +16321,8 @@ function monthFromText(x) {
 }
 
 function expandDowRange(startISO, endISO, dowOrder = DOW_ORDER) {
-  const s = dowOrder.indexOf(startISO), e = dowOrder.indexOf(endISO);
+  const s = dowOrder.indexOf(startISO),
+    e = dowOrder.indexOf(endISO);
   if (s === -1 || e === -1) return [];
   if (s <= e) return dowOrder.slice(s, e + 1);
   return [...dowOrder.slice(s), ...dowOrder.slice(0, e + 1)]; // wrap
@@ -13495,12 +16339,18 @@ function splitList(str) {
 function createRootCompat(container) {
   if (!container) throw new Error("Container required for dashboard");
   // Prefer global ReactDOM.createRoot if available (React 18); otherwise skip straight to legacy render.
-  const createRootFn = ReactDOMGlobal && typeof ReactDOMGlobal.createRoot === "function" ? ReactDOMGlobal.createRoot : null;
+  const createRootFn =
+    ReactDOMGlobal && typeof ReactDOMGlobal.createRoot === "function"
+      ? ReactDOMGlobal.createRoot
+      : null;
   if (createRootFn) {
     try {
       return createRootFn(container);
     } catch (err) {
-      console.warn("[BetterTasks] createRoot failed, falling back to legacy render", err);
+      console.warn(
+        "[BetterTasks] createRoot failed, falling back to legacy render",
+        err,
+      );
     }
   }
   const dom = ReactDOMGlobal;
@@ -13527,16 +16377,26 @@ function normalizeByDayList(raw, weekStartCode = DEFAULT_WEEK_START_CODE) {
   for (const tok of tokens) {
     if (tok.includes("-")) {
       const [a, b] = tok.split("-");
-      const A = dowFromAlias(a), B = dowFromAlias(b);
-      if (A && B) { out.push(...expandDowRange(A, B, dowOrder)); continue; }
+      const A = dowFromAlias(a),
+        B = dowFromAlias(b);
+      if (A && B) {
+        out.push(...expandDowRange(A, B, dowOrder));
+        continue;
+      }
     }
     const set = parseAbbrevSet(tok);
-    if (set) { out.push(...set); continue; }
+    if (set) {
+      out.push(...set);
+      continue;
+    }
     const d = dowFromAlias(tok);
-    if (d) { out.push(d); continue; }
+    if (d) {
+      out.push(d);
+      continue;
+    }
   }
   const seen = new Set();
-  return out.filter(d => (seen.has(d) ? false : (seen.add(d), true)));
+  return out.filter((d) => (seen.has(d) ? false : (seen.add(d), true)));
 }
 
 function keywordIntervalFromText(text) {
@@ -13556,7 +16416,8 @@ function ensureDashboardTopbarButton(retry = true) {
     button.addEventListener("click", () => activeDashboardController?.toggle());
   }
   const lang = currentLanguage || "en";
-  const topbarTitle = tGlobal(["dashboard", "topbarTitle"], lang) || "Better Tasks Dashboard";
+  const topbarTitle =
+    tGlobal(["dashboard", "topbarTitle"], lang) || "Better Tasks Dashboard";
   button.setAttribute("title", topbarTitle);
   button.setAttribute("aria-label", topbarTitle);
 
@@ -13596,7 +16457,7 @@ function insertDashboardButton(button, spacer) {
     return true;
   }
   const mainTopbar = document.querySelector(
-    "#app > div > div > div.flex-h-box > div.roam-main > div.rm-files-dropzone > div"
+    "#app > div > div > div.flex-h-box > div.roam-main > div.rm-files-dropzone > div",
   );
   const row = mainTopbar?.childNodes?.[1];
   if (row?.parentNode) {
@@ -13659,7 +16520,10 @@ function disconnectThemeObserver() {
     themeSyncTimer = null;
   }
   if (typeof window !== "undefined" && window.__btThemeMediaQuery) {
-    window.__btThemeMediaQuery.removeEventListener?.("change", syncDashboardThemeVars);
+    window.__btThemeMediaQuery.removeEventListener?.(
+      "change",
+      syncDashboardThemeVars,
+    );
     window.__btThemeMediaQuery = null;
   }
 }
@@ -13676,7 +16540,8 @@ function pickColorValue(defaultValue, ...candidates) {
       continue;
     }
     const trimmed = value.trim();
-    if (trimmed && trimmed !== "initial" && trimmed !== "inherit") return trimmed;
+    if (trimmed && trimmed !== "initial" && trimmed !== "inherit")
+      return trimmed;
   }
   return defaultValue;
 }
@@ -13732,7 +16597,7 @@ function syncDashboardThemeVars() {
     computed.getPropertyValue("--bp3-surface"),
     computed.getPropertyValue("--background-color"),
     layoutBg,
-    computed.backgroundColor
+    computed.backgroundColor,
   );
 
   if (
@@ -13773,25 +16638,25 @@ function syncDashboardThemeVars() {
     finalIsDark ? fallbackTextDark : "#111111",
     computed.getPropertyValue("--bt-text"),
     computed.getPropertyValue("--bp3-text-color"),
-    computed.color
+    computed.color,
   );
 
   const borderColor = pickColorValue(
     finalIsDark ? fallbackBorderDark : "rgba(0,0,0,0.08)",
     computed.getPropertyValue("--bt-border-color"),
     computed.getPropertyValue("--bp3-border-color"),
-    computed.getPropertyValue("--border-color")
+    computed.getPropertyValue("--border-color"),
   );
 
   const mutedColor = pickColorValue(
     finalIsDark ? fallbackMutedDark : "rgba(0,0,0,0.6)",
     computed.getPropertyValue("--bt-muted-color"),
-    computed.getPropertyValue("--text-color-muted")
+    computed.getPropertyValue("--text-color-muted"),
   );
 
   const pillBg = pickColorValue(
     finalIsDark ? fallbackPillBgDark : "rgba(0,0,0,0.07)",
-    computed.getPropertyValue("--bt-pill-bg")
+    computed.getPropertyValue("--bt-pill-bg"),
   );
 
   body.classList.toggle("bt-theme-dark", finalIsDark);
@@ -13874,7 +16739,9 @@ function parseColorToRgb(value) {
     }
     return null;
   }
-  const rgbMatch = str.match(/rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.]+))?\s*\)/i);
+  const rgbMatch = str.match(
+    /rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.]+))?\s*\)/i,
+  );
   if (rgbMatch) {
     return {
       r: Number(rgbMatch[1]),
@@ -13913,7 +16780,10 @@ function adjustColor(rgb, delta = 0) {
 function sampleBackgroundColor(selectors = []) {
   if (typeof document === "undefined") return null;
   for (const selector of selectors) {
-    const node = typeof selector === "string" ? document.querySelector(selector) : selector;
+    const node =
+      typeof selector === "string"
+        ? document.querySelector(selector)
+        : selector;
     if (!node) continue;
     const style = window.getComputedStyle(node);
     const color = style?.backgroundColor;
@@ -13924,9 +16794,23 @@ function sampleBackgroundColor(selectors = []) {
   return null;
 }
 
-async function waitForAttrDate(uid, attr, targetDate, set, retries = 6, getBlockFn, readMetaFn) {
-  if (!uid || !(targetDate instanceof Date) || Number.isNaN(targetDate.getTime())) return;
-  if (typeof getBlockFn !== "function" || typeof readMetaFn !== "function") return;
+async function waitForAttrDate(
+  uid,
+  attr,
+  targetDate,
+  set,
+  retries = 6,
+  getBlockFn,
+  readMetaFn,
+) {
+  if (
+    !uid ||
+    !(targetDate instanceof Date) ||
+    Number.isNaN(targetDate.getTime())
+  )
+    return;
+  if (typeof getBlockFn !== "function" || typeof readMetaFn !== "function")
+    return;
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   for (let i = 0; i < retries; i++) {
     await sleep(150);
@@ -13940,8 +16824,20 @@ async function waitForAttrDate(uid, attr, targetDate, set, retries = 6, getBlock
   }
 }
 
-async function waitForAttrClear(uid, attr, set, retries = 6, getBlockFn, readMetaFn) {
-  if (!uid || typeof getBlockFn !== "function" || typeof readMetaFn !== "function") return;
+async function waitForAttrClear(
+  uid,
+  attr,
+  set,
+  retries = 6,
+  getBlockFn,
+  readMetaFn,
+) {
+  if (
+    !uid ||
+    typeof getBlockFn !== "function" ||
+    typeof readMetaFn !== "function"
+  )
+    return;
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   for (let i = 0; i < retries; i++) {
     await sleep(150);
@@ -13960,11 +16856,26 @@ async function waitForAttrClear(uid, attr, set, retries = 6, getBlockFn, readMet
   }
 }
 
-async function waitForRepeatState(uid, set, options = {}, retries = 6, getBlockFn, readMetaFn) {
-  if (!uid || typeof getBlockFn !== "function" || typeof readMetaFn !== "function") return;
+async function waitForRepeatState(
+  uid,
+  set,
+  options = {},
+  retries = 6,
+  getBlockFn,
+  readMetaFn,
+) {
+  if (
+    !uid ||
+    typeof getBlockFn !== "function" ||
+    typeof readMetaFn !== "function"
+  )
+    return;
   const expectValue =
-    typeof options.expectedValue === "string" && options.expectedValue ? options.expectedValue.trim() : null;
-  const expectPresence = typeof options.expectPresence === "boolean" ? options.expectPresence : null;
+    typeof options.expectedValue === "string" && options.expectedValue
+      ? options.expectedValue.trim()
+      : null;
+  const expectPresence =
+    typeof options.expectPresence === "boolean" ? options.expectPresence : null;
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   for (let i = 0; i < retries; i++) {
     await sleep(150);
@@ -13992,12 +16903,25 @@ function observeThemeChanges() {
     const cb = () => triggerThemeResync(180);
     themeObserver = new MutationObserver(cb);
     try {
-      const targets = [document.body, document.documentElement, document.head].filter(Boolean);
+      const targets = [
+        document.body,
+        document.documentElement,
+        document.head,
+      ].filter(Boolean);
       for (const target of targets) {
         const opts =
           target === document.head
-            ? { childList: true, subtree: true, attributes: true, attributeFilter: ["href", "data-theme"] }
-            : { attributes: true, attributeFilter: ["class", "data-theme"], subtree: true };
+            ? {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ["href", "data-theme"],
+              }
+            : {
+                attributes: true,
+                attributeFilter: ["class", "data-theme"],
+                subtree: true,
+              };
         themeObserver.observe(target, opts);
       }
     } catch (_) {
@@ -14007,7 +16931,9 @@ function observeThemeChanges() {
 
   if (typeof window !== "undefined" && window.matchMedia) {
     if (!window.__btThemeMediaQuery) {
-      window.__btThemeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      window.__btThemeMediaQuery = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      );
       window.__btThemeMediaQuery.addEventListener?.("change", () => {
         triggerThemeResync(0);
       });
@@ -14020,10 +16946,13 @@ function observeThemeChanges() {
 
 function triggerThemeResync(delay = 0) {
   if (themeSyncTimer) clearTimeout(themeSyncTimer);
-  themeSyncTimer = setTimeout(() => {
-    syncDashboardThemeVars();
-    themeSyncTimer = null;
-  }, Math.max(250, delay || 0));
+  themeSyncTimer = setTimeout(
+    () => {
+      syncDashboardThemeVars();
+      themeSyncTimer = null;
+    },
+    Math.max(250, delay || 0),
+  );
 }
 
 function observeThemeToggleClicks() {
@@ -14031,7 +16960,9 @@ function observeThemeToggleClicks() {
   if (window.__btThemeToggleClickHandlerAttached) return;
 
   const handler = (e) => {
-    const toggle = e.target.closest(".roamstudio-dm-toggle, .blueprint-dm-toggle");
+    const toggle = e.target.closest(
+      ".roamstudio-dm-toggle, .blueprint-dm-toggle",
+    );
     if (!toggle) return;
 
     btPendingRoamStudioTheme = true;
@@ -14056,11 +16987,18 @@ function observeRoamStudioToggleAttributes() {
   }
 
   roamStudioToggleObserver = new MutationObserver((mutations) => {
-    if (mutations.some(m => m.type === "attributes" && m.attributeName === "class")) {
+    if (
+      mutations.some(
+        (m) => m.type === "attributes" && m.attributeName === "class",
+      )
+    ) {
       triggerThemeResync(120);
       const msg =
         t(["metadata", "themeChanged"], getLanguageSetting()) ||
-        translateString("Detected change to themes. Reloading page to apply changes.", getLanguageSetting()) ||
+        translateString(
+          "Detected change to themes. Reloading page to apply changes.",
+          getLanguageSetting(),
+        ) ||
         "Detected change to themes. Reloading page to apply changes.";
       toast(msg, 3500);
     }
@@ -14088,18 +17026,16 @@ function ensureDashboardWatch(uid) {
   const pattern = "[:block/uid]";
   const selector = [":block/uid", uid];
   try {
-    window.roamAlphaAPI.data.addPullWatch(
-      pattern,
-      selector,
-      (_, after) => {
-        if (!after) {
-          removeDashboardWatch(uid);
-          activeDashboardController?.removeTask?.(uid);
-        } else {
-          activeDashboardController?.notifyBlockChange?.(uid, { bypassFilters: true });
-        }
+    window.roamAlphaAPI.data.addPullWatch(pattern, selector, (_, after) => {
+      if (!after) {
+        removeDashboardWatch(uid);
+        activeDashboardController?.removeTask?.(uid);
+      } else {
+        activeDashboardController?.notifyBlockChange?.(uid, {
+          bypassFilters: true,
+        });
       }
-    );
+    });
     dashboardWatchers.set(uid, { pattern, selector });
   } catch (err) {
     console.warn("[BetterTasks] addPullWatch failed", err);
