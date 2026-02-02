@@ -910,7 +910,7 @@ export default {
     extensionAPI.settings.panel.create(config);
 
     if (extensionAPI.settings.get(TODAY_WIDGET_ENABLE_SETTING) == null) {
-      extensionAPI.settings.set(TODAY_WIDGET_ENABLE_SETTING, false);
+      extensionAPI.settings.set(TODAY_WIDGET_ENABLE_SETTING, true);
     }
     if (extensionAPI.settings.get(TODAY_WIDGET_LAYOUT_SETTING) == null) {
       extensionAPI.settings.set(TODAY_WIDGET_LAYOUT_SETTING, "Panel");
