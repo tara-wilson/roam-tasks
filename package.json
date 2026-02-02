@@ -1,0 +1,49 @@
+{
+  "name": "better-tasks",
+  "version": "1.0.0",
+  "description": "Implement task management within Roam Research, including dated and recurring tasks.",
+  "main": "index.js",
+  "scripts": {
+    "check:i18n": "node scripts/check-i18n-parity.js",
+    "build": "npm run check:i18n && webpack",
+    "build:watch": "npm run check:i18n && webpack --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mlava/better-tasks.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mlava/better-tasks/issues"
+  },
+  "homepage": "https://github.com/mlava/better-tasks#readme",
+  "author": "Mark Lavercombe",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.26.3",
+    "@tanstack/react-virtual": "^3.10.7",
+    "babel-loader": "^9.2.1",
+    "baseline-browser-mapping": "^2.9.11",
+    "webpack": "^5.99.9",
+    "webpack-cli": "^6.0.1"
+  },
+  "dependencies": {
+    "izitoast": "^1.4.0"
+  },
+  "overrides": {
+    "@tanstack/react-virtual": {
+      "react": "18.2.0",
+      "react-dom": "18.2.0"
+    }
+  },
+  "keywords": [
+    "task",
+    "todo",
+    "recurring",
+    "repeating",
+    "gtd",
+    "snooze",
+    "defer"
+  ]
+}
