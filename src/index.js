@@ -1339,14 +1339,14 @@ export default {
 
     const introSeen = extensionAPI.settings.get(INSTALL_TOAST_KEY);
     if (!introSeen) {
-      toast(
-        translateString(
-          "This extension automatically recognises {{[[TODO]]}} tasks in your graph and uses attributes to determine a recurrence pattern and other attributes. By default, it uses attributes like 'BT_attrRepeat' and 'BT_attrDue'. These can be changed in the extension settings.<BR><BR>If you already happen to use attributes like 'BT_attrRepeat' or 'BT_attrDue' for other functions in your graph, please change the defaults in the Roam Depot Settings for this extension BEFORE testing its functionality to avoid any unexpected behaviour.",
-          getLanguageSetting(),
-        ),
-        10000,
-        "betterTasks3 bt3-toast-info",
-      );
+      // toast(
+      //   translateString(
+      //     "This extension automatically recognises {{[[TODO]]}} tasks in your graph and uses attributes to determine a recurrence pattern and other attributes. By default, it uses attributes like 'BT_attrRepeat' and 'BT_attrDue'. These can be changed in the extension settings.<BR><BR>If you already happen to use attributes like 'BT_attrRepeat' or 'BT_attrDue' for other functions in your graph, please change the defaults in the Roam Depot Settings for this extension BEFORE testing its functionality to avoid any unexpected behaviour.",
+      //     getLanguageSetting(),
+      //   ),
+      //   10000,
+      //   "betterTasks3 bt3-toast-info",
+      // );
       extensionAPI.settings.set(INSTALL_TOAST_KEY, "1");
     }
     currentLanguage = getLanguageSetting();
@@ -1882,10 +1882,10 @@ export default {
       });
 
       repeatOverrides.delete(fuid);
-      const createdMsg =
-        t(["toasts", "createdRecurring"], getLanguageSetting()) ||
-        "Created your Better Task";
-      toast(hasRepeat || hasTimingInput ? createdMsg : "Added metadata");
+      // const createdMsg =
+      //   t(["toasts", "createdRecurring"], getLanguageSetting()) ||
+      //   "Created your Better Task";
+      // toast(hasRepeat || hasTimingInput ? createdMsg : "Added metadata");
       scheduleSurfaceSync(set.attributeSurface);
       perfLog(perfConvert);
     }
@@ -2224,10 +2224,10 @@ export default {
       }
 
       repeatOverrides.delete(fuid);
-      const createdMsg =
-        t(["toasts", "createdRecurring"], getLanguageSetting()) ||
-        "Created your Better Task";
-      toast(createdMsg);
+      // const createdMsg =
+      //   t(["toasts", "createdRecurring"], getLanguageSetting()) ||
+      //   "Created your Better Task";
+      // toast(createdMsg);
       scheduleSurfaceSync(set.attributeSurface);
     }
 
