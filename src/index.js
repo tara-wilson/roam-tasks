@@ -2402,7 +2402,7 @@ export default {
       const weekStartLabel = getWeekStartSetting();
       const weekStartCode = dowFromAlias(weekStartLabel) || "MO";
       return {
-        destination: extensionAPI.settings.get("rt-destination") || "DNP",
+        destination: extensionAPI.settings.get("rt-destination") || "Same Page",
         dnpHeading: extensionAPI.settings.get("rt-dnp-heading") || "Tasks",
         dateFormat: "ROAM",
         advanceFrom: "due",
